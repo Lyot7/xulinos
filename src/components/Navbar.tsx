@@ -19,7 +19,7 @@ const Navbar = ({ mobile = false }: NavbarProps) => {
   ];
 
   return (
-    <div className={`flex flex-col ${mobile ? 'items-start gap-10' : 'sm:flex-row items-center gap-4 sm:gap-4'}`}>
+    <div className={`flex flex-row flex-wrap items-center justify-center gap-4`}>
       {navItems.map((item) => (
         <Link
           key={item.href}
