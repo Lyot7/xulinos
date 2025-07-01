@@ -85,13 +85,17 @@ export default function AboutSection() {
               height={250}
               className="object-contain w-40 h-40 sm:w-[250px] sm:h-[250px]"
             />
-            <Image
+           
+          </div>
+          <div className="order-2 lg:order-2 w-full lg:w-auto flex flex-col lg:flex-row justify-center items-center gap-4 sm:gap-6 flex-wrap mt-6 lg:mt-0">
+          <Image
               src="/branding/logo/combination-mark-hand.svg"
               alt="logo Xulinos"
               width={250}
               height={250}
               className="object-contain w-40 h-40 sm:w-[250px] sm:h-[250px]"
             />
+           
           </div>
         </div>
       </div>
