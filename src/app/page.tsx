@@ -5,9 +5,11 @@ import Image from 'next/image';
 import PrimaryButton from '@/components/PrimaryButton';
 import SecondaryButton from '@/components/SecondaryButton';
 import Link from 'next/link';
-import { FaArrowRight } from 'react-icons/fa';
+import { FaArrowRight, FaStar } from 'react-icons/fa';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
+  const router = useRouter();
   const heroRef = useRef<HTMLDivElement>(null);
   const [heroHeight, setHeroHeight] = useState<number | null>(null);
 
@@ -41,6 +43,10 @@ export default function Home() {
     };
   }, []);
 
+  const handleNavigation = (path: string) => {
+    router.push(path);
+  };
+
   return (
     <main className="flex flex-col">
       {/* Hero Section - Hauteur calculée dynamiquement */}
@@ -72,8 +78,16 @@ export default function Home() {
               Des pièces uniques, créées avec passion et savoir-faire.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <PrimaryButton name="Personnaliser mon couteau" className="text-lg py-3 px-6" />
-              <SecondaryButton name="Service Affûtage & Rémoulage" className="text-lg py-3 px-6" />
+              <PrimaryButton 
+                name="Personnaliser mon couteau" 
+                className="text-lg py-3 px-6"
+                onClick={() => handleNavigation('/personnalisation')}
+              />
+              <SecondaryButton 
+                name="Service Affûtage & Rémoulage" 
+                className="text-lg py-3 px-6"
+                onClick={() => handleNavigation('/affutage-remoulage')}
+              />
             </div>
           </div>
         </div>
@@ -138,7 +152,7 @@ export default function Home() {
       </section>
 
       {/* Atelier Section */}
-      <section className="py-16 px-6 bg-[#333333]">
+      <section className="py-16 px-6 bg-dark">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
             {/* Image */}
@@ -165,13 +179,187 @@ export default function Home() {
                 matériaux nobles, nos techniques de fabrication et l'univers passionnant de la
                 coutellerie artisanale.
               </p>
-              <Link 
-                href="/a-propos" 
+              <button 
+                onClick={() => handleNavigation('/a-propos')}
                 className="inline-flex items-center text-white hover:text-white/80 font-medium"
               >
                 Découvrir notre savoir-faire <FaArrowRight className="ml-2" />
-              </Link>
+              </button>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Produits Disponibles Section */}
+      <section className="py-16 px-6 bg-primary">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Disponible immédiatement</h2>
+          <p className="text-xl text-white/90 mb-10 max-w-3xl">
+            Chaque couteau est une pièce unique, façonnée avec soin. Trouvez celui qui vous accompagnera au quotidien.
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            {/* Produit 1 */}
+            <div className="bg-dark rounded-xl overflow-hidden shadow-lg">
+              <div className="relative h-72">
+                <Image 
+                  src="/images/knives/le-souverain/le-souverain.png" 
+                  alt="Le Souverain" 
+                  fill
+                  style={{ objectFit: 'cover', objectPosition: 'center' }}
+                  className="hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute top-4 right-4 bg-primary/80 text-white text-sm px-4 py-1.5 rounded-full">
+                  Disponible à l'achat
+                </div>
+              </div>
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-white mb-2">Le Souverain</h3>
+                <p className="text-white/80">Bois de fer, lame en acier poli, pliant</p>
+              </div>
+            </div>
+            
+            {/* Produit 2 */}
+            <div className="bg-dark rounded-xl overflow-hidden shadow-lg">
+              <div className="relative h-72">
+                <Image 
+                  src="/images/knives/kiridashi-yoru/kiridashi-yoru.png" 
+                  alt="Kiridashi 'Yoru'" 
+                  fill
+                  style={{ objectFit: 'cover', objectPosition: 'center' }}
+                  className="hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute top-4 right-4 bg-primary/80 text-white text-sm px-4 py-1.5 rounded-full">
+                  Disponible à l'achat
+                </div>
+              </div>
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-white mb-2">Kiridashi 'Yoru'</h3>
+                <p className="text-white/80">Bois d'ébène, acier damas</p>
+              </div>
+            </div>
+            
+            {/* Produit 3 */}
+            <div className="bg-dark rounded-xl overflow-hidden shadow-lg">
+              <div className="relative h-72">
+                <Image 
+                  src="/images/knives/le_damas_sylvestre/01.png" 
+                  alt="Le Damas sylvestre" 
+                  fill
+                  style={{ objectFit: 'cover', objectPosition: 'center' }}
+                  className="hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute top-4 right-4 bg-primary/80 text-white text-sm px-4 py-1.5 rounded-full">
+                  Disponible à l'achat
+                </div>
+              </div>
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-white mb-2">Le Damas sylvestre</h3>
+                <p className="text-white/80">Bois de santal, acier carbone, guillochage</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="text-center mt-8">
+            <button 
+              onClick={() => handleNavigation('/couteaux')}
+              className="inline-flex items-center text-white hover:text-white/80 font-medium text-lg"
+            >
+              Explorer toute la collection <FaArrowRight className="ml-2" />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Personnalisation Section */}
+      <section className="py-16 px-6 bg-dark">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+            {/* Image */}
+            <div className="w-full md:w-1/2">
+              <div className="rounded-lg overflow-hidden">
+                <Image 
+                  src="/images/knives/nature01.jpg" 
+                  alt="Couteau dans la nature" 
+                  width={800}
+                  height={600}
+                  className="w-full h-auto object-cover"
+                />
+              </div>
+            </div>
+            
+            {/* Content */}
+            <div className="w-full md:w-1/2">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                Votre couteau, votre signature
+              </h2>
+              <p className="text-white/90 mb-6">
+                Lame, manche, finition... Tout est entre vos mains. Choisissez un modèle existant et 
+                adaptez-le à votre style ou partez de zéro pour une création 100% unique.
+              </p>
+              <button 
+                onClick={() => handleNavigation('/personnalisation')} 
+                className="inline-flex items-center bg-primary hover:bg-primary/90 text-white font-medium py-3 px-6 rounded-md transition-colors"
+              >
+                Personnaliser mon couteau <FaArrowRight className="ml-2" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Témoignages Section */}
+      <section className="py-16 px-6 bg-[#7a6761]">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-12 text-center">
+            Ils ont fait confiance à notre savoir-faire
+          </h2>
+          
+          <div className="flex flex-wrap justify-center gap-6 mb-8">
+            {/* Témoignage 1 */}
+            <div className="bg-white p-6 rounded-lg shadow-md w-[260px] h-[120px] flex flex-col justify-center">
+              <div className="flex text-primary mb-2">
+                <FaStar className="w-5 h-5" />
+                <FaStar className="w-5 h-5" />
+                <FaStar className="w-5 h-5" />
+                <FaStar className="w-5 h-5" />
+                <FaStar className="w-5 h-5" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-800">James Dean</h3>
+            </div>
+            
+            {/* Témoignage 2 */}
+            <div className="bg-white p-6 rounded-lg shadow-md w-[260px] h-[120px] flex flex-col justify-center">
+              <div className="flex text-primary mb-2">
+                <FaStar className="w-5 h-5" />
+                <FaStar className="w-5 h-5" />
+                <FaStar className="w-5 h-5" />
+                <FaStar className="w-5 h-5" />
+                <FaStar className="w-5 h-5" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-800">Marie Lefevre</h3>
+            </div>
+            
+            {/* Témoignage 3 */}
+            <div className="bg-white p-6 rounded-lg shadow-md w-[260px] h-[120px] flex flex-col justify-center">
+              <div className="flex text-primary mb-2">
+                <FaStar className="w-5 h-5" />
+                <FaStar className="w-5 h-5" />
+                <FaStar className="w-5 h-5" />
+                <FaStar className="w-5 h-5" />
+                <FaStar className="w-5 h-5" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-800">Alex Moreau</h3>
+            </div>
+          </div>
+          
+          <div className="text-center mt-6">
+            <button 
+              onClick={() => handleNavigation('/avis')}
+              className="inline-flex items-center text-white hover:text-white/80 font-medium"
+            >
+              Voir tous les avis <FaArrowRight className="ml-2" />
+            </button>
           </div>
         </div>
       </section>

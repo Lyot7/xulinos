@@ -7,12 +7,18 @@ import IconButton from './IconButton';
 import { FaUser, FaShoppingCart, FaBars, FaTimes } from 'react-icons/fa';
 import Navbar from './Navbar';
 import Logo from './Logo';
+import { useRouter } from 'next/navigation';
 
 const Header = () => {
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const closeMenu = () => setIsMenuOpen(false);
+
+  const handleNavigation = (path: string) => {
+    router.push(path);
+  };
 
   // Fermer le menu quand on redimensionne vers 1090px+
   useEffect(() => {
@@ -58,6 +64,7 @@ const Header = () => {
               <PrimaryButton 
                 name="Créer mon couteau" 
                 className="inline-flex"
+                onClick={() => handleNavigation('/personnalisation')}
               />
               <IconButton 
                 icon={<FaShoppingCart />} 
@@ -80,6 +87,7 @@ const Header = () => {
             <PrimaryButton 
               name="Créer mon couteau" 
               className="hidden md:inline-flex"
+              onClick={() => handleNavigation('/personnalisation')}
             />
             
             {/* Icônes utilisateur - toujours visibles */}
@@ -144,7 +152,10 @@ const Header = () => {
                 />
                 <PrimaryButton 
                   name="Créer mon couteau" 
-                  onClick={closeMenu}
+                  onClick={() => {
+                    closeMenu();
+                    handleNavigation('/personnalisation');
+                  }}
                   className="w-full justify-center py-3 text-lg"
                 />
               </div>
