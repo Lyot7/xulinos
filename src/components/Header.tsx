@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PrimaryButton from './PrimaryButton';
 import SecondaryButton from './SecondaryButton';
 import IconButton from './IconButton';
@@ -11,116 +11,164 @@ import Logo from './Logo';
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const toggleMenu = () => {
-    console.log('Menu toggle clicked, current state:', isMenuOpen);
-    setIsMenuOpen(!isMenuOpen);
-  };
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const closeMenu = () => setIsMenuOpen(false);
 
-  const closeMenu = () => {
-    console.log('Close menu clicked');
-    setIsMenuOpen(false);
-  };
+  // Fermer le menu quand on redimensionne vers 1090px+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1090) { // Exactement 1090px
+        setIsMenuOpen(false);
+      }
+    };
 
-  console.log('Header render, isMenuOpen:', isMenuOpen);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Empêcher le scroll quand le menu est ouvert
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMenuOpen]);
 
   return (
     <>
-      {/* Full Desktop Header (xl and up) - Everything visible */}
-      <div className="hidden xl:flex justify-between items-center px-8 py-4 bg-dark">
-        <Logo/>
-        <div className="flex items-center gap-4">
-          <Navbar />
-          <SecondaryButton name="Demander un service" className="hidden lg:inline-flex" />
-          <PrimaryButton name="Créer mon couteau" className="hidden lg:inline-flex" />
-          <IconButton icon={<FaShoppingCart />} />
-          <IconButton icon={<FaUser />} />
+      {/* Header principal avec responsive design intelligent */}
+      <header className="relative bg-dark px-4 py-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between">
+          {/* Logo */}
+          <Logo />
+          
+          {/* Navigation desktop + Actions - alignées à droite à partir de 1090px */}
+          <div className="hidden min-[1090px]:flex items-center gap-6">
+            <Navbar />
+            <div className="flex items-center gap-4">
+              <SecondaryButton 
+                name="Demander un service" 
+                className="inline-flex"
+              />
+              <PrimaryButton 
+                name="Créer mon couteau" 
+                className="inline-flex"
+              />
+              <IconButton 
+                icon={<FaShoppingCart />} 
+                aria-label="Panier"
+              />
+              <IconButton 
+                icon={<FaUser />} 
+                aria-label="Mon compte"
+              />
+            </div>
+          </div>
+          
+          {/* Actions responsive - masquées à partir de 1090px */}
+          <div className="flex min-[1090px]:hidden items-center gap-3 sm:gap-4">
+            {/* Boutons d'action - masqués progressivement sur petits écrans */}
+            <SecondaryButton 
+              name="Demander un service" 
+              className="hidden md:inline-flex"
+            />
+            <PrimaryButton 
+              name="Créer mon couteau" 
+              className="hidden md:inline-flex"
+            />
+            
+            {/* Icônes utilisateur - toujours visibles */}
+            <IconButton 
+              icon={<FaShoppingCart />} 
+              className="flex"
+              aria-label="Panier"
+            />
+            <IconButton 
+              icon={<FaUser />} 
+              className="flex"
+              aria-label="Mon compte"
+            />
+            
+            {/* Menu burger */}
+            <IconButton 
+              icon={isMenuOpen ? <FaTimes /> : <FaBars />}
+              onClick={toggleMenu}
+              aria-label={isMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+            />
+          </div>
         </div>
-      </div>
+      </header>
 
-      {/* Large Desktop Header (lg to xl) - Hide navbar, show burger */}
-      <div className="hidden lg:flex xl:hidden justify-between items-center px-8 py-4 bg-dark">
-        <Logo/>
-        <div className="flex items-center gap-4">
-          <SecondaryButton name="Demander un service" className="hidden lg:inline-flex" />
-          <PrimaryButton name="Créer mon couteau" className="hidden lg:inline-flex" />
-          <IconButton icon={<FaShoppingCart />} />
-          <IconButton icon={<FaUser />} />
-          <IconButton 
-            icon={isMenuOpen ? <FaTimes /> : <FaBars />} 
-            onClick={toggleMenu}
-          />
-        </div>
-      </div>
-
-      {/* Medium Desktop Header (md to lg) - Hide both action buttons */}
-      <div className="hidden md:flex lg:hidden justify-between items-center px-8 py-4 bg-dark">
-        <Logo/>
-        <div className="flex items-center gap-4">
-          <SecondaryButton name="Demander un service" className="hidden md:inline-flex" />
-          <PrimaryButton name="Créer mon couteau" className="hidden md:inline-flex" />
-          <IconButton icon={<FaShoppingCart />} />
-          <IconButton icon={<FaUser />} />
-          <IconButton 
-            icon={isMenuOpen ? <FaTimes /> : <FaBars />} 
-            onClick={toggleMenu}
-          />
-        </div>
-      </div>
-
-      {/* Small Desktop Header (sm to md) - Hide primary button */}
-      <div className="hidden sm:flex md:hidden justify-between items-center px-6 py-4 bg-dark">
-        <Logo/>
-        <div className="flex items-center gap-4">
-          <IconButton icon={<FaShoppingCart />} />
-          <IconButton icon={<FaUser />} />
-          <IconButton 
-            icon={isMenuOpen ? <FaTimes /> : <FaBars />} 
-            onClick={toggleMenu}
-          />
-        </div>
-      </div>
-
-      {/* Mobile Header (less than sm) - Everything in burger */}
-      <div className="sm:hidden flex justify-between items-center px-4 py-4 bg-dark">
-        <Logo/>
-        <IconButton 
-          icon={isMenuOpen ? <FaTimes /> : <FaBars />} 
-          onClick={toggleMenu}
-        />
-      </div>
-
-      {/* Burger Menu Overlay (lg and down) - All buttons grouped at the bottom with uniform spacing */}
+      {/* Menu mobile overlay */}
       {isMenuOpen && (
-        <div className="xl:hidden fixed inset-0 bg-red-500 z-50 flex flex-col">
-          {/* Top bar */}
-          <div className="flex justify-between items-start px-6 pt-8">
-            <div className="flex-1 flex justify-center">
-              <Logo/>
+        <>
+          {/* Backdrop */}
+          <div 
+            className="min-[1090px]:hidden fixed inset-0 bg-black/50 z-40"
+            onClick={closeMenu}
+          />
+          
+          {/* Menu content */}
+          <div className="min-[1090px]:hidden fixed inset-0 bg-dark z-[9999] flex flex-col">
+            {/* Header du menu */}
+            <div className="flex items-center justify-between px-6 py-6 border-b border-white/10">
+              <Logo />
+              <IconButton 
+                icon={<FaTimes />}
+                onClick={closeMenu}
+                className="text-white hover:bg-white/10"
+                aria-label="Fermer le menu"
+              />
             </div>
-            <button onClick={closeMenu} className="text-3xl text-white">
-              <FaTimes />
-            </button>
-          </div>
-
-          {/* Navigation */}
-          <div className="mt-16 px-8">
-            <Navbar mobile />
-          </div>
-
-          {/* All buttons at the bottom, uniform spacing, grid for last two */}
-          <div className="mt-auto w-full px-6 pb-8 flex flex-col gap-4">
-            <SecondaryButton name="Demander un service" onClick={closeMenu} className="w-full rounded-2xl text-lg" />
-            <PrimaryButton name="Créer mon couteau" onClick={closeMenu} className="w-full rounded-2xl text-lg" />
-            <div className="grid grid-cols-2 gap-4 w-full">
-              <button className="flex flex-col items-center justify-center h-20 bg-dark rounded-2xl text-white border border-white w-full" onClick={closeMenu}>
-                <span className="text-base">Panier</span>
-              </button>
-              <button className="flex flex-col items-center justify-center h-20 bg-dark rounded-2xl text-white border border-white w-full" onClick={closeMenu}>
-                <span className="text-base">Mon compte</span>
-              </button>
+            
+            {/* Navigation mobile - centrée */}
+            <div className="flex-1 px-6 py-8 flex flex-col justify-center">
+              <nav className="flex flex-col items-start space-y-8">
+                <Navbar mobile />
+              </nav>
+            </div>
+            
+            {/* Actions du menu mobile */}
+            <div className="px-6 pb-8 space-y-4 border-t border-white/10 pt-6">
+              {/* Boutons principaux */}
+              <div className="space-y-3">
+                <SecondaryButton 
+                  name="Demander un service" 
+                  onClick={closeMenu}
+                  className="w-full justify-center py-3 text-lg"
+                />
+                <PrimaryButton 
+                  name="Créer mon couteau" 
+                  onClick={closeMenu}
+                  className="w-full justify-center py-3 text-lg"
+                />
+              </div>
+              
+              {/* Icônes utilisateur pour tous les écrans */}
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <button 
+                  onClick={closeMenu}
+                  className="flex flex-col items-center justify-center p-4 bg-transparent border border-white/20 rounded-xl text-white hover:bg-white/5 transition-colors"
+                >
+                  <FaShoppingCart className="mb-2 text-xl" />
+                  <span className="text-sm">Panier</span>
+                </button>
+                <button 
+                  onClick={closeMenu}
+                  className="flex flex-col items-center justify-center p-4 bg-transparent border border-white/20 rounded-xl text-white hover:bg-white/5 transition-colors"
+                >
+                  <FaUser className="mb-2 text-xl" />
+                  <span className="text-sm">Mon compte</span>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </>
       )}
     </>
   );
