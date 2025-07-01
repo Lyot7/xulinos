@@ -2,20 +2,10 @@ import Image from "next/image";
 
 export default function AboutSection() {
   return (
-    <section className="bg-gray-900 text-white py-10 px-3 sm:py-12 sm:px-6">
+    <section className="text-white py-10 px-3 sm:py-12 sm:px-6">
       <div className="max-w-7xl mx-auto flex flex-col gap-8 sm:gap-12">
-        <div className="flex flex-col md:flex-row gap-8 sm:gap-10 items-start">
-          <div className="md:w-1/2 w-full mb-6 md:mb-0 flex justify-center">
-            <Image
-              src="/images/knives/7560d7e117410fb63ca30d935819f9ea05d7eaf5.png"
-              alt="Couteau artisanal Xulinos"
-              width={700}
-              height={400}
-              className="rounded-md object-cover w-full max-w-[400px] sm:max-w-[700px] h-auto"
-            />
-          </div>
-
-          <div className="md:w-1/2 w-full space-y-4 sm:space-y-6 text-base sm:text-sm leading-relaxed">
+        <div className="flex flex-col lg:flex-row gap-8 sm:gap-10 items-start">
+          <div className="order-1 lg:order-2 lg:w-1/2 w-full space-y-4 sm:space-y-6 text-base sm:text-sm leading-relaxed">
             <h2 className="text-lg sm:text-xl font-semibold">À propos – Xulinos</h2>
 
             <div>
@@ -44,10 +34,20 @@ export default function AboutSection() {
               </p>
             </div>
           </div>
+
+          <div className="order-2 lg:order-1 lg:w-1/2 w-full mb-6 lg:mb-0 flex justify-center">
+            <Image
+              src="/images/knives/7560d7e117410fb63ca30d935819f9ea05d7eaf5.png"
+              alt="Couteau artisanal Xulinos"
+              width={700}
+              height={400}
+              className="rounded-md object-cover w-full max-w-[400px] sm:max-w-[700px] h-auto"
+            />
+          </div>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-8 sm:gap-10 items-start mt-8">
-          <div className="md:w-1/2 w-full space-y-4 sm:space-y-6 text-base sm:text-sm leading-relaxed">
+        <div className="flex flex-col lg:flex-row gap-8 sm:gap-10 items-start">
+          <div className="order-1 lg:order-1 lg:w-2/2 w-full space-y-4 sm:space-y-6 text-base sm:text-sm leading-relaxed">
             <div>
               <h3 className="font-bold mb-1">Un nom, une identité : Xulinos</h3>
               <p>
@@ -77,20 +77,20 @@ export default function AboutSection() {
             </div>
           </div>
 
-          <div className="md:w-1/2 w-full flex justify-center items-center gap-4 sm:gap-6 flex-wrap mt-6 md:mt-0">
+          <div className="order-2 lg:order-2 w-full lg:w-auto flex flex-col lg:flex-row justify-center items-center gap-4 sm:gap-6 flex-wrap mt-6 lg:mt-0">
             <Image
-              src=""
+              src="/images/tree-logo.png"
               alt="Logos Xulinos"
-              width={350}
-              height={350}
-              className="object-contain w-40 h-40 sm:w-[350px] sm:h-[350px]"
+              width={250}
+              height={250}
+              className="object-contain w-40 h-40 sm:w-[250px] sm:h-[250px]"
             />
             <Image
-                src=""
-                alt="logo Xulinos"
-                width={350}
-                height={350}
-                className="object-contain w-40 h-40 sm:w-[350px] sm:h-[350px]"
+              src="/branding/logo/combination-mark-hand.svg"
+              alt="logo Xulinos"
+              width={250}
+              height={250}
+              className="object-contain w-40 h-40 sm:w-[250px] sm:h-[250px]"
             />
           </div>
         </div>
