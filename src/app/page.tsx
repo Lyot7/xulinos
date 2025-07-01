@@ -5,7 +5,7 @@ import Image from 'next/image';
 import PrimaryButton from '@/components/PrimaryButton';
 import SecondaryButton from '@/components/SecondaryButton';
 import Link from 'next/link';
-import { FaArrowRight, FaStar } from 'react-icons/fa';
+import { FaArrowRight, FaStar, FaPaperPlane } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 
 export default function Home() {
@@ -45,6 +45,13 @@ export default function Home() {
 
   const handleNavigation = (path: string) => {
     router.push(path);
+  };
+
+  // Gestion du formulaire de contact
+  const handleContactSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    // Logique d'envoi du formulaire à implémenter
+    alert('Votre message a été envoyé. Nous vous répondrons rapidement.');
   };
 
   return (
@@ -94,7 +101,7 @@ export default function Home() {
       </section>
       
       {/* Services Features Section */}
-      <section className="py-16 px-6 bg-primary">
+      <section className="py-16 px-8 md:px-12 bg-primary">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-wrap justify-center gap-8 md:gap-12 lg:gap-16">
             {/* Service Feature 1 */}
@@ -152,7 +159,7 @@ export default function Home() {
       </section>
 
       {/* Atelier Section */}
-      <section className="py-16 px-6 bg-dark">
+      <section className="py-16 px-8 md:px-12 bg-dark">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
             {/* Image */}
@@ -191,7 +198,7 @@ export default function Home() {
       </section>
 
       {/* Produits Disponibles Section */}
-      <section className="py-16 px-6 bg-primary">
+      <section className="py-16 px-8 md:px-12 bg-primary">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Disponible immédiatement</h2>
           <p className="text-xl text-white/90 mb-10 max-w-3xl">
@@ -272,7 +279,7 @@ export default function Home() {
       </section>
 
       {/* Personnalisation Section */}
-      <section className="py-16 px-6 bg-dark">
+      <section className="py-16 px-8 md:px-12 bg-dark">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
             {/* Image */}
@@ -309,7 +316,7 @@ export default function Home() {
       </section>
 
       {/* Témoignages Section */}
-      <section className="py-16 px-6 bg-[#7a6761]">
+      <section className="py-16 px-8 md:px-12 bg-[#7a6761]">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-12 text-center">
             Ils ont fait confiance à notre savoir-faire
@@ -360,6 +367,95 @@ export default function Home() {
             >
               Voir tous les avis <FaArrowRight className="ml-2" />
             </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Formulaire de contact */}
+      <section className="relative bg-dark py-16 px-8 md:px-12 overflow-hidden">
+        {/* Image de fond */}
+        <div className="absolute inset-0 z-0 opacity-20">
+          <div className="absolute right-[-15%] bottom-[-22%] w-[100%] h-[100%]">
+            <Image 
+              src="/images/tree-logo.png" 
+              alt="Logo Xulinos" 
+              fill
+              style={{ 
+                objectFit: 'contain',
+                objectPosition: 'right bottom'
+              }}
+              quality={100}
+            />
+          </div>
+        </div>
+        
+        <div className="max-w-7xl mx-auto relative z-10">
+          {/* Texte d'introduction */}
+          <div className="mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              Un projet en tête ? Parlons-en !
+            </h2>
+            <p className="text-xl text-white/90 mb-2 max-w-2xl">
+              Besoin d'un couteau sur mesure ? Une question sur nos services ?
+            </p>
+            <p className="text-white/80 max-w-2xl">
+              Laissez-nous un message et nous vous répondrons rapidement.
+            </p>
+          </div>
+          
+          {/* Formulaire */}
+          <div className="max-w-2xl">
+            <form onSubmit={handleContactSubmit} className="flex flex-col gap-4">
+              <div>
+                <label htmlFor="nom" className="block text-white mb-2">Nom</label>
+                <input 
+                  type="text" 
+                  id="nom" 
+                  className="w-full bg-white rounded-md p-3 text-gray-800" 
+                  placeholder="Votre nom"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="prenom" className="block text-white mb-2">Prénom</label>
+                <input 
+                  type="text" 
+                  id="prenom" 
+                  className="w-full bg-white rounded-md p-3 text-gray-800" 
+                  placeholder="Votre prénom"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="email" className="block text-white mb-2">Adresse Mail</label>
+                <input 
+                  type="email" 
+                  id="email" 
+                  className="w-full bg-white rounded-md p-3 text-gray-800" 
+                  placeholder="Votre adresse email"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="message" className="block text-white mb-2">Message</label>
+                <textarea 
+                  id="message" 
+                  className="w-full bg-white rounded-md p-3 text-gray-800 min-h-[120px]" 
+                  placeholder="Votre message"
+                  required
+                ></textarea>
+              </div>
+              
+              <button 
+                type="submit" 
+                className="mt-2 bg-primary hover:bg-primary/90 text-white font-medium py-3 px-6 rounded-md transition-colors flex items-center"
+              >
+                <FaPaperPlane className="mr-2" /> Soumettre mon projet
+              </button>
+            </form>
           </div>
         </div>
       </section>
