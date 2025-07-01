@@ -1,9 +1,18 @@
+'use client';
+
 import React from 'react';
 import Navbar from './Navbar';
 import { FaInstagram, FaLinkedin, FaYoutube } from 'react-icons/fa';
 import Logo from './Logo';
+import { useRouter } from 'next/navigation';
 
 const Footer = () => {
+  const router = useRouter();
+
+  const handleNavigation = (path: string) => {
+    router.push(path);
+  };
+
   return (
     <footer className="bg-dark text-white w-full border-t border-white/20">
       {/* Version desktop */}
@@ -27,11 +36,26 @@ const Footer = () => {
           
           {/* Liens légaux centrés en dessous de la navbar */}
           <div className="flex flex-row items-center gap-4 text-xs text-white/60">
-            <a href="#" className="hover:text-white transition">CGV/CGU</a>
+            <a 
+              onClick={() => handleNavigation('/tos')}
+              className="hover:text-white transition cursor-pointer"
+            >
+              CGV/CGU
+            </a>
             <span className="text-white/30">—</span>
-            <a href="#" className="hover:text-white transition">Mentions Légales</a>
+            <a 
+              onClick={() => handleNavigation('/cookie-policy')}
+              className="hover:text-white transition cursor-pointer"
+            >
+              Mentions Légales
+            </a>
             <span className="text-white/30">—</span>
-            <a href="#" className="hover:text-white transition">Confidentialité</a>
+            <a 
+              onClick={() => handleNavigation('/privacy')}
+              className="hover:text-white transition cursor-pointer"
+            >
+              Confidentialité
+            </a>
           </div>
         </div>
 
@@ -62,11 +86,26 @@ const Footer = () => {
       <div className="md:hidden max-w-7xl mx-auto px-4 pb-10 flex flex-col items-center gap-4">
         {/* Liens légaux centrés, wrap horizontal */}
         <div className="flex flex-row flex-wrap justify-center items-center gap-2 sm:gap-4 text-sm text-white/60">
-          <a href="#" className="hover:text-white transition">CGV/CGU</a>
+          <a 
+            onClick={() => handleNavigation('/tos')}
+            className="hover:text-white transition cursor-pointer"
+          >
+            CGV/CGU
+          </a>
           <span className="text-white/30">—</span>
-          <a href="#" className="hover:text-white transition">Mentions Légales</a>
+          <a 
+            onClick={() => handleNavigation('/cookie-policy')}
+            className="hover:text-white transition cursor-pointer"
+          >
+            Mentions Légales
+          </a>
           <span className="text-white/30">—</span>
-          <a href="#" className="hover:text-white transition">Confidentialité</a>
+          <a 
+            onClick={() => handleNavigation('/privacy')}
+            className="hover:text-white transition cursor-pointer"
+          >
+            Confidentialité
+          </a>
         </div>
 
         {/* Copyright centré - visible uniquement sur mobile */}

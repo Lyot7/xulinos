@@ -39,7 +39,7 @@ export default function CookiePolicyPage() {
               <h2 className="text-2xl font-bold text-white mb-4">3. Types de cookies que nous utilisons</h2>
               <div className="space-y-4">
                 <div>
-                  <h3 className="text-xl font-bold text-primary mb-2">Cookies essentiels</h3>
+                  <h3 className="text-xl font-bold text-white mb-2">Cookies essentiels</h3>
                   <p className="text-white/80">
                     Ces cookies sont nécessaires au fonctionnement du site et ne peuvent pas être désactivés 
                     dans nos systèmes. Ils sont généralement établis en réponse à des actions que vous avez 
@@ -48,7 +48,7 @@ export default function CookiePolicyPage() {
                 </div>
                 
                 <div>
-                  <h3 className="text-xl font-bold text-primary mb-2">Cookies analytiques</h3>
+                  <h3 className="text-xl font-bold text-white mb-2">Cookies analytiques</h3>
                   <p className="text-white/80">
                     Ces cookies nous permettent de compter les visites et les sources de trafic afin que 
                     nous puissions mesurer et améliorer les performances de notre site.
@@ -56,7 +56,7 @@ export default function CookiePolicyPage() {
                 </div>
                 
                 <div>
-                  <h3 className="text-xl font-bold text-primary mb-2">Cookies de fonctionnalité</h3>
+                  <h3 className="text-xl font-bold text-white mb-2">Cookies de fonctionnalité</h3>
                   <p className="text-white/80">
                     Ces cookies permettent au site de fournir une fonctionnalité et une personnalisation 
                     améliorées. Ils peuvent être définis par nous ou par des fournisseurs tiers.
