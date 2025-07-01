@@ -88,7 +88,7 @@ export default function Home() {
               <PrimaryButton 
                 name="Personnaliser mon couteau" 
                 className="text-lg py-3 px-6"
-                onClick={() => handleNavigation('/personnalisation')}
+                onClick={() => handleNavigation('/configurateur')}
               />
               <SecondaryButton 
                 name="Service Affûtage & Rémoulage" 
@@ -305,7 +305,7 @@ export default function Home() {
                 adaptez-le à votre style ou partez de zéro pour une création 100% unique.
               </p>
               <button 
-                onClick={() => handleNavigation('/personnalisation')} 
+                onClick={() => handleNavigation('/configurateur')} 
                 className="inline-flex items-center bg-primary hover:bg-primary/90 text-white font-medium py-3 px-6 rounded-md transition-colors"
               >
                 Personnaliser mon couteau <FaArrowRight className="ml-2" />

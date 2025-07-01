@@ -64,7 +64,7 @@ const Header = () => {
               <PrimaryButton 
                 name="Créer mon couteau" 
                 className="inline-flex"
-                onClick={() => handleNavigation('/personnalisation')}
+                onClick={() => handleNavigation('/configurateur')}
               />
               <IconButton 
                 icon={<FaShoppingCart />} 
@@ -87,7 +87,7 @@ const Header = () => {
             <PrimaryButton 
               name="Créer mon couteau" 
               className="hidden md:inline-flex"
-              onClick={() => handleNavigation('/personnalisation')}
+              onClick={() => handleNavigation('/configurateur')}
             />
             
             {/* Icônes utilisateur - toujours visibles */}
@@ -154,7 +154,7 @@ const Header = () => {
                   name="Créer mon couteau" 
                   onClick={() => {
                     closeMenu();
-                    handleNavigation('/personnalisation');
+                    handleNavigation('/configurateur');
                   }}
                   className="w-full justify-center py-3 text-lg"
                 />
