@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import PrimaryButton from '@/components/PrimaryButton';
 import SecondaryButton from '@/components/SecondaryButton';
+import Link from 'next/link';
+import { FaArrowRight } from 'react-icons/fa';
 
 export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -80,9 +82,9 @@ export default function Home() {
       {/* Services Features Section */}
       <section className="py-16 px-6 bg-primary">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-wrap justify-center md:justify-between">
+          <div className="flex flex-wrap justify-center gap-8 md:gap-12 lg:gap-16">
             {/* Service Feature 1 */}
-            <div className="flex flex-col items-center text-center w-full md:w-auto px-4 mb-12 md:mb-0 md:flex-1">
+            <div className="flex flex-col items-center text-center flex-1 basis-[280px] min-w-[280px]">
               <div className="w-24 h-24 mb-6">
                 <Image 
                   src="/icons/pencil-rule.svg" 
@@ -99,7 +101,7 @@ export default function Home() {
             </div>
             
             {/* Service Feature 2 */}
-            <div className="flex flex-col items-center text-center w-full md:w-auto px-4 mb-12 md:mb-0 md:flex-1">
+            <div className="flex flex-col items-center text-center flex-1 basis-[280px] min-w-[280px]">
               <div className="w-24 h-24 mb-6">
                 <Image 
                   src="/icons/knife.svg" 
@@ -116,7 +118,7 @@ export default function Home() {
             </div>
             
             {/* Service Feature 3 */}
-            <div className="flex flex-col items-center text-center w-full md:w-auto px-4 md:flex-1">
+            <div className="flex flex-col items-center text-center flex-1 basis-[280px] min-w-[280px]">
               <div className="w-24 h-24 mb-6">
                 <Image 
                   src="/icons/palette.svg" 
@@ -130,6 +132,45 @@ export default function Home() {
                 Imaginez votre couteau idéal,<br />
                 nous le créons pour vous.
               </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Atelier Section */}
+      <section className="py-16 px-6 bg-[#333333]">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+            {/* Image */}
+            <div className="w-full md:w-1/2">
+              <div className="rounded-lg overflow-hidden">
+                <Image 
+                  src="/images/couteaux_table_cuisine_bouche.jpg" 
+                  alt="Couteaux artisanaux sur une table de cuisine" 
+                  width={800}
+                  height={600}
+                  className="w-full h-auto object-cover"
+                />
+              </div>
+            </div>
+            
+            {/* Content */}
+            <div className="w-full md:w-1/2">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                Entrez dans l'atelier : où l'acier prend vie
+              </h2>
+              <p className="text-white/90 mb-6">
+                Chaque pièce que nous créons raconte une histoire. Entre tradition et innovation,
+                notre atelier façonne des couteaux uniques, pensés pour durer. Découvrez nos
+                matériaux nobles, nos techniques de fabrication et l'univers passionnant de la
+                coutellerie artisanale.
+              </p>
+              <Link 
+                href="/a-propos" 
+                className="inline-flex items-center text-white hover:text-white/80 font-medium"
+              >
+                Découvrir notre savoir-faire <FaArrowRight className="ml-2" />
+              </Link>
             </div>
           </div>
         </div>
