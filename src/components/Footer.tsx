@@ -19,10 +19,9 @@ const Footer = () => {
           <Navbar />
         </div>
 
-        {/* Logo centré */}
-        <div className="flex justify-center">
-          <Logo size="lg" src="/vercel.svg" alt="Xulinos Logo" />
-        </div>
+        
+        <Logo />
+     
 
         {/* Liens légaux centrés, wrap horizontal */}
         <div className="flex flex-row flex-wrap justify-center items-center gap-2 sm:gap-4 text-sm text-white/60">

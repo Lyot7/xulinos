@@ -6,19 +6,22 @@ import SecondaryButton from './SecondaryButton';
 import IconButton from './IconButton';
 import { FaUser, FaShoppingCart, FaBars, FaTimes } from 'react-icons/fa';
 import Navbar from './Navbar';
-import Logo from './logo';
-
+import Logo from './Logo';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => {
+    console.log('Menu toggle clicked, current state:', isMenuOpen);
     setIsMenuOpen(!isMenuOpen);
   };
 
   const closeMenu = () => {
+    console.log('Close menu clicked');
     setIsMenuOpen(false);
   };
+
+  console.log('Header render, isMenuOpen:', isMenuOpen);
 
   return (
     <>
@@ -28,7 +31,7 @@ const Header = () => {
         <div className="flex items-center gap-4">
           <Navbar />
           <SecondaryButton name="Demander un service" className="hidden lg:inline-flex" />
-          <PrimaryButton name="Créer mon couteau" className="hidden lg:inline-flex bg-wenge" />
+          <PrimaryButton name="Créer mon couteau" className="hidden lg:inline-flex" />
           <IconButton icon={<FaShoppingCart />} />
           <IconButton icon={<FaUser />} />
         </div>
@@ -88,7 +91,7 @@ const Header = () => {
 
       {/* Burger Menu Overlay (lg and down) - All buttons grouped at the bottom with uniform spacing */}
       {isMenuOpen && (
-        <div className="xl:hidden fixed inset-0 bg-dark z-50 flex flex-col">
+        <div className="xl:hidden fixed inset-0 bg-red-500 z-50 flex flex-col">
           {/* Top bar */}
           <div className="flex justify-between items-start px-6 pt-8">
             <div className="flex-1 flex justify-center">
@@ -106,19 +109,13 @@ const Header = () => {
 
           {/* All buttons at the bottom, uniform spacing, grid for last two */}
           <div className="mt-auto w-full px-6 pb-8 flex flex-col gap-4">
-            <button className="w-full py-4 border border-white rounded-2xl bg-dark text-white text-lg" onClick={closeMenu}>
-              Demander un service
-            </button>
-            <button className="w-full py-4 rounded-2xl bg-white text-dark border border-white text-lg" onClick={closeMenu}>
-              Créer mon couteau
-            </button>
+            <SecondaryButton name="Demander un service" onClick={closeMenu} className="w-full rounded-2xl text-lg" />
+            <PrimaryButton name="Créer mon couteau" onClick={closeMenu} className="w-full rounded-2xl text-lg" />
             <div className="grid grid-cols-2 gap-4 w-full">
               <button className="flex flex-col items-center justify-center h-20 bg-dark rounded-2xl text-white border border-white w-full" onClick={closeMenu}>
-                {/* <FiShoppingCart className="text-2xl mb-1" /> */}
                 <span className="text-base">Panier</span>
               </button>
               <button className="flex flex-col items-center justify-center h-20 bg-dark rounded-2xl text-white border border-white w-full" onClick={closeMenu}>
-                {/* <FiUser className="text-2xl mb-1" /> */}
                 <span className="text-base">Mon compte</span>
               </button>
             </div>
