@@ -74,20 +74,6 @@ export const apiRoutes: Record<string, ApiRoute> = {
     endpoint: `${WP_BASE_URL}/wp/v2/couteaux`,
     priority: 2,
   },
-  
-  // Forms - Marqués comme optionnels car ils ne sont pas accessibles en GET
-  formPanier: {
-    key: 'formPanier',
-    endpoint: `${WP_BASE_URL}/contact-form-7/v1/contact-forms/226`,
-    priority: 11,
-    optional: true,
-  },
-  formDevis: {
-    key: 'formDevis',
-    endpoint: `${WP_BASE_URL}/contact-form-7/v1/contact-forms/265`,
-    priority: 12,
-    optional: true,
-  },
 };
 
 // Map of page paths to their corresponding API route keys
