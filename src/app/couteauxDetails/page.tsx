@@ -13,11 +13,11 @@ type KnifeDetailProps = {
 };
 
 export default function KnifeDetail({
-  name="Couteau",
+  name,
   price,
   available,
   description,
-  mainImage="/images/knives/7560d7e117410fb63ca30d935819f9ea05d7eaf5.png",
+  mainImage,
   gallery,
 }: KnifeDetailProps) {
 
