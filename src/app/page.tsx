@@ -7,11 +7,21 @@ import SecondaryButton from '@/components/SecondaryButton';
 import Link from 'next/link';
 import { FaArrowRight, FaStar, FaPaperPlane } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
+import { Turnstile } from '@/components/captcha'; // Assurez-vous que le composant Turnstile est importé correctement
 
 export default function Home() {
   const router = useRouter();
   const heroRef = useRef<HTMLDivElement>(null);
   const [heroHeight, setHeroHeight] = useState<number | null>(null);
+
+  //CAPTCHA
+  const [token, setToken] = useState<string | null>(null);
+  const handleVerify = (token: string) => {
+    console.log('Turnstile token:', token);
+    setToken(token);
+  };
+  //<Turnstile onVerify={handleVerify}/>  
+
 
   // Fonction pour calculer la hauteur du hero en fonction de la fenêtre et du header
   const calculateHeroHeight = () => {
@@ -119,8 +129,7 @@ export default function Home() {
                 Chaque couteau est forgé avec<br />
                 précision et passion.
               </p>
-            </div>
-            
+            </div>       
             {/* Service Feature 2 */}
             <div className="flex flex-col items-center text-center flex-1 basis-[280px] min-w-[280px]">
               <div className="w-24 h-24 mb-6">
