@@ -2,96 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-
-interface StepperProps {
-  currentStep: number;
-  totalSteps: number;
-}
-
-function Stepper({ currentStep, totalSteps }: StepperProps) {
-  const steps = [
-    { number: 1, label: 'Modèle' },
-    { number: 2, label: 'Bois' },
-    { number: 3, label: 'Guillochage' },
-    { number: 4, label: 'Personnalisation' },
-    { number: 5, label: 'Confirmation' }
-  ];
-
-  return (
-    <div className="mb-6 lg:mb-8">
-      {/* Mobile version - Simplified horizontal */}
-      <div className="flex lg:hidden items-center justify-center">
-        {steps.map((step, index) => (
-          <div key={step.number} className="flex items-center">
-            <div 
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                index + 1 <= currentStep
-                  ? 'text-black'
-                  : 'text-gray-300'
-              }`}
-              style={{
-                backgroundColor: index + 1 <= currentStep 
-                  ? 'var(--color-pure-white)' 
-                  : '#6C6C6C'
-              }}
-            >
-              {step.number}
-            </div>
-            {index < totalSteps - 1 && (
-              <div
-                className="w-8 h-[2px] mx-2"
-                style={{
-                  backgroundColor: index + 1 < currentStep 
-                    ? 'var(--color-pure-white)' 
-                    : '#6C6C6C'
-                }}
-              />
-            )}
-          </div>
-        ))}
-      </div>
-
-      {/* Desktop version - With labels */}
-      <div className="hidden lg:flex items-center justify-center">
-        {steps.map((step, index) => (
-          <div key={step.number} className="flex items-center">
-            <div className="flex flex-col items-center">
-              <div 
-                className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold ${
-                  index + 1 <= currentStep
-                    ? 'text-black'
-                    : 'text-gray-300'
-                }`}
-                style={{
-                  backgroundColor: index + 1 <= currentStep 
-                    ? 'var(--color-pure-white)' 
-                    : '#6C6C6C'
-                }}
-              >
-                {step.number}
-              </div>
-              <div className={`mt-2 text-xs font-medium ${
-                index + 1 <= currentStep ? 'text-white' : 'text-gray-400'
-              }`}>
-                {step.label}
-              </div>
-            </div>
-            {index < totalSteps - 1 && (
-              <div
-                className="w-16 h-[2px] mx-4"
-                style={{
-                  backgroundColor: index + 1 < currentStep 
-                    ? 'var(--color-pure-white)' 
-                    : '#6C6C6C'
-                }}
-              />
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+import Stepper from '@/components/Stepper';
 
 interface ModelOption {
   id: string;
@@ -367,7 +278,7 @@ export default function ConfiguratorPage() {
                 <div
                   key={wood.id}
                   className={`cursor-pointer transition-all p-2 ${
-                    selectedWood === wood.id ? 'ring-2 ring-white rounded-lg' : ''
+                    selectedWood === wood.id ? 'ring-2 ring-white rounded-lg' : 'hover:opacity-80'
                   }`}
                   onClick={() => setSelectedWood(wood.id)}
                 >
@@ -427,8 +338,8 @@ export default function ConfiguratorPage() {
                 filteredEngravingPatterns.map((pattern) => (
                 <div
                   key={pattern.id}
-                  className={`bg-gray-800 rounded-lg p-3 lg:p-4 cursor-pointer transition-all text-center ${
-                    selectedEngraving === pattern.id ? 'ring-2 ring-white' : 'hover:bg-gray-700'
+                  className={`rounded-lg p-3 lg:p-4 cursor-pointer transition-all text-center ${
+                    selectedEngraving === pattern.id ? 'ring-2 ring-white' : 'hover:opacity-80'
                   }`}
                   onClick={() => setSelectedEngraving(pattern.id)}
                 >
@@ -564,18 +475,22 @@ export default function ConfiguratorPage() {
       </div>
 
       {/* Content section - Bottom on mobile, Right on desktop */}
-      <div className="w-full lg:w-1/2 min-h-screen lg:h-screen flex flex-col p-4 sm:p-6 lg:p-8">
-        <div className="mb-4 lg:mb-6">
+      <div className="w-full lg:w-1/2 lg:h-screen flex flex-col">
+        {/* Stepper - Fixed at top */}
+        <div className="p-4 sm:p-6 lg:p-8 pb-3 lg:pb-4">
           <Stepper currentStep={currentStep} totalSteps={5} />
         </div>
         
-        <div className="flex-1 flex flex-col">
-          <div className="flex-1 overflow-y-auto">
+        {/* Scrollable content area */}
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8">
+          <div className="pb-4">
             {renderStepContent()}
           </div>
-          
-          {/* Navigation buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 sm:justify-between pt-4 lg:pt-6 border-t border-gray-700 mt-4 lg:mt-6">
+        </div>
+        
+        {/* Navigation buttons - Fixed at bottom */}
+        <div className="p-4 sm:p-6 lg:p-8 pt-3 lg:pt-4 border-t border-gray-700">
+          <div className="flex flex-col sm:flex-row gap-4 sm:justify-between">
             <button
               onClick={prevStep}
               className="w-full sm:w-auto px-4 lg:px-6 py-2 lg:py-3 rounded-2xl font-medium transition-all hover:opacity-90 text-sm lg:text-base"
