@@ -43,23 +43,19 @@ export default function ServiceCard({
       </div>
 
       {showButton && slug && (
-        <div className="mt-auto flex justify-center">
+        <div className="mt-auto w-full">
           <Link href={`/${slug}`}>
             <button
               onClick={(e) => e.stopPropagation()}
-              className="border border-white/40 hover:bg-sage transition text-sm px-4 py-2 rounded-full flex items-center gap-2"
+              className="w-full border border-white/40 hover:bg-white hover:text-black transition text-sm px-4 py-2 rounded-full flex items-center justify-center gap-2"
             >
               En savoir plus
-              <img
-                src="/icons/external_link.svg"
-                alt="external link"
-                width={16}
-                height={16}
-              />
+              <img src="/icons/external_link.svg" alt="Icone" className="w-4 h-4" />
             </button>
           </Link>
         </div>
       )}
+
 
     </div>
   );
