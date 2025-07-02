@@ -5,10 +5,10 @@ import { usePathname } from 'next/navigation';
 import { apiRoutes, getRouteKeyFromPath, ApiRoute } from '@/utils/apiRoutes';
 
 // Cache global pour stocker les données entre les rendus
-const globalCache: Record<string, any> = {};
+const globalCache: Record<string, unknown> = {};
 
 interface WordPressData {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface WordPressDataState {
@@ -30,28 +30,44 @@ export const useWordPressData = () => {
   // Référence pour suivre les requêtes en cours
   const fetchingRef = useRef<Record<string, boolean>>({});
   const isMountedRef = useRef(true);
+  const currentPathnameRef = useRef(pathname);
+  
+  // Update pathname ref when it changes
+  useEffect(() => {
+    currentPathnameRef.current = pathname;
+  }, [pathname]);
   
   // Fonction pour vérifier si une route a déjà été chargée
   const isRouteLoaded = useCallback((routeKey: string): boolean => {
-    return !!state.data[routeKey] || !!fetchingRef.current[routeKey];
-  }, [state.data]);
+    return !!globalCache[routeKey] && !fetchingRef.current[routeKey];
+  }, []);
 
   // Function to fetch data from a specific endpoint
-  const fetchData = useCallback(async (route: ApiRoute) => {
+  const fetchData = useCallback(async (route: ApiRoute, forceRefresh = false) => {
     if (!route || !route.endpoint) {
       console.error('Invalid route provided to fetchData');
       return null;
     }
 
-    // Si la route est déjà en cours de chargement ou déjà chargée, ne pas refaire la requête
+    // Si la route est déjà en cours de chargement, ne pas refaire la requête
     if (fetchingRef.current[route.key]) {
       console.log(`Skip fetching ${route.key} - already in progress`);
       return null;
     }
 
-    // Si la route est déjà dans le cache et n'est pas la route actuelle, utiliser le cache
-    if (globalCache[route.key] && route.key !== getRouteKeyFromPath(pathname)) {
+    // Si la route est déjà dans le cache et qu'on ne force pas le refresh, utiliser le cache
+    if (globalCache[route.key] && !forceRefresh) {
       console.log(`Using cached data for ${route.key}`);
+      
+      // S'assurer que les données sont dans le state
+      setState(prevState => ({
+        ...prevState,
+        data: {
+          ...prevState.data,
+          [route.key]: globalCache[route.key],
+        },
+      }));
+      
       return globalCache[route.key];
     }
 
@@ -97,11 +113,8 @@ export const useWordPressData = () => {
         }));
       }
       
-      // Marquer cette route comme terminée
-      fetchingRef.current[route.key] = false;
-      
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(`Error fetching ${route.key}:`, error);
       
       // Stocker l'erreur pour cette route spécifique
@@ -131,12 +144,12 @@ export const useWordPressData = () => {
         });
       }
       
-      // Marquer cette route comme terminée même en cas d'erreur
-      fetchingRef.current[route.key] = false;
-      
       return null;
+    } finally {
+      // Marquer cette route comme terminée
+      fetchingRef.current[route.key] = false;
     }
-  }, [pathname]); // Dépendance à pathname pour détecter les changements de page
+  }, []); // Pas de dépendances pour éviter les re-renders
 
   // Main function to load data with prioritization
   useEffect(() => {
@@ -145,8 +158,12 @@ export const useWordPressData = () => {
     const loadData = async () => {
       if (!isMountedRef.current) return;
       
-      // Ne pas réinitialiser l'état loading si nous avons déjà des données
-      if (Object.keys(state.data).length === 0) {
+      // Get the current page route key
+      const currentRouteKey = getRouteKeyFromPath(currentPathnameRef.current);
+      console.log(`Current path: ${currentPathnameRef.current}, Route key: ${currentRouteKey}`);
+      
+      // Ne pas réinitialiser l'état loading si nous avons déjà des données pour la route actuelle
+      if (!currentRouteKey || !globalCache[currentRouteKey]) {
         setState(prevState => ({ 
           ...prevState, 
           loading: true, 
@@ -155,10 +172,6 @@ export const useWordPressData = () => {
       }
       
       try {
-        // Get the current page route key
-        const currentRouteKey = getRouteKeyFromPath(pathname);
-        console.log(`Current path: ${pathname}, Route key: ${currentRouteKey}`);
-        
         // Create a prioritized list of routes to fetch
         let routesToFetch = Object.values(apiRoutes).sort((a, b) => a.priority - b.priority);
         
@@ -174,13 +187,13 @@ export const useWordPressData = () => {
           }
         }
         
-        // Fetch the current route first (toujours refetch la route actuelle)
+        // Fetch the current route first (always refresh current route)
         if (currentRouteKey && apiRoutes[currentRouteKey] && isMountedRef.current) {
           console.log(`Fetching current route first: ${currentRouteKey}`);
-          await fetchData(apiRoutes[currentRouteKey]);
+          await fetchData(apiRoutes[currentRouteKey], true); // Force refresh for current route
         }
         
-        // Then fetch the rest in order of priority, but only if they ne sont pas déjà chargées
+        // Then fetch the rest in order of priority, but only if they're not already loaded
         const otherRoutes = routesToFetch.filter(route => 
           route.key !== currentRouteKey && !isRouteLoaded(route.key)
         );
@@ -194,7 +207,7 @@ export const useWordPressData = () => {
             
             try {
               await fetchData(route);
-            } catch (routeError) {
+            } catch {
               // Ignorer les erreurs des routes individuelles ici
               console.warn(`Skipping error for route ${route.key} to continue loading other routes`);
             }
@@ -205,7 +218,7 @@ export const useWordPressData = () => {
           setState(prevState => ({ ...prevState, loading: false }));
           console.log('All data fetching complete');
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         if (isMountedRef.current) {
           console.error('Error in loadData:', error);
           setState(prevState => ({ 

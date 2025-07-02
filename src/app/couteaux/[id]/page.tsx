@@ -1,5 +1,5 @@
 import { knives } from "@/utils/knivesData";
-import KnifeDetail from "@/app/couteauxDetails/page";
+import KnifeDetail from "@/components/KnifeDetail";
 import { notFound } from "next/navigation";
 
 type Props = {

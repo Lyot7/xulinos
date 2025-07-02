@@ -57,4 +57,4 @@ export default function KnifeDetail({
       <GalleryImage images={gallery} className="mt-12 max-w-7xl w-full" />
     </div>
   );
-}
+} 

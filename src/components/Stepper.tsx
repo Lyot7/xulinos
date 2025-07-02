@@ -23,9 +23,8 @@ export default function Stepper({ currentStep, totalSteps }: StepperProps) {
           const isFuture = stepNumber > currentStep;
 
           return (
-            <>
+            <div key={step.number} className="flex items-center">
               <div 
-                key={step.number}
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
                   isCompleted || isCurrent
                     ? 'text-black'
@@ -49,7 +48,7 @@ export default function Stepper({ currentStep, totalSteps }: StepperProps) {
                   }}
                 />
               )}
-            </>
+            </div>
           );
         })}
       </div>
