@@ -49,7 +49,6 @@ const engravingPatterns: EngravingOption[] = [
 
 export default function ConfiguratorPage() {
   const { addItem } = useCart();
-  const [showIntro, setShowIntro] = useState(true);
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedModel, setSelectedModel] = useState<string>('');
   const [selectedWood, setSelectedWood] = useState<string>('');
@@ -80,8 +79,7 @@ export default function ConfiguratorPage() {
       setWoodSearchTerm('');
       setEngravingSearchTerm('');
     } else {
-      setShowIntro(true);
-      setCurrentStep(1);
+      window.location.href = '/';
     }
   };
 
@@ -119,16 +117,6 @@ export default function ConfiguratorPage() {
     nextStep();
   };
 
-  const startFromExistingModel = () => {
-    setShowIntro(false);
-    setCurrentStep(1);
-  };
-
-  const startFromScratch = () => {
-    setShowIntro(false);
-    setCurrentStep(1);
-  };
-
   const filteredModels = models.filter(model => 
     model.name.toLowerCase().includes(modelSearchTerm.toLowerCase()) ||
     model.description.toLowerCase().includes(modelSearchTerm.toLowerCase())
@@ -141,70 +129,6 @@ export default function ConfiguratorPage() {
   const filteredEngravingPatterns = engravingPatterns.filter(pattern => 
     pattern.name.toLowerCase().includes(engravingSearchTerm.toLowerCase())
   );
-
-  const renderIntroPage = () => {
-    return (
-      <div className="min-h-screen flex flex-col lg:flex-row" style={{ backgroundColor: 'var(--color-jet)' }}>
-        {/* Image section - Top on mobile, Left on desktop */}
-        <div className="w-full lg:w-1/2 h-64 lg:h-screen relative" style={{ backgroundColor: 'var(--color-wenge)' }}>
-          <img 
-            src="/images/knives/desosseur_en_bois_de_noyer/desosseur_en_bois_de_noyer.png" 
-            alt="Désosseur en bois de noyer"
-            className="w-full h-full object-cover"
-          />
-        </div>
-
-        {/* Content section - Bottom on mobile, Right on desktop */}
-        <div className="w-full lg:w-1/2 min-h-screen lg:h-screen flex flex-col justify-center p-4 sm:p-6 lg:p-8">
-          <div className="max-w-lg mx-auto lg:mx-0">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 lg:mb-8 text-white text-center lg:text-left">
-              Configurateur
-            </h1>
-            
-            <p className="text-lg sm:text-xl text-gray-300 mb-4 lg:mb-6 text-center lg:text-left">
-              Bienvenue dans le configurateur de couteaux pliants artisanaux.
-            </p>
-            
-            <p className="text-gray-300 mb-6 lg:mb-8 text-center lg:text-left">
-              Sélectionnez un modèle parmi les créations existantes pour l'adapter à votre style ou 
-              partez de zéro pour concevoir un couteau unique, entièrement façonné selon vos 
-              envies.
-            </p>
-            
-            <p className="text-gray-300 mb-8 lg:mb-12 text-center lg:text-left">
-              Matériaux, finitions, mécanisme... chaque détail compte.
-            </p>
-            
-            <div className="space-y-4">
-              <button
-                onClick={startFromExistingModel}
-                className="w-full px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-medium transition-all hover:opacity-90 flex items-center justify-center text-sm sm:text-base"
-                style={{
-                  backgroundColor: 'var(--color-wenge)',
-                  color: 'var(--color-pure-white)'
-                }}
-              >
-                <span className="mr-2">📋</span>
-                Créer à partir d'un modèle existant
-              </button>
-              
-              <button
-                onClick={startFromScratch}
-                className="w-full px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-medium transition-all hover:opacity-90 flex items-center justify-center text-sm sm:text-base"
-                style={{
-                  backgroundColor: 'var(--color-pure-white)',
-                  color: 'var(--color-wenge)'
-                }}
-              >
-                <span className="mr-2">⚙️</span>
-                Configurer à partir de 0
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
 
   const renderStepContent = () => {
     switch (currentStep) {
@@ -513,10 +437,6 @@ export default function ConfiguratorPage() {
     }
   };
 
-  if (showIntro) {
-    return renderIntroPage();
-  }
-
   return (
     <div className="min-h-screen flex flex-col lg:flex-row" style={{ backgroundColor: 'var(--color-jet)' }}>
       {/* Image section - Top on mobile, Left on desktop */}
@@ -529,95 +449,95 @@ export default function ConfiguratorPage() {
       </div>
 
       {/* Content section - Bottom on mobile, Right on desktop */}
-      <div className="w-full lg:w-1/2 lg:h-screen flex flex-col">
+      <div className="w-full lg:w-1/2 lg:h-screen overflow-y-auto">
         {/* Stepper - Fixed at top */}
         <div className="p-4 sm:p-6 lg:p-8 pb-3 lg:pb-4">
           <Stepper currentStep={currentStep} totalSteps={5} />
         </div>
         
-        {/* Scrollable content area */}
-        <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8">
+        {/* Content area */}
+        <div className="px-4 sm:px-6 lg:px-8">
           <div className="pb-4">
             {renderStepContent()}
           </div>
-        </div>
-        
-        {/* Navigation buttons - Fixed at bottom */}
-        <div className="p-4 sm:p-6 lg:p-8 pt-3 lg:pt-4 border-t border-gray-700">
-          <div className="flex flex-col sm:flex-row gap-4 sm:justify-between">
-            <button
-              onClick={prevStep}
-              className="w-full sm:w-auto px-4 lg:px-6 py-2 lg:py-3 rounded-2xl font-medium transition-all hover:opacity-90 text-sm lg:text-base"
-              style={{
-                backgroundColor: "var(--color-pure-white)",
-                color: "var(--color-wenge)" 
-              }}
-            >
-              {currentStep === 1 ? 'Retour au menu' : 'Revenir en arrière'}
-            </button>
-            
-            {currentStep < 4 ? (
+          
+          {/* Navigation buttons - Directly after content */}
+          <div className="py-4 sm:py-6 lg:py-8 border-t border-gray-700">
+            <div className="flex flex-col sm:flex-row gap-4 sm:justify-between">
               <button
-                onClick={nextStep}
-                disabled={
-                  (currentStep === 1 && !selectedModel) ||
-                  (currentStep === 2 && !selectedWood) ||
-                  (currentStep === 3 && !selectedEngraving)
-                }
-                className={`w-full sm:w-auto px-4 lg:px-6 py-2 lg:py-3 rounded-lg font-medium transition-all text-xs sm:text-sm lg:text-base ${
-                  (currentStep === 1 && !selectedModel) ||
-                  (currentStep === 2 && !selectedWood) ||
-                  (currentStep === 3 && !selectedEngraving)
-                    ? 'cursor-not-allowed'
-                    : 'hover:opacity-90'
-                }`}
+                onClick={prevStep}
+                className="w-full sm:w-auto px-4 lg:px-6 py-2 lg:py-3 rounded-2xl font-medium transition-all hover:opacity-90 text-sm lg:text-base"
                 style={{
-                  backgroundColor: (currentStep === 1 && !selectedModel) ||
-                    (currentStep === 2 && !selectedWood) ||
-                    (currentStep === 3 && !selectedEngraving)
-                    ? 'var(--color-gray-medium)'
-                    : 'var(--color-wenge)',
-                  color: (currentStep === 1 && !selectedModel) ||
-                    (currentStep === 2 && !selectedWood) ||
-                    (currentStep === 3 && !selectedEngraving)
-                    ? 'var(--color-gray-medium)'
-                    : 'var(--color-pure-white)'
+                  backgroundColor: "var(--color-pure-white)",
+                  color: "var(--color-wenge)" 
                 }}
               >
-                  {currentStep === 3 ? "CHOISIR MON GUILLAUCHAGE ET CONTINUER" : "Valider mon choix et continuer".toUpperCase()}
-                </button>
-            ) : currentStep === 4 ? (
-              <button
-                  onClick={handleFormSubmit}
-                  disabled={!formData.email}
-                  className={`w-full sm:w-auto px-4 lg:px-6 py-2 lg:py-3 rounded-lg font-medium transition-all text-sm lg:text-base ${
-                    !formData.email
+                {currentStep === 1 ? 'Retour à l\'accueil' : 'Revenir en arrière'}
+              </button>
+              
+              {currentStep < 4 ? (
+                <button
+                  onClick={nextStep}
+                  disabled={
+                    (currentStep === 1 && !selectedModel) ||
+                    (currentStep === 2 && !selectedWood) ||
+                    (currentStep === 3 && !selectedEngraving)
+                  }
+                  className={`w-full sm:w-auto px-4 lg:px-6 py-2 lg:py-3 rounded-lg font-medium transition-all text-xs sm:text-sm lg:text-base ${
+                    (currentStep === 1 && !selectedModel) ||
+                    (currentStep === 2 && !selectedWood) ||
+                    (currentStep === 3 && !selectedEngraving)
                       ? 'cursor-not-allowed'
                       : 'hover:opacity-90'
                   }`}
                   style={{
-                    backgroundColor: !formData.email 
-                      ? 'var(--color-gray-medium)' 
+                    backgroundColor: (currentStep === 1 && !selectedModel) ||
+                      (currentStep === 2 && !selectedWood) ||
+                      (currentStep === 3 && !selectedEngraving)
+                      ? 'var(--color-gray-medium)'
                       : 'var(--color-wenge)',
-                    color: !formData.email 
-                      ? 'var(--color-gray-medium)' 
+                    color: (currentStep === 1 && !selectedModel) ||
+                      (currentStep === 2 && !selectedWood) ||
+                      (currentStep === 3 && !selectedEngraving)
+                      ? 'var(--color-gray-medium)'
                       : 'var(--color-pure-white)'
                   }}
                 >
-                  {"Valider mes personnalisations et terminer".toUpperCase()}
-                </button>
-            ) : (
-              <button
-                  onClick={() => window.location.href = '/'}
-                  className="w-full sm:w-auto px-4 lg:px-6 py-2 lg:py-3 rounded-lg font-medium hover:opacity-90 transition-all text-sm lg:text-base"
-                  style={{
-                    backgroundColor: 'var(--color-wenge)',
-                    color: 'var(--color-pure-white)'
-                  }}
-                >
-                  Revenir vers l'accueil
-                </button>
-            )}
+                    {currentStep === 3 ? "CHOISIR MON GUILLAUCHAGE ET CONTINUER" : "Valider mon choix et continuer".toUpperCase()}
+                  </button>
+              ) : currentStep === 4 ? (
+                <button
+                    onClick={handleFormSubmit}
+                    disabled={!formData.email}
+                    className={`w-full sm:w-auto px-4 lg:px-6 py-2 lg:py-3 rounded-lg font-medium transition-all text-sm lg:text-base ${
+                      !formData.email
+                        ? 'cursor-not-allowed'
+                        : 'hover:opacity-90'
+                    }`}
+                    style={{
+                      backgroundColor: !formData.email 
+                        ? 'var(--color-gray-medium)' 
+                        : 'var(--color-wenge)',
+                      color: !formData.email 
+                        ? 'var(--color-gray-medium)' 
+                        : 'var(--color-pure-white)'
+                    }}
+                  >
+                    {"Valider mes personnalisations et terminer".toUpperCase()}
+                  </button>
+              ) : (
+                <button
+                    onClick={() => window.location.href = '/'}
+                    className="w-full sm:w-auto px-4 lg:px-6 py-2 lg:py-3 rounded-lg font-medium hover:opacity-90 transition-all text-sm lg:text-base"
+                    style={{
+                      backgroundColor: 'var(--color-wenge)',
+                      color: 'var(--color-pure-white)'
+                    }}
+                  >
+                    Revenir vers l'accueil
+                  </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
