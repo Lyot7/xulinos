@@ -367,7 +367,7 @@ export default function ConfiguratorPage() {
                 <div
                   key={wood.id}
                   className={`cursor-pointer transition-all p-2 ${
-                    selectedWood === wood.id ? 'ring-2 ring-white rounded-lg' : ''
+                    selectedWood === wood.id ? 'ring-2 ring-white rounded-lg' : 'hover:opacity-80'
                   }`}
                   onClick={() => setSelectedWood(wood.id)}
                 >
@@ -427,8 +427,8 @@ export default function ConfiguratorPage() {
                 filteredEngravingPatterns.map((pattern) => (
                 <div
                   key={pattern.id}
-                  className={`bg-gray-800 rounded-lg p-3 lg:p-4 cursor-pointer transition-all text-center ${
-                    selectedEngraving === pattern.id ? 'ring-2 ring-white' : 'hover:bg-gray-700'
+                  className={`rounded-lg p-3 lg:p-4 cursor-pointer transition-all text-center ${
+                    selectedEngraving === pattern.id ? 'ring-2 ring-white' : 'hover:opacity-80'
                   }`}
                   onClick={() => setSelectedEngraving(pattern.id)}
                 >
