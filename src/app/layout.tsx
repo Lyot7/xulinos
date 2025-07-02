@@ -1,6 +1,6 @@
 import React from 'react';
 import './globals.css';
-import { WordPressProviderWrapper } from '@/components/WordPressProviderWrapper';
+import ClientWrapper from '@/components/ClientWrapper';
 
 export const metadata = {
   title: 'Xulinos - Coutellerie Artisanale',
@@ -15,9 +15,9 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body>
-        <WordPressProviderWrapper>
-        {children}
-        </WordPressProviderWrapper>
+        <ClientWrapper>
+          {children}
+        </ClientWrapper>
       </body>
     </html>
   );

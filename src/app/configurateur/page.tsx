@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import Stepper from '@/components/Stepper';
+import { useCart } from '@/context/CartContext';
+import PrimaryButton from '@/components/PrimaryButton';
 
 interface ModelOption {
   id: string;
@@ -47,6 +48,7 @@ const engravingPatterns: EngravingOption[] = [
 ];
 
 export default function ConfiguratorPage() {
+  const { addItem } = useCart();
   const [showIntro, setShowIntro] = useState(true);
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedModel, setSelectedModel] = useState<string>('');
@@ -55,7 +57,6 @@ export default function ConfiguratorPage() {
   const [modelSearchTerm, setModelSearchTerm] = useState<string>('');
   const [woodSearchTerm, setWoodSearchTerm] = useState<string>('');
   const [engravingSearchTerm, setEngravingSearchTerm] = useState<string>('');
-  const [fromExistingModel, setFromExistingModel] = useState(false);
   const [formData, setFormData] = useState({
     bladeEngraving: '',
     handleEngraving: '',
@@ -85,17 +86,45 @@ export default function ConfiguratorPage() {
   };
 
   const handleFormSubmit = () => {
+    // Ajouter le couteau configuré au panier
+    const selectedModelData = models.find(m => m.id === selectedModel);
+    const selectedWoodData = woods.find(w => w.id === selectedWood);
+    const selectedEngravingData = engravingPatterns.find(e => e.id === selectedEngraving);
+    
+    const customizations = {
+      'Modèle': selectedModelData?.name || 'Personnalisé',
+      'Bois': selectedWoodData?.name || 'Non spécifié',
+      'Gravure': selectedEngravingData?.name || 'Aucune',
+      'Gravure lame': formData.bladeEngraving || 'Aucune',
+      'Gravure manche': formData.handleEngraving || 'Aucune',
+      'Autres détails': formData.otherDetails || 'Aucun',
+    };
+
+    // Prix estimé basé sur la complexité
+    let estimatedPrice = 350; // Prix de base
+    if (formData.bladeEngraving) estimatedPrice += 50;
+    if (formData.handleEngraving) estimatedPrice += 30;
+    if (formData.otherDetails) estimatedPrice += 20;
+
+    addItem({
+      id: `config-${Date.now()}`, // ID unique basé sur le timestamp
+      name: `Couteau configuré - ${selectedModelData?.name || 'Personnalisé'}`,
+      price: estimatedPrice,
+      description: `Couteau artisanal personnalisé selon vos spécifications`,
+      image: selectedModelData?.image || '/images/knives/desosseur_en_bois_de_noyer/desosseur_en_bois_de_noyer.png',
+      type: 'configurateur',
+      customizations,
+    });
+
     nextStep();
   };
 
   const startFromExistingModel = () => {
-    setFromExistingModel(true);
     setShowIntro(false);
     setCurrentStep(1);
   };
 
   const startFromScratch = () => {
-    setFromExistingModel(false);
     setShowIntro(false);
     setCurrentStep(1);
   };
@@ -441,14 +470,39 @@ export default function ConfiguratorPage() {
         return (
           <div>
             <h2 className="text-2xl sm:text-3xl font-bold mb-4 lg:mb-6 text-white">
-              Demande de devis envoyé !
+              Configuration terminée !
             </h2>
-            <div className="space-y-4 text-gray-300 text-sm sm:text-base">
+            <div className="space-y-6 text-gray-300 text-sm sm:text-base">
               <p>
-                Nous avons bien reçu votre demande et nous l'examinerons dans les plus brefs délais. Vous recevrez un retour par e-mail avec un devis détaillé ou toute demande d'informations complémentaires si nécessaire.
+                Votre couteau personnalisé a été ajouté à votre panier. Vous pouvez maintenant :
               </p>
-              <p>
-                Merci de votre confiance, et à très bientôt !
+              
+              <div className="bg-primary rounded-lg p-4 border border-white/10">
+                <h3 className="text-white font-medium mb-2">Résumé de votre configuration :</h3>
+                <ul className="space-y-1 text-sm">
+                  <li>• Modèle : {models.find(m => m.id === selectedModel)?.name || 'Personnalisé'}</li>
+                  <li>• Bois : {woods.find(w => w.id === selectedWood)?.name || 'Non spécifié'}</li>
+                  <li>• Gravure : {engravingPatterns.find(e => e.id === selectedEngraving)?.name || 'Aucune'}</li>
+                  {formData.bladeEngraving && <li>• Gravure lame : {formData.bladeEngraving}</li>}
+                  {formData.handleEngraving && <li>• Gravure manche : {formData.handleEngraving}</li>}
+                </ul>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-4">
+                <PrimaryButton
+                  name="Continuer mes achats"
+                  onClick={() => window.location.href = '/couteaux'}
+                  className="flex-1"
+                />
+                <PrimaryButton
+                  name="Voir mon panier"
+                  onClick={() => window.location.href = '/demande-devis'}
+                  className="flex-1"
+                />
+              </div>
+              
+              <p className="text-center text-white/60 text-xs">
+                Un devis personnalisé vous sera envoyé après validation de votre demande.
               </p>
             </div>
           </div>

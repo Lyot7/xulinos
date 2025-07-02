@@ -4,13 +4,15 @@ import React, { useState, useEffect } from 'react';
 import PrimaryButton from './PrimaryButton';
 import SecondaryButton from './SecondaryButton';
 import IconButton from './IconButton';
-import { FaUser, FaShoppingCart, FaBars, FaTimes } from 'react-icons/fa';
+import { FaShoppingCart, FaBars, FaTimes } from 'react-icons/fa';
 import Navbar from './Navbar';
 import Logo from './Logo';
 import { useRouter } from 'next/navigation';
+import { useCart } from '@/context/CartContext';
 
 const Header = () => {
   const router = useRouter();
+  const { toggleCart, totalItems } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -66,14 +68,18 @@ const Header = () => {
                 className="inline-flex"
                 onClick={() => handleNavigation('/configurateur')}
               />
-              <IconButton 
-                icon={<FaShoppingCart />} 
-                aria-label="Panier"
-              />
-              <IconButton 
-                icon={<FaUser />} 
-                aria-label="Mon compte"
-              />
+              <div className="relative">
+                <IconButton 
+                  icon={<FaShoppingCart />} 
+                  aria-label="Panier"
+                  onClick={toggleCart}
+                />
+                {totalItems > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {totalItems}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
           
@@ -91,16 +97,19 @@ const Header = () => {
             />
             
             {/* Icônes utilisateur - toujours visibles */}
-            <IconButton 
-              icon={<FaShoppingCart />} 
-              className="flex"
-              aria-label="Panier"
-            />
-            <IconButton 
-              icon={<FaUser />} 
-              className="flex"
-              aria-label="Mon compte"
-            />
+            <div className="relative">
+              <IconButton 
+                icon={<FaShoppingCart />} 
+                className="flex"
+                aria-label="Panier"
+                onClick={toggleCart}
+              />
+              {totalItems > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {totalItems}
+                </span>
+              )}
+            </div>
             
             {/* Menu burger */}
             <IconButton 
@@ -160,21 +169,22 @@ const Header = () => {
                 />
               </div>
               
-              {/* Icônes utilisateur pour tous les écrans */}
-              <div className="grid grid-cols-2 gap-3 pt-2">
+              {/* Icône panier pour le menu mobile */}
+              <div className="flex justify-center pt-2">
                 <button 
-                  onClick={closeMenu}
-                  className="flex flex-col items-center justify-center p-4 bg-transparent border border-white/20 rounded-xl text-white hover:bg-white/5 transition-colors"
+                  onClick={() => {
+                    closeMenu();
+                    toggleCart();
+                  }}
+                  className="flex flex-col items-center justify-center p-4 bg-transparent border border-white/20 rounded-xl text-white hover:bg-white/5 transition-colors relative w-full max-w-xs"
                 >
                   <FaShoppingCart className="mb-2 text-xl" />
                   <span className="text-sm">Panier</span>
-                </button>
-                <button 
-                  onClick={closeMenu}
-                  className="flex flex-col items-center justify-center p-4 bg-transparent border border-white/20 rounded-xl text-white hover:bg-white/5 transition-colors"
-                >
-                  <FaUser className="mb-2 text-xl" />
-                  <span className="text-sm">Mon compte</span>
+                  {totalItems > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {totalItems}
+                    </span>
+                  )}
                 </button>
               </div>
             </div>

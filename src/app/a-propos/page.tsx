@@ -6,6 +6,7 @@ import { usePageData } from "@/context/WordPressContext";
 import { parseWordPressContent } from "@/utils/wordpressApi";
 
 // Define types for WordPress data
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface AcfData {
   titre_1: string;
   paragraphe_1: string;
@@ -15,16 +16,7 @@ interface AcfData {
   paragraphe_3: string;
   titre_4: string;
   paragraphe_4: string;
-  [key: string]: any;
-}
-
-interface PageData {
-  title: {
-    rendered: string;
-  };
-  featured_media: number;
-  acf: AcfData;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // Cache local pour les images

@@ -2,11 +2,11 @@ import { knives } from "@/utils/knivesData";
 import KnifeDetail from "@/components/KnifeDetail";
 import { notFound } from "next/navigation";
 
-type Props = {
-  params: { id: string }
+interface Props {
+  params: Promise<{ id: string }>;
 }
 
-export default async function KnifeDetailPage({ params }:any) {
+export default async function KnifeDetailPage({ params }: Props) {
   const {id} = await params;
   const knife = knives.find((k) => k.id === Number(id));
 
@@ -16,6 +16,7 @@ export default async function KnifeDetailPage({ params }:any) {
 
   return (
     <KnifeDetail
+      id={knife.id.toString()}
       name={knife.name}
       price={knife.price}
       available={knife.available}

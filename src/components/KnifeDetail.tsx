@@ -1,9 +1,12 @@
+'use client';
+
 import GalleryImage from "@/components/GalleryImage";
 import PrimaryButton from "@/components/PrimaryButton";
-import SecondaryButton from "@/components/SecondaryButton";
 import Image from "next/image";
+import { useCart } from "@/context/CartContext";
 
 type KnifeDetailProps = {
+  id: string;
   name: string;
   price: number;
   available: boolean;
@@ -13,6 +16,7 @@ type KnifeDetailProps = {
 };
 
 export default function KnifeDetail({
+  id,
   name,
   price,
   available,
@@ -20,6 +24,18 @@ export default function KnifeDetail({
   mainImage,
   gallery,
 }: KnifeDetailProps) {
+  const { addItem } = useCart();
+
+  const handleAddToCart = () => {
+    addItem({
+      id,
+      name,
+      price,
+      description,
+      image: mainImage,
+      type: 'couteau',
+    });
+  };
 
   return (
     <div className="bg-[#2d2d2d] text-white px-6 py-12 flex flex-col items-center">
@@ -49,7 +65,20 @@ export default function KnifeDetail({
             <p className="text-gray-200" key={idx}>{para}</p>
           ))}
 
-          <PrimaryButton className="mt-4 bg-wenge py-4" icon={<Image src={"/icons/shopping-cart.svg"} width={20} height={20} alt={""}/>} name={"Ajouter au panier"}/>
+          {available ? (
+            <PrimaryButton 
+              className="mt-4 bg-wenge py-4" 
+              icon={<Image src={"/icons/shopping-cart.svg"} width={20} height={20} alt={""}/>} 
+              name={"Ajouter au panier"}
+              onClick={handleAddToCart}
+            />
+          ) : (
+            <PrimaryButton 
+              className="mt-4 bg-gray-600 py-4 cursor-not-allowed" 
+              name={"Non disponible"}
+              disabled
+            />
+          )}
             
         </div>
       </div>

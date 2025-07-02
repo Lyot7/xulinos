@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
+import { useCart } from "@/context/CartContext";
+import { FaShoppingCart } from "react-icons/fa";
 
 // Données des couteaux
 const knives = [
@@ -88,6 +89,8 @@ type KnifeGalleryProps = {
 };
 
 export default function KnifeGallery({ search, onlyAvailable, onKnifeClick }: KnifeGalleryProps) {
+  const { addItem } = useCart();
+  
   const filteredKnives = knives.filter((knife) => {
     const matchesSearch =
       knife.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -95,6 +98,18 @@ export default function KnifeGallery({ search, onlyAvailable, onKnifeClick }: Kn
     const matchesAvailability = onlyAvailable ? knife.available : true;
     return matchesSearch && matchesAvailability;
   });
+
+  const handleAddToCart = (e: React.MouseEvent, knife: KnifeType) => {
+    e.stopPropagation(); // Empêcher la navigation vers la page de détail
+    addItem({
+      id: knife.id.toString(),
+      name: knife.name,
+      price: knife.price,
+      description: knife.description,
+      image: knife.image,
+      type: 'couteau',
+    });
+  };
 
   return (
     <section className="text-white w-full">
@@ -116,6 +131,15 @@ export default function KnifeGallery({ search, onlyAvailable, onKnifeClick }: Kn
                 <span className="absolute top-2 right-1 bg-sage text-black text-xs px-2 py-1 rounded-lg">
                   Disponible à l'achat
                 </span>
+              )}
+              {knife.available && (
+                <button
+                  onClick={(e) => handleAddToCart(e, knife)}
+                  className="absolute bottom-2 right-2 bg-primary hover:bg-primary/80 text-white p-2 rounded-full transition-colors shadow-lg"
+                  aria-label="Ajouter au panier"
+                >
+                  <FaShoppingCart size={16} />
+                </button>
               )}
             </div>
             <div className="p-4">

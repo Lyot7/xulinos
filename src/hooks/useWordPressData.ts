@@ -149,7 +149,7 @@ export const useWordPressData = () => {
       // Marquer cette route comme terminée
       fetchingRef.current[route.key] = false;
     }
-  }, []); // Pas de dépendances pour éviter les re-renders
+  }, []);
 
   // Main function to load data with prioritization
   useEffect(() => {
@@ -159,8 +159,8 @@ export const useWordPressData = () => {
       if (!isMountedRef.current) return;
       
       // Get the current page route key
-      const currentRouteKey = getRouteKeyFromPath(currentPathnameRef.current);
-      console.log(`Current path: ${currentPathnameRef.current}, Route key: ${currentRouteKey}`);
+      const currentRouteKey = getRouteKeyFromPath(pathname);
+      console.log(`Current path: ${pathname}, Route key: ${currentRouteKey}`);
       
       // Ne pas réinitialiser l'état loading si nous avons déjà des données pour la route actuelle
       if (!currentRouteKey || !globalCache[currentRouteKey]) {
@@ -195,7 +195,7 @@ export const useWordPressData = () => {
         
         // Then fetch the rest in order of priority, but only if they're not already loaded
         const otherRoutes = routesToFetch.filter(route => 
-          route.key !== currentRouteKey && !isRouteLoaded(route.key)
+          route.key !== currentRouteKey && !globalCache[route.key]
         );
         
         if (isMountedRef.current && otherRoutes.length > 0) {
@@ -235,7 +235,7 @@ export const useWordPressData = () => {
     return () => {
       isMountedRef.current = false;
     };
-  }, [pathname, fetchData, isRouteLoaded]);
+  }, [pathname]);
 
   return state;
 };
