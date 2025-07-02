@@ -17,7 +17,7 @@ export default function Gallery({ images, className = "" }: GalleryProps) {
           alt={`Image ${index + 1}`}
           width={500}
           height={500}
-          className="rounded-md object-cover w-full border-[0.5px] border-white"
+          className="rounded-md object-cover w-full h-[200px] border-[0.5px] border-white"
         />
       ))}
     </div>
