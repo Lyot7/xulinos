@@ -564,18 +564,22 @@ export default function ConfiguratorPage() {
       </div>
 
       {/* Content section - Bottom on mobile, Right on desktop */}
-      <div className="w-full lg:w-1/2 min-h-screen lg:h-screen flex flex-col p-4 sm:p-6 lg:p-8">
-        <div className="mb-4 lg:mb-6">
+      <div className="w-full lg:w-1/2 lg:h-screen flex flex-col">
+        {/* Stepper - Fixed at top */}
+        <div className="p-4 sm:p-6 lg:p-8 pb-3 lg:pb-4">
           <Stepper currentStep={currentStep} totalSteps={5} />
         </div>
         
-        <div className="flex-1 flex flex-col">
-          <div className="flex-1">
+        {/* Scrollable content area */}
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8">
+          <div className="pb-4">
             {renderStepContent()}
           </div>
-          
-          {/* Navigation buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 sm:justify-between pt-4 lg:pt-6 border-t border-gray-700 mt-4 lg:mt-6">
+        </div>
+        
+        {/* Navigation buttons - Fixed at bottom */}
+        <div className="p-4 sm:p-6 lg:p-8 pt-3 lg:pt-4 border-t border-gray-700">
+          <div className="flex flex-col sm:flex-row gap-4 sm:justify-between">
             <button
               onClick={prevStep}
               className="w-full sm:w-auto px-4 lg:px-6 py-2 lg:py-3 rounded-2xl font-medium transition-all hover:opacity-90 text-sm lg:text-base"
