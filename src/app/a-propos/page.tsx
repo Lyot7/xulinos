@@ -2,13 +2,43 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
+import { usePageData } from "@/context/WordPressContext";
+
+// Define types for WordPress data
+interface AcfData {
+  titre_1: string;
+  paragraphe_1: string;
+  titre_2: string;
+  paragraphe_2: string;
+  titre_3: string;
+  paragraphe_3: string;
+  titre_4: string;
+  paragraphe_4: string;
+  [key: string]: any;
+}
+
+interface PageData {
+  title: {
+    rendered: string;
+  };
+  featured_media: number;
+  acf: AcfData;
+  [key: string]: any;
+}
 
 export default function AboutSection() {
-  const [acf, setAcf] = useState(null);
-  const [pageData, setPageData] = useState(null);
-  const [featuredImageUrl, setFeaturedImageUrl] = useState(null);
+  const [acf, setAcf] = useState<AcfData | null>(null);
+  const [pageData, setPageData] = useState<PageData | null>(null);
+  const [featuredImageUrl, setFeaturedImageUrl] = useState<string | null>(null);
+
+  // Use our new WordPress hook
+  const { pageData: wpPageData, loading } = usePageData('about');
 
   useEffect(() => {
+    // Log the data from our hook
+    console.log("WordPress hook data for About page:", wpPageData);
+    
+    // Keep the original implementation for now
     async function fetchPage() {
       try {
         const resPage = await fetch(
@@ -17,9 +47,11 @@ export default function AboutSection() {
         const dataPage = await resPage.json();
 
         setPageData(dataPage);
+        console.log("Directly fetched page data:", dataPage);
 
         if (dataPage.acf) {
           setAcf(dataPage.acf);
+          console.log("ACF data:", dataPage.acf);
         }
 
         if (dataPage.featured_media) {
@@ -27,6 +59,7 @@ export default function AboutSection() {
             `https://xulinos.xyz-agency.com/wp-json/wp/v2/media/${dataPage.featured_media}`
           );
           const dataMedia = await resMedia.json();
+          console.log("Featured media data:", dataMedia);
 
           setFeaturedImageUrl(dataMedia.source_url);
         }
@@ -39,7 +72,7 @@ export default function AboutSection() {
     }
 
     fetchPage();
-  }, []);
+  }, [wpPageData]);
 
   if (!acf || !pageData) {
     return (

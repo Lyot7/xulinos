@@ -7,12 +7,32 @@ import SecondaryButton from '@/components/SecondaryButton';
 import Link from 'next/link';
 import { FaArrowRight, FaStar, FaPaperPlane } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
-import { Turnstile } from '@/components/captcha'; // Assurez-vous que le composant Turnstile est importé correctement
+import { usePageData, useCouteauxData } from '@/context/WordPressContext';
+//import { Turnstile } from '@/components/Captcha'; // Assurez-vous que le composant Turnstile est importé correctement
 
 export default function Home() {
   const router = useRouter();
   const heroRef = useRef<HTMLDivElement>(null);
   const [heroHeight, setHeroHeight] = useState<number | null>(null);
+  
+  // Fetch WordPress data for logging only
+  const { pageData, loading, error } = usePageData('home');
+  const { couteaux, loading: couteauxLoading } = useCouteauxData();
+
+  // Log WordPress data when it changes
+  useEffect(() => {
+    console.log('Home page data:', pageData);
+    console.log('Home page loading state:', loading);
+    if (error) {
+      console.error('Home page error:', error);
+    }
+  }, [pageData, loading, error]);
+
+  // Log couteaux data when it changes
+  useEffect(() => {
+    console.log('Couteaux data:', couteaux);
+    console.log('Couteaux loading state:', couteauxLoading);
+  }, [couteaux, couteauxLoading]);
 
   //CAPTCHA
   const [token, setToken] = useState<string | null>(null);
