@@ -20,21 +20,28 @@ const Navbar = ({ mobile = false }: NavbarProps) => {
 
   return (
     <div className={`flex ${mobile ? 'flex-col items-start' : 'flex-row flex-wrap items-center'} justify-center gap-4 ${mobile ? 'gap-8 w-full' : 'gap-4'}`}>
-      {navItems.map((item) => (
-        <Link
-          key={item.href}
-          href={item.href}
-          className={
-            mobile
-              ? `text-white text-3xl font-normal transition-all duration-200 whitespace-nowrap text-left
-                ${pathname === item.href ? 'underline underline-offset-8 decoration-2 decoration-white' : ''}
-                hover:text-white/80 active:text-white/60`
-              : `text-white whitespace-nowrap text-lg sm:text-base`
-          }
-        >
-          {item.label}
-        </Link>
-      ))}
+      {navItems.map((item) => {
+        const isActive = pathname === item.href || 
+                        (item.href !== '/' && pathname.startsWith(item.href));
+        
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={
+              mobile
+                ? `text-white text-3xl font-normal transition-all duration-200 whitespace-nowrap text-left
+                  ${isActive ? 'underline underline-offset-8 decoration-2 decoration-white' : ''}
+                  hover:text-white/80 active:text-white/60`
+                : `text-white whitespace-nowrap text-lg sm:text-base transition-all duration-200
+                  ${isActive ? 'underline underline-offset-4 decoration-2 decoration-white' : ''}
+                  hover:text-white/80 active:text-white/60`
+            }
+          >
+            {item.label}
+          </Link>
+        );
+      })}
     </div>
   );
 };

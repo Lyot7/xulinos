@@ -1,25 +1,25 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import React from 'react';
+import './globals.css';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
-export const metadata: Metadata = {
-  title: "Xulinos",
-  description: "",
+export const metadata = {
+  title: 'Xulinos - Coutellerie Artisanale',
+  description: 'Couteaux artisanaux, affûtage et rémoulage par Xulinos',
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en">
-      <body className={`antialiased`}>
+    <html lang="fr">
+      <body>
         <Header />
         {children}
         <Footer />
       </body>
     </html>
   );
-}
+} 
