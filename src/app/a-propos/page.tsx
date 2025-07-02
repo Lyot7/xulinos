@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { usePageData } from "@/context/WordPressContext";
+import { parseWordPressContent } from "@/utils/wordpressApi";
 
 // Define types for WordPress data
 interface AcfData {
@@ -26,63 +27,80 @@ interface PageData {
   [key: string]: any;
 }
 
+// Cache local pour les images
+const imageCache: Record<number, string> = {};
+
 export default function AboutSection() {
-  const [acf, setAcf] = useState<AcfData | null>(null);
-  const [pageData, setPageData] = useState<PageData | null>(null);
+  // Utiliser notre hook WordPress
+  const { pageData, loading, error, hasError, isLoaded } = usePageData('about');
   const [featuredImageUrl, setFeaturedImageUrl] = useState<string | null>(null);
+  const fetchingImageRef = useRef<boolean>(false);
 
-  // Use our new WordPress hook
-  const { pageData: wpPageData, loading } = usePageData('about');
-
+  // Charger l'image mise en avant si nécessaire et une seule fois
   useEffect(() => {
-    // Log the data from our hook
-    console.log("WordPress hook data for About page:", wpPageData);
-    
-    // Keep the original implementation for now
-    async function fetchPage() {
-      try {
-        const resPage = await fetch(
-          "https://xulinos.xyz-agency.com/wp-json/wp/v2/pages/13"
-        );
-        const dataPage = await resPage.json();
-
-        setPageData(dataPage);
-        console.log("Directly fetched page data:", dataPage);
-
-        if (dataPage.acf) {
-          setAcf(dataPage.acf);
-          console.log("ACF data:", dataPage.acf);
-        }
-
-        if (dataPage.featured_media) {
-          const resMedia = await fetch(
-            `https://xulinos.xyz-agency.com/wp-json/wp/v2/media/${dataPage.featured_media}`
-          );
-          const dataMedia = await resMedia.json();
-          console.log("Featured media data:", dataMedia);
-
-          setFeaturedImageUrl(dataMedia.source_url);
-        }
-      } catch (error) {
-        console.error(
-          "Erreur lors de la récupération de la page ou de l'image :",
-          error
-        );
+    if (pageData?.featured_media && !featuredImageUrl && !fetchingImageRef.current) {
+      // Vérifier si l'image est déjà dans le cache
+      if (imageCache[pageData.featured_media]) {
+        setFeaturedImageUrl(imageCache[pageData.featured_media]);
+        return;
       }
+      
+      fetchingImageRef.current = true;
+      
+      const fetchFeaturedImage = async () => {
+        try {
+          const response = await fetch(
+            `https://xulinos.xyz-agency.com/wp-json/wp/v2/media/${pageData.featured_media}`
+          );
+          
+          if (!response.ok) {
+            throw new Error(`Failed to fetch featured image: ${response.status}`);
+          }
+          
+          const mediaData = await response.json();
+          console.log("Featured media data:", mediaData);
+          
+          // Mettre en cache l'URL de l'image
+          if (mediaData.source_url) {
+            imageCache[pageData.featured_media] = mediaData.source_url;
+          }
+          
+          setFeaturedImageUrl(mediaData.source_url);
+        } catch (error) {
+          console.error("Erreur lors du chargement de l'image:", error);
+        } finally {
+          fetchingImageRef.current = false;
+        }
+      };
+      
+      fetchFeaturedImage();
     }
+  }, [pageData, featuredImageUrl]);
 
-    fetchPage();
-  }, [wpPageData]);
-
-  if (!acf || !pageData) {
+  // Afficher un état de chargement uniquement si les données ne sont pas encore chargées
+  if (loading && !isLoaded) {
     return (
       <section className="text-white py-10 px-3 sm:py-12 sm:px-6">
         <div className="max-w-7xl mx-auto flex justify-center items-center h-64">
-          <p>Loading...</p>
+          <p>Chargement...</p>
         </div>
       </section>
     );
   }
+
+  // Afficher une erreur si nécessaire
+  if ((error || hasError) && !pageData) {
+    return (
+      <section className="text-white py-10 px-3 sm:py-12 sm:px-6">
+        <div className="max-w-7xl mx-auto flex justify-center items-center h-64">
+          <p>Erreur: {error?.message || "Impossible de charger les données"}</p>
+        </div>
+      </section>
+    );
+  }
+
+  // Accéder aux données ACF
+  const acf = pageData?.acf || {};
 
   return (
     <section className="text-white py-10 px-3 sm:py-12 sm:px-6">
@@ -92,36 +110,50 @@ export default function AboutSection() {
             {featuredImageUrl && (
               <img
                 src={featuredImageUrl}
-                alt={pageData.title.rendered}
+                alt={parseWordPressContent(pageData?.title)}
                 className="rounded-md object-cover w-full max-w-[400px] sm:max-w-[700px] h-auto"
               />
             )}
           </div>
 
           <div className="order-2 lg:order-2 lg:w-1/2 w-full space-y-4 sm:space-y-6 text-base sm:text-sm leading-relaxed">
-            <h2
-              dangerouslySetInnerHTML={{ __html: pageData.title.rendered }}
-              className="text-2xl font-bold mb-4"
-            />
-            <h3 className="font-bold mb-1">{acf.titre_1}</h3>
-            <p>{acf.paragraphe_1}</p>
+            {pageData?.title?.rendered && (
+              <h2
+                dangerouslySetInnerHTML={{ __html: pageData.title.rendered }}
+                className="text-2xl font-bold mb-4"
+              />
+            )}
+            {acf.titre_1 && (
+              <>
+                <h3 className="font-bold mb-1">{acf.titre_1}</h3>
+                <p>{acf.paragraphe_1}</p>
+              </>
+            )}
 
-            <h3 className="font-bold mb-1">{acf.titre_2}</h3>
-            <p>{acf.paragraphe_2}</p>
+            {acf.titre_2 && (
+              <>
+                <h3 className="font-bold mb-1">{acf.titre_2}</h3>
+                <p>{acf.paragraphe_2}</p>
+              </>
+            )}
           </div>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8 sm:gap-10 items-start">
           <div className="order-1 lg:order-1 lg:w-1/2 w-full space-y-4 sm:space-y-6 text-base sm:text-sm leading-relaxed">
-            <div>
-              <h3 className="font-bold mb-1">{acf.titre_3}</h3>
-              <p>{acf.paragraphe_3}</p>
-            </div>
+            {acf.titre_3 && (
+              <div>
+                <h3 className="font-bold mb-1">{acf.titre_3}</h3>
+                <p>{acf.paragraphe_3}</p>
+              </div>
+            )}
 
-            <div>
-              <h3 className="font-bold mb-1">{acf.titre_4}</h3>
-              <p>{acf.paragraphe_4}</p>
-            </div>
+            {acf.titre_4 && (
+              <div>
+                <h3 className="font-bold mb-1">{acf.titre_4}</h3>
+                <p>{acf.paragraphe_4}</p>
+              </div>
+            )}
           </div>
 
           <div className="order-2 lg:order-2 w-full lg:w-auto flex flex-col lg:flex-row justify-center items-center gap-4 sm:gap-6 flex-wrap mt-6 lg:mt-0">

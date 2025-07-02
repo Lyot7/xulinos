@@ -16,7 +16,7 @@ export default function RootLayout({
     <html lang="fr">
       <body>
         <WordPressProviderWrapper>
-          {children}
+        {children}
         </WordPressProviderWrapper>
       </body>
     </html>

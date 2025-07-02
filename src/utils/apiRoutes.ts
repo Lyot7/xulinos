@@ -10,6 +10,7 @@ export interface ApiRoute {
   key: string;
   endpoint: string;
   priority: number;
+  optional?: boolean; // Indiquer si cette route est optionnelle (ne pas bloquer en cas d'erreur)
 }
 
 export const apiRoutes: Record<string, ApiRoute> = {
@@ -74,16 +75,18 @@ export const apiRoutes: Record<string, ApiRoute> = {
     priority: 2,
   },
   
-  // Forms
+  // Forms - Marqués comme optionnels car ils ne sont pas accessibles en GET
   formPanier: {
     key: 'formPanier',
-    endpoint: `${WP_BASE_URL}/contact-form-7/v1/contact-forms/226/feedback`,
+    endpoint: `${WP_BASE_URL}/contact-form-7/v1/contact-forms/226`,
     priority: 11,
+    optional: true,
   },
   formDevis: {
     key: 'formDevis',
-    endpoint: `${WP_BASE_URL}/contact-form-7/v1/contact-forms/265/feedback`,
+    endpoint: `${WP_BASE_URL}/contact-form-7/v1/contact-forms/265`,
     priority: 12,
+    optional: true,
   },
 };
 
