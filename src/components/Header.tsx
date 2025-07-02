@@ -61,6 +61,7 @@ const Header = () => {
             <div className="flex items-center gap-4">
               <SecondaryButton 
                 name="Demander un service" 
+                onClick={() => handleNavigation('/services')}
                 className="inline-flex"
               />
               <PrimaryButton 
@@ -88,6 +89,7 @@ const Header = () => {
             {/* Boutons d'action - masqués progressivement sur petits écrans */}
             <SecondaryButton 
               name="Demander un service" 
+              onClick={() => handleNavigation('/services')}
               className="hidden md:inline-flex"
             />
             <PrimaryButton 
