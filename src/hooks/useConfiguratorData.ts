@@ -9,58 +9,75 @@ export const useConfiguratorData = (currentStep: number) => {
     { data: {}, loading: false, error: null } : 
     useWordPressData();
   
+  const [allStepsData, setAllStepsData] = useState<Record<number, ConfiguratorStepData>>({});
   const [stepData, setStepData] = useState<ConfiguratorStepData>({});
 
-  // Extraire les données de l'étape actuelle depuis WordPress ou utiliser les données de test
+  // Charger toutes les données des étapes en même temps
   useEffect(() => {
     if (USE_TEST_DATA) {
       console.log('Using test data (USE_TEST_DATA = true)');
-      setStepData(getTestDataForStep(currentStep));
+      const allData: Record<number, ConfiguratorStepData> = {};
+      for (let step = 1; step <= 5; step++) {
+        allData[step] = getTestDataForStep(step);
+      }
+      setAllStepsData(allData);
       return;
     }
 
-    const routeKey = `configurateur${currentStep}`;
-    let currentStepWordpressData = null;
-    
     if (wordpressData && typeof wordpressData === 'object') {
-      try {
-        currentStepWordpressData = (wordpressData as Record<string, any>)[routeKey];
-      } catch (error) {
-        console.log('Error accessing WordPress data:', error);
-        currentStepWordpressData = null;
+      const allData: Record<number, ConfiguratorStepData> = {};
+      
+      // Traiter les données pour chaque étape
+      for (let step = 1; step <= 5; step++) {
+        const routeKey = `configurateur${step}`;
+        let currentStepWordpressData = null;
+        
+        try {
+          currentStepWordpressData = (wordpressData as Record<string, any>)[routeKey];
+        } catch (error) {
+          console.log(`Error accessing WordPress data for step ${step}:`, error);
+          currentStepWordpressData = null;
+        }
+        
+        if (currentStepWordpressData && typeof currentStepWordpressData === 'object') {
+          const wpData = currentStepWordpressData as any;
+          
+          console.log(`ACF data for step ${step}:`, wpData.acf);
+          
+          // Vérifier si les données contiennent des champs ACF
+          if (wpData.acf && Object.keys(wpData.acf).length > 0) {
+            // Adapter les données ACF au format attendu par le composant
+            const adaptedData = adaptACFDataForStep(wpData.acf, step);
+            allData[step] = adaptedData;
+          } else if (wpData.meta && Object.keys(wpData.meta).length > 0) {
+            console.log(`Using meta data for step ${step}:`, wpData.meta);
+            allData[step] = wpData.meta;
+          } else {
+            console.log(`No ACF or meta data found for step ${step}.`);
+            allData[step] = {};
+          }
+        } else {
+          console.log(`No data found for step ${step} (${routeKey})`);
+          allData[step] = {};
+        }
       }
+      
+      setAllStepsData(allData);
     }
-    
-    if (currentStepWordpressData && typeof currentStepWordpressData === 'object') {
-      const wpData = currentStepWordpressData as any;
-      
-      // console.log(`--- Checking ACF data for ${routeKey} ---`);
-      // console.log('Full WP data structure:', wpData);
-      console.log('ACF data:', wpData.acf);
-      // console.log('Meta data:', wpData.meta);
-      // console.log('Content:', wpData.content);
-      
-      // Vérifier si les données contiennent des champs ACF
-      if (wpData.acf && Object.keys(wpData.acf).length > 0) {
-        // console.log('Using ACF data:', wpData.acf);
-        // Adapter les données ACF au format attendu par le composant
-        const adaptedData = adaptACFDataForStep(wpData.acf, currentStep);
-        setStepData(adaptedData);
-      } else if (wpData.meta && Object.keys(wpData.meta).length > 0) {
-        console.log('Using meta data:', wpData.meta);
-        setStepData(wpData.meta);
-      } else {
-        console.log('No ACF or meta data found.');
-        setStepData({});
-      }
+  }, USE_TEST_DATA ? [] : [wordpressData]);
+
+  // Mettre à jour les données de l'étape actuelle quand l'étape change
+  useEffect(() => {
+    if (allStepsData[currentStep]) {
+      setStepData(allStepsData[currentStep]);
     } else {
-      console.log(`No data found for ${routeKey}`);
       setStepData({});
     }
-  }, USE_TEST_DATA ? [currentStep] : [currentStep, wordpressData]);
+  }, [currentStep, allStepsData]);
 
   return {
     stepData,
+    allStepsData,
     loading: wordpressLoading,
     error: wordpressError
   };

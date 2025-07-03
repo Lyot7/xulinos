@@ -3,6 +3,7 @@ import PrimaryButton from '@/components/PrimaryButton';
 
 interface ConfigurationSummaryProps {
   stepData: ConfiguratorStepData;
+  allStepsData: Record<number, ConfiguratorStepData>;
   formData: ConfiguratorFormData;
   selectedModel: string;
   selectedWood: string;
@@ -11,6 +12,7 @@ interface ConfigurationSummaryProps {
 
 export default function ConfigurationSummary({
   stepData,
+  allStepsData,
   formData,
   selectedModel,
   selectedWood,

@@ -25,6 +25,16 @@ const getImageUrl = (imageId: any, defaultPath: string = '/images/knives/default
 export const adaptACFDataForStep = (acfData: any, step: number): ConfiguratorStepData => {
   const adaptedData: ConfiguratorStepData = {};
   
+  // Debug: afficher la structure des données ACF reçues
+  console.log(`--- ACF Data Structure for Step ${step} ---`);
+  console.log('Raw ACF data:', acfData);
+  console.log('ACF keys:', Object.keys(acfData));
+  Object.keys(acfData).forEach(key => {
+    if (key !== 'title' && key !== 'description' && key !== 'message' && acfData[key] && typeof acfData[key] === 'object') {
+      console.log(`${key}:`, acfData[key], 'Keys:', Object.keys(acfData[key]));
+    }
+  });
+  
   // Copier le titre s'il existe
   if (acfData.title) {
     adaptedData.title = acfData.title;
@@ -66,11 +76,15 @@ export const adaptACFDataForStep = (acfData: any, step: number): ConfiguratorSte
       Object.keys(acfData).forEach(key => {
         if (key !== 'title' && key !== 'description' && key !== 'message' && acfData[key] && typeof acfData[key] === 'object') {
           const woodData = acfData[key];
-          if (woodData.hasOwnProperty('titlewood') || woodData.hasOwnProperty('imagewood')) {
+          // Inclure tous les bois, même ceux avec des champs vides
+          // Gérer les différents noms de champs pour les bois
+          if (woodData.hasOwnProperty('titlewood') || woodData.hasOwnProperty('imagewood') || 
+              woodData.hasOwnProperty('titreessence') || woodData.hasOwnProperty('imageessence') ||
+              Object.keys(woodData).length > 0) {
             adaptedData.woods!.push({
               id: key,
-              name: woodData.titlewood || key.charAt(0).toUpperCase() + key.slice(1),
-              image: getImageUrl(woodData.imagewood, '/images/woods/noyer_foncer.png')
+              name: woodData.titlewood || woodData.titreessence || key.charAt(0).toUpperCase() + key.slice(1),
+              image: getImageUrl(woodData.imagewood || woodData.imageessence, '/images/woods/noyer_foncer.png')
             });
           }
         }
@@ -83,7 +97,10 @@ export const adaptACFDataForStep = (acfData: any, step: number): ConfiguratorSte
       Object.keys(acfData).forEach(key => {
         if (key !== 'title' && key !== 'description' && key !== 'message' && acfData[key] && typeof acfData[key] === 'object') {
           const patternData = acfData[key];
-          if (patternData.hasOwnProperty('titlepattern') || patternData.hasOwnProperty('imagepattern') || patternData.hasOwnProperty('patterntext')) {
+          // Inclure tous les motifs, même ceux avec des champs vides
+          // Gérer les différents noms de champs possibles
+          if (patternData.hasOwnProperty('titlepattern') || patternData.hasOwnProperty('imagepattern') || 
+              patternData.hasOwnProperty('patterntext') || Object.keys(patternData).length > 0) {
             adaptedData.patterns!.push({
               id: key,
               name: patternData.titlepattern || key.charAt(0).toUpperCase() + key.slice(1),
@@ -101,10 +118,11 @@ export const adaptACFDataForStep = (acfData: any, step: number): ConfiguratorSte
       Object.keys(acfData).forEach(key => {
         if (key !== 'title' && key !== 'description' && key !== 'message' && acfData[key] && typeof acfData[key] === 'object') {
           const fieldData = acfData[key];
-          if (fieldData.label || fieldData.placeholder) {
+          // Inclure tous les champs, même ceux avec des données minimales
+          if (fieldData.label || fieldData.placeholder || Object.keys(fieldData).length > 0) {
             adaptedData.fields!.push({
               id: key,
-              label: fieldData.label || key,
+              label: fieldData.label || key.charAt(0).toUpperCase() + key.slice(1),
               placeholder: fieldData.placeholder || '',
               type: fieldData.type || 'text',
               required: fieldData.required || false
@@ -120,10 +138,11 @@ export const adaptACFDataForStep = (acfData: any, step: number): ConfiguratorSte
       Object.keys(acfData).forEach(key => {
         if (key !== 'title' && key !== 'description' && key !== 'message' && acfData[key] && typeof acfData[key] === 'object') {
           const actionData = acfData[key];
-          if (actionData.label || actionData.url) {
+          // Inclure toutes les actions, même celles avec des données minimales
+          if (actionData.label || actionData.url || Object.keys(actionData).length > 0) {
             adaptedData.actions!.push({
               id: key,
-              label: actionData.label || key,
+              label: actionData.label || key.charAt(0).toUpperCase() + key.slice(1),
               url: actionData.url || '#',
               type: actionData.type || 'primary'
             });

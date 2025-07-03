@@ -7,6 +7,8 @@ import WoodSelection from './WoodSelection';
 import EngravingSelection from './EngravingSelection';
 import PersonalizationForm from './PersonalizationForm';
 import ConfigurationSummary from './ConfigurationSummary';
+import StepPreview from './StepPreview';
+import LoadingIndicator from './LoadingIndicator';
 
 interface ConfiguratorContentProps {
   currentStep: number;
@@ -29,7 +31,7 @@ export default function ConfiguratorContent({
   onStateChange
 }: ConfiguratorContentProps) {
   const { addItem } = useCart();
-  const { stepData, loading } = useConfiguratorData(currentStep);
+  const { stepData, allStepsData, loading } = useConfiguratorData(currentStep);
   
   const [selectedModel, setSelectedModel] = useState<string>('');
   const [selectedWood, setSelectedWood] = useState<string>('');
@@ -69,9 +71,9 @@ export default function ConfiguratorContent({
 
   const handleFormSubmitInternal = () => {
     // Ajouter le couteau configuré au panier
-    const selectedModelData = (stepData && stepData.models) ? stepData.models.find(m => m.id === selectedModel) : null;
-    const selectedWoodData = (stepData && stepData.woods) ? stepData.woods.find(w => w.id === selectedWood) : null;
-    const selectedEngravingData = (stepData && stepData.patterns) ? stepData.patterns.find(e => e.id === selectedEngraving) : null;
+    const selectedModelData = (allStepsData[1] && allStepsData[1].models) ? allStepsData[1].models.find(m => m.id === selectedModel) : null;
+    const selectedWoodData = (allStepsData[2] && allStepsData[2].woods) ? allStepsData[2].woods.find(w => w.id === selectedWood) : null;
+    const selectedEngravingData = (allStepsData[3] && allStepsData[3].patterns) ? allStepsData[3].patterns.find(e => e.id === selectedEngraving) : null;
     
     const customizations = {
       'Modèle': selectedModelData?.name || 'Personnalisé',
@@ -101,73 +103,83 @@ export default function ConfiguratorContent({
     handleFormSubmit();
   };
 
-  if (loading) {
-    return (
-      <div className="text-center py-8">
-        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
-        <p className="text-white mt-4">Chargement...</p>
-      </div>
-    );
-  }
+  const renderContent = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <div>
+            <ModelSelection
+              stepData={stepData}
+              selectedModel={selectedModel}
+              setSelectedModel={setSelectedModel}
+              modelSearchTerm={modelSearchTerm}
+              setModelSearchTerm={setModelSearchTerm}
+            />
+            <StepPreview allStepsData={allStepsData} currentStep={currentStep} />
+          </div>
+        );
 
-  switch (currentStep) {
-    case 1:
-      return (
-        <ModelSelection
-          stepData={stepData}
-          selectedModel={selectedModel}
-          setSelectedModel={setSelectedModel}
-          modelSearchTerm={modelSearchTerm}
-          setModelSearchTerm={setModelSearchTerm}
-        />
-      );
+      case 2:
+        return (
+          <div>
+            <WoodSelection
+              stepData={stepData}
+              selectedWood={selectedWood}
+              setSelectedWood={setSelectedWood}
+              woodSearchTerm={woodSearchTerm}
+              setWoodSearchTerm={setWoodSearchTerm}
+            />
+            <StepPreview allStepsData={allStepsData} currentStep={currentStep} />
+          </div>
+        );
 
-    case 2:
-      return (
-        <WoodSelection
-          stepData={stepData}
-          selectedWood={selectedWood}
-          setSelectedWood={setSelectedWood}
-          woodSearchTerm={woodSearchTerm}
-          setWoodSearchTerm={setWoodSearchTerm}
-        />
-      );
+      case 3:
+        return (
+          <div>
+            <EngravingSelection
+              stepData={stepData}
+              selectedEngraving={selectedEngraving}
+              setSelectedEngraving={setSelectedEngraving}
+              engravingSearchTerm={engravingSearchTerm}
+              setEngravingSearchTerm={setEngravingSearchTerm}
+            />
+            <StepPreview allStepsData={allStepsData} currentStep={currentStep} />
+          </div>
+        );
 
-    case 3:
-      return (
-        <EngravingSelection
-          stepData={stepData}
-          selectedEngraving={selectedEngraving}
-          setSelectedEngraving={setSelectedEngraving}
-          engravingSearchTerm={engravingSearchTerm}
-          setEngravingSearchTerm={setEngravingSearchTerm}
-        />
-      );
+      case 4:
+        return (
+          <div>
+            <PersonalizationForm
+              stepData={stepData}
+              formData={formData}
+              setFormData={setFormData}
+            />
+            <StepPreview allStepsData={allStepsData} currentStep={currentStep} />
+          </div>
+        );
 
-    case 4:
-      return (
-        <PersonalizationForm
-          stepData={stepData}
-          formData={formData}
-          setFormData={setFormData}
-        />
-      );
+      case 5:
+        return (
+          <ConfigurationSummary
+            stepData={stepData}
+            allStepsData={allStepsData}
+            formData={formData}
+            selectedModel={selectedModel}
+            selectedWood={selectedWood}
+            selectedEngraving={selectedEngraving}
+          />
+        );
 
-    case 5:
-      return (
-        <ConfigurationSummary
-          stepData={stepData}
-          formData={formData}
-          selectedModel={selectedModel}
-          selectedWood={selectedWood}
-          selectedEngraving={selectedEngraving}
-        />
-      );
+      default:
+        return null;
+    }
+  };
 
-    default:
-      return null;
-  }
+  return (
+    <div>
+      <LoadingIndicator allStepsData={allStepsData} loading={loading} />
+      {renderContent()}
+    </div>
+  );
 }
-
-// Export des états pour la navigation
-export { ConfiguratorContent }; 
