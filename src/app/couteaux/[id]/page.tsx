@@ -1,28 +1,32 @@
-import { knives } from "@/utils/knivesData";
 import KnifeDetail from "@/components/KnifeDetail";
 import { notFound } from "next/navigation";
 
 interface Props {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }
 
 export default async function KnifeDetailPage({ params }: Props) {
-  const {id} = await params;
-  const knife = knives.find((k) => k.id === Number(id));
+  const { id } = await params;
 
-  if (!knife) {
-    notFound();
+  const res = await fetch(`https://xulinos.xyz-agency.com/wp-json/wp/v2/couteaux/${id}?_embed`, {
+    next: { revalidate: 60 },
+  });
+
+  if (!res.ok) {
+    notFound(); // ou gestion d'erreur
   }
+
+  const knife = await res.json();
 
   return (
     <KnifeDetail
       id={knife.id.toString()}
-      name={knife.name}
-      price={knife.price}
-      available={knife.available}
-      description={knife.description}
-      mainImage={knife.mainImage}
-      gallery={knife.gallery}
+      name={knife.title?.rendered}
+      price={knife.acf?.prix || "—"}
+      available={knife.class_list?.includes("couteaux_tag-disponible-a-lachat") || false}
+      description={knife.content?.rendered}
+      mainImage={knife._embedded?.["wp:featuredmedia"]?.[0]?.source_url || ""}
+      gallery={[]}
     />
   );
-} 
+}
