@@ -78,7 +78,7 @@ export default function ModelSelection({
               <h3 className="font-bold mb-1 text-sm lg:text-base" style={{ color: 'var(--color-pure-white)' }}>
                 {model.name}
               </h3>
-              <p className="text-xs lg:text-sm" style={{ color: 'var(--color-gray-medium)' }}>
+              <p className="text-xs lg:text-sm" style={{ color: 'var(--color-pure-white)' }}>
                 {model.description}
               </p>
             </div>

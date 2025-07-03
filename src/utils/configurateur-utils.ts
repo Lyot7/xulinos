@@ -4,20 +4,36 @@ import { ConfiguratorStepData } from '@/types/configurateur';
 export const USE_TEST_DATA = false;
 
 // Fonction helper pour obtenir l'URL de l'image
-const getImageUrl = (imageId: any, defaultPath: string = '/images/knives/default.png'): string => {
+const getImageUrl = (imageId: any, defaultPath: string): string => {
   if (!imageId) return defaultPath;
   
-  // Si c'est un ID numérique, on peut essayer de construire l'URL WordPress
+  // Si c'est un objet WordPress avec les propriétés d'image
+  if (typeof imageId === 'object' && imageId !== null) {
+    // Essayer différentes propriétés pour obtenir l'URL
+    if (imageId.url) {
+      return imageId.url;
+    }
+    if (imageId.source_url) {
+      return imageId.source_url;
+    }
+    if (imageId.guid && imageId.guid.rendered) {
+      return imageId.guid.rendered;
+    }
+    if (imageId.link) {
+      return imageId.link;
+    }
+    if (imageId.ID || imageId.id) {
+      return `https://xulinos.xyz-agency.com/wp-content/uploads/${imageId.ID || imageId.id}`;
+    }
+  }
+  
   if (typeof imageId === 'number' || (typeof imageId === 'string' && /^\d+$/.test(imageId))) {
     return `https://xulinos.xyz-agency.com/wp-content/uploads/${imageId}`;
   }
   
-  // Si c'est déjà une URL
   if (typeof imageId === 'string' && (imageId.startsWith('http') || imageId.startsWith('/'))) {
     return imageId;
   }
-  
-  // Sinon, utiliser le chemin par défaut
   return defaultPath;
 };
 
@@ -26,12 +42,12 @@ export const adaptACFDataForStep = (acfData: any, step: number): ConfiguratorSte
   const adaptedData: ConfiguratorStepData = {};
   
   // Debug: afficher la structure des données ACF reçues
-  console.log(`--- ACF Data Structure for Step ${step} ---`);
-  console.log('Raw ACF data:', acfData);
-  console.log('ACF keys:', Object.keys(acfData));
+  // console.log(`--- ACF Data Structure for Step ${step} ---`);
+  // console.log('Raw ACF data:', acfData);
+  // console.log('ACF keys:', Object.keys(acfData));
   Object.keys(acfData).forEach(key => {
     if (key !== 'title' && key !== 'description' && key !== 'message' && acfData[key] && typeof acfData[key] === 'object') {
-      console.log(`${key}:`, acfData[key], 'Keys:', Object.keys(acfData[key]));
+      // console.log(`${key}:`, acfData[key], 'Keys:', Object.keys(acfData[key]));
     }
   });
   
@@ -63,7 +79,7 @@ export const adaptACFDataForStep = (acfData: any, step: number): ConfiguratorSte
               id: key,
               name: modelData.titlecouteau || key.charAt(0).toUpperCase() + key.slice(1), // Capitaliser le nom de la clé si pas de titre
               description: modelData.descriptioncouteau,
-              image: getImageUrl(modelData.imagecouteau, '/images/knives/desosseur_en_bois_de_noyer/desosseur_en_bois_de_noyer.png')
+              image: getImageUrl(modelData.imagecouteau, '')
             });
           }
         }
@@ -155,6 +171,6 @@ export const adaptACFDataForStep = (acfData: any, step: number): ConfiguratorSte
       break;
   }
   
-  console.log('Adapted ACF data:', adaptedData);
+  // console.log('Adapted ACF data:', adaptedData);
   return adaptedData;
 }; 

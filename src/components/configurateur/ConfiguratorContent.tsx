@@ -93,7 +93,7 @@ export default function ConfiguratorContent({
       name: `Couteau configuré - ${selectedModelData?.name || 'Personnalisé'}`,
       price: estimatedPrice,
       description: `Couteau artisanal personnalisé selon vos spécifications`,
-      image: selectedModelData?.image || '/images/knives/desosseur_en_bois_de_noyer/desosseur_en_bois_de_noyer.png',
+      image: selectedModelData?.image,
       type: 'configurateur',
       customizations,
     });

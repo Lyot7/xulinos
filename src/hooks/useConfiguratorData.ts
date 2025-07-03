@@ -42,7 +42,7 @@ export const useConfiguratorData = (currentStep: number) => {
         if (currentStepWordpressData && typeof currentStepWordpressData === 'object') {
           const wpData = currentStepWordpressData as any;
           
-          console.log(`ACF data for step ${step}:`, wpData.acf);
+          // console.log(`ACF data for step ${step}:`, wpData.acf);
           
           // Vérifier si les données contiennent des champs ACF
           if (wpData.acf && Object.keys(wpData.acf).length > 0) {
@@ -57,7 +57,7 @@ export const useConfiguratorData = (currentStep: number) => {
             allData[step] = {};
           }
         } else {
-          console.log(`No data found for step ${step} (${routeKey})`);
+          // console.log(`No data found for step ${step} (${routeKey})`);
           allData[step] = {};
         }
       }
