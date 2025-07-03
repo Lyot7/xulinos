@@ -41,9 +41,69 @@ export default function Home() {
   const { couteaux, loading: couteauxLoading } = useCouteauxData();
   const [images, setImages] = useState<any[]>([]);
   const [featuredImageUrl, setFeaturedImageUrl] = useState<string | null>(null);
+  
+  // Images extraites par champ ACF - avec gestion d'erreur améliorée
+  const [acfImages, setAcfImages] = useState<{
+    atelier: any;
+    signature: any;
+    banniere1: any;
+    banniere2: any;
+    banniere3: any;
+  }>({
+    atelier: null,
+    signature: null,
+    banniere1: null,
+    banniere2: null,
+    banniere3: null
+  });
 
   // Extract ACF data with safety checks
   const acfData = pageData?.acf || {};
+  
+  // Fonction pour récupérer une image ACF directement depuis l'API
+  const getACFImage = async (imageId: number | undefined) => {
+    if (!imageId) return null;
+    
+    try {
+      const response = await fetch(`https://xulinos.xyz-agency.com/wp-json/wp/v2/media/${imageId}`);
+      if (!response.ok) return null;
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error(`Error fetching ACF image ${imageId}:`, error);
+      return null;
+    }
+  };
+
+  // Charger les images ACF
+  useEffect(() => {
+    const loadACFImages = async () => {
+      if (!pageData?.acf) return;
+
+      const imagePromises = [
+        getACFImage(pageData.acf.entrez_dans_latelier?.image),
+        getACFImage(pageData.acf.votre_couteau_votre_signature?.image),
+        getACFImage(pageData.acf.banniere_icon_1?.icon?.value),
+        getACFImage(pageData.acf.banniere_icon_2?.icon?.value),
+        getACFImage(pageData.acf.banniere_icon_3?.icon?.value)
+      ];
+
+      try {
+        const [atelier, signature, banniere1, banniere2, banniere3] = await Promise.all(imagePromises);
+        setAcfImages({
+          atelier,
+          signature,
+          banniere1,
+          banniere2,
+          banniere3
+        });
+      } catch (error) {
+        console.error('Error loading ACF images:', error);
+      }
+    };
+
+    loadACFImages();
+  }, [pageData?.acf]);
 
   // Text placeholders - all fallback text defined at top level
   const PLACEHOLDERS = {
@@ -225,12 +285,19 @@ export default function Home() {
     couteau2Description,
   ];
 
+  // Debug logs for couteaux data
+  console.log('Raw couteaux data:', couteaux);
+  console.log('Couteaux loading state:', couteauxLoading);
+  console.log('Couteaux array length:', Array.isArray(couteaux) ? couteaux.length : 'Not an array');
+
   const processedCouteaux = (couteaux as WPCouteau[]).map((couteau, i) => ({
     ...couteau,
     processedTitle: couteauxTitles[i] || PLACEHOLDERS.couteauTitle,
     processedDescription:
       couteauxDescriptions[i] || PLACEHOLDERS.couteauDescription,
   }));
+
+  console.log('Processed couteaux:', processedCouteaux);
 
   // Process dynamic temoignages text at top level (individual hook calls for each item)
   const temoignages = (acfData.temoignages || []) as WPTemoignage[];
@@ -398,8 +465,9 @@ export default function Home() {
   useEffect(() => {
     async function fetchImages() {
       try {
+        // Récupérer toutes les images associées à la page d'accueil
         const response = await fetch(
-          "https://xulinos.xyz-agency.com/index.php/wp-json/wp/v2/media?parent=6"
+          "https://xulinos.xyz-agency.com/wp-json/wp/v2/media?parent=6&per_page=100"
         );
         const data = await response.json();
         setImages(data);
@@ -411,42 +479,26 @@ export default function Home() {
     fetchImages();
   }, []);
 
-  if (loading || !pageData || images.length === 0) {
+  // Fallback images pour les icônes de services
+  const fallbackIcons = {
+    banniere1: "/icons/knife.svg",
+    banniere2: "/icons/palette.svg", 
+    banniere3: "/icons/pencil-rule.svg"
+  };
+
+  // Show loading spinner while data is being fetched
+  if (loading) {
     return <LoadingSpinner />;
   }
 
-  // Show skeleton while loading critical data
-  if (loading && !pageData) {
-    return (
-      <main className="flex items-center justify-center min-h-screen bg-dark">
-        <div className="text-white text-xl">{PLACEHOLDERS.loadingText}</div>
-      </main>
-    );
-  }
-
-  // Ensure we have valid data before rendering
-  if (!pageData && !loading) {
+  // Show error message if no data is available
+  if (!pageData) {
     return (
       <main className="flex items-center justify-center min-h-screen bg-dark">
         <div className="text-white text-xl">{PLACEHOLDERS.errorText}</div>
       </main>
     );
   }
-
-  // Fonction utilitaire pour récupérer une image par ID dans images
-  const getImageById = (id: number | undefined) => {
-    if (!id) return null;
-    return images.find((img) => img.id == id) || null;
-  };
-
-  // Images extraites par champ ACF
-  const imageAtelier = getImageById(pageData.acf.entrez_dans_latelier.image);
-  const imageSignature = getImageById(
-    pageData.acf.votre_couteau_votre_signature.image
-  );
-  const imageBanniere1 = getImageById(pageData.acf.banniere_icon_1.icon.value);
-  const imageBanniere2 = getImageById(pageData.acf.banniere_icon_2.icon.value);
-  const imageBanniere3 = getImageById(pageData.acf.banniere_icon_3.icon.value);
 
   return (
     <main className="flex flex-col">
@@ -458,12 +510,14 @@ export default function Home() {
       >
         {/* Background Image with responsive container */}
         <div className="absolute inset-0 z-0">
-          {featuredImageUrl && (
+          {featuredImageUrl ? (
             <img
               src={featuredImageUrl}
               alt={pageData.title.rendered}
               className="object-cover w-full h-full absolute inset-0"
             />
+          ) : (
+            <div className="w-full h-full bg-gray-900"></div>
           )}
         </div>
 
@@ -508,11 +562,24 @@ export default function Home() {
             {/* Service Feature 1 */}
             <div className="flex flex-col items-center text-center flex-1 basis-[280px] min-w-[280px]">
               <div className="w-24 h-24 mb-6">
-                <img
-                  src={imageBanniere1.source_url}
-                  alt={pageData.acf.banniere_icon_1.titre}
-                  className="object-contain w-full h-full"
-                />
+                {acfImages.banniere1?.source_url ? (
+                  <Image
+                    src={acfImages.banniere1.source_url}
+                    alt={pageData.acf.banniere_icon_1.titre}
+                    width={96}
+                    height={96}
+                    className="object-contain w-full h-full"
+                  />
+                ) : (
+                  <Image
+                    src={fallbackIcons.banniere1}
+                    alt={pageData.acf.banniere_icon_1.titre}
+                    width={96}
+                    height={96}
+                    className="object-contain w-full h-full"
+                    priority={true}
+                  />
+                )}
               </div>
               <h3 className="text-2xl font-bold text-white mb-3">
                 {pageData.acf.banniere_icon_1.titre}
@@ -524,11 +591,23 @@ export default function Home() {
             {/* Service Feature 2 */}
             <div className="flex flex-col items-center text-center flex-1 basis-[280px] min-w-[280px]">
               <div className="w-24 h-24 mb-6">
-                <img
-                  src={imageBanniere2.source_url}
-                  alt={pageData.acf.banniere_icon_2.titre}
-                  className="object-contain w-full h-full"
-                />
+                {acfImages.banniere2?.source_url ? (
+                  <Image
+                    src={acfImages.banniere2.source_url}
+                    alt={pageData.acf.banniere_icon_2.titre}
+                    width={96}
+                    height={96}
+                    className="object-contain w-full h-full"
+                  />
+                ) : (
+                  <Image
+                    src={fallbackIcons.banniere2}
+                    alt={pageData.acf.banniere_icon_2.titre}
+                    width={96}
+                    height={96}
+                    className="object-contain w-full h-full"
+                  />
+                )}
               </div>
               <h3 className="text-2xl font-bold text-white mb-3">
                 {pageData.acf.banniere_icon_2.titre}
@@ -541,11 +620,23 @@ export default function Home() {
             {/* Service Feature 3 */}
             <div className="flex flex-col items-center text-center flex-1 basis-[280px] min-w-[280px]">
               <div className="w-24 h-24 mb-6">
-                <img
-                  src={imageBanniere3.source_url}
-                  alt={pageData.acf.banniere_icon_3.titre}
-                  className="object-contain w-full h-full"
-                />
+                {acfImages.banniere3?.source_url ? (
+                  <Image
+                    src={acfImages.banniere3.source_url}
+                    alt={pageData.acf.banniere_icon_3.titre}
+                    width={96}
+                    height={96}
+                    className="object-contain w-full h-full"
+                  />
+                ) : (
+                  <Image
+                    src={fallbackIcons.banniere3}
+                    alt={pageData.acf.banniere_icon_3.titre}
+                    width={96}
+                    height={96}
+                    className="object-contain w-full h-full"
+                  />
+                )}
               </div>
               <h3 className="text-2xl font-bold text-white mb-3">
                 {pageData.acf.banniere_icon_3.titre}
@@ -565,11 +656,23 @@ export default function Home() {
             {/* Image */}
             <div className="w-full md:w-1/2">
               <div className="rounded-lg overflow-hidden">
-                <img
-                  src={imageAtelier.source_url}
-                  alt={pageData.acf.entrez_dans_latelier.titre}
-                  className="rounded-md object-cover w-full h-auto"
-                />
+                {acfImages.atelier?.source_url ? (
+                  <Image
+                    src={acfImages.atelier.source_url}
+                    alt={pageData.acf.entrez_dans_latelier.titre}
+                    width={600}
+                    height={400}
+                    className="rounded-md object-cover w-full h-auto"
+                  />
+                ) : (
+                  <Image
+                    src="/images/couteaux_table_cuisine_bouche.jpg"
+                    alt={pageData.acf.entrez_dans_latelier.titre}
+                    width={600}
+                    height={400}
+                    className="rounded-md object-cover w-full h-auto"
+                  />
+                )}
               </div>
             </div>
 
@@ -608,39 +711,70 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
             {/* Affiche seulement les 3 premiers produits */}
-            {processedCouteaux.slice(0, 3).map((couteau, index) => (
-              <div
-                key={couteau.id || index}
-                className="bg-dark rounded-xl overflow-hidden shadow-lg"
-              >
-                <div className="relative h-72">
-                  <Image
-                    src={
-                      couteau.acf?.image_principale?.url ||
-                      "/images/knives/le-souverain/le-souverain.png"
-                    }
-                    alt={couteau.processedTitle || PLACEHOLDERS.couteauTitle}
-                    fill
-                    style={{ objectFit: "cover", objectPosition: "center" }}
-                    className="hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute top-4 right-4 bg-primary/80 text-white text-sm px-4 py-1.5 rounded-full">
-                    {couteau.acf?.disponibilite || PLACEHOLDERS.disponibilite}
+            {couteauxLoading ? (
+              // Loading state
+              Array.from({ length: 3 }).map((_, index) => (
+                <div key={`loading-${index}`} className="bg-dark rounded-xl overflow-hidden shadow-lg">
+                  <div className="relative h-72 bg-gray-700 animate-pulse">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <LoadingSpinner />
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <div className="h-6 bg-gray-700 rounded animate-pulse mb-2"></div>
+                    <div className="h-4 bg-gray-700 rounded animate-pulse"></div>
                   </div>
                 </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-white mb-2">
-                    {couteau.processedTitle || PLACEHOLDERS.couteauTitle}
-                  </h3>
-                  <p className="text-white/80 line-clamp-4">
-                    {extractTextFromWordPress(
-                      couteau.processedDescription ||
-                        PLACEHOLDERS.couteauDescription
+              ))
+            ) : (
+              processedCouteaux.slice(0, 3).map((couteau, index) => (
+                <div 
+                  key={couteau.id || index} 
+                  className="bg-dark rounded-xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                  onClick={() => handleNavigation(`/couteaux/${couteau.id}`)}
+                >
+                  <div className="relative h-72">
+                    {couteau.acf?.image_principale?.url ? (
+                      <Image 
+                        src={couteau.acf.image_principale.url}
+                        alt={couteau.acf.image_principale.alt || couteau.processedTitle || PLACEHOLDERS.couteauTitle}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        style={{ objectFit: 'cover', objectPosition: 'center' }}
+                        className="hover:scale-105 transition-transform duration-300"
+                        onError={(e) => {
+                          // Fallback to default image if WordPress image fails to load
+                          const target = e.target as HTMLImageElement;
+                          target.src = "/images/knives/le-souverain/le-souverain.png";
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+                        <Image 
+                          src="/images/knives/le-souverain/le-souverain.png"
+                          alt={couteau.processedTitle || PLACEHOLDERS.couteauTitle}
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          style={{ objectFit: 'cover', objectPosition: 'center' }}
+                          className="hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
                     )}
-                  </p>
+                    <div className="absolute top-4 right-4 bg-primary/80 text-white text-sm px-4 py-1.5 rounded-full">
+                      {couteau.acf?.disponibilite || PLACEHOLDERS.disponibilite}
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-white mb-2">
+                      {couteau.processedTitle || PLACEHOLDERS.couteauTitle}
+                    </h3>
+                    <p className="text-white/80 line-clamp-4">
+                      {extractTextFromWordPress(couteau.processedDescription || PLACEHOLDERS.couteauDescription)}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
 
           <div className="text-center mt-8">
@@ -661,11 +795,23 @@ export default function Home() {
             {/* Image */}
             <div className="w-full md:w-1/2">
               <div className="rounded-lg overflow-hidden">
-                <img
-                  src={imageSignature.source_url}
-                  alt={pageData.acf.votre_couteau_votre_signature.titre}
-                  className="rounded-md object-cover w-full h-auto max-w-[400px] sm:max-w-[700px]"
-                />
+                {acfImages.signature?.source_url ? (
+                  <Image
+                    src={acfImages.signature.source_url}
+                    alt={pageData.acf.votre_couteau_votre_signature.titre}
+                    width={600}
+                    height={400}
+                    className="rounded-md object-cover w-full h-auto max-w-[400px] sm:max-w-[700px]"
+                  />
+                ) : (
+                  <Image
+                    src="/images/knives/nature01.jpg"
+                    alt={pageData.acf.votre_couteau_votre_signature.titre}
+                    width={600}
+                    height={400}
+                    className="rounded-md object-cover w-full h-auto max-w-[400px] sm:max-w-[700px]"
+                  />
+                )}
               </div>
             </div>
 
@@ -792,6 +938,7 @@ export default function Home() {
               src="/images/tree-logo.png"
               alt="Logo Xulinos"
               fill
+              sizes="100vw"
               style={{
                 objectFit: "contain",
                 objectPosition: "right bottom",

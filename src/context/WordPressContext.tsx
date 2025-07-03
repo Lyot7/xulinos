@@ -1,7 +1,8 @@
 'use client';
 
-import React, { createContext, useContext, ReactNode, useEffect, useMemo } from 'react';
-import useWordPressData from '@/hooks/useWordPressData';
+import React, { createContext, useContext, ReactNode, useEffect, useMemo, useState } from 'react';
+import { useWordPressData } from '@/hooks/useWordPressData';
+import { processCouteauxImages } from '@/utils/wordpressApi';
 
 interface WordPressContextType {
   data: Record<string, any>;
@@ -27,34 +28,36 @@ export const WordPressProvider: React.FC<{ children: ReactNode }> = ({ children 
       console.error('WordPress Context Error:', error);
     }
     
-    // Log route-specific errors
-    const routeErrorKeys = Object.keys(routeErrors || {}).filter(key => routeErrors[key] !== null);
-    if (routeErrorKeys.length > 0) {
-      console.warn('WordPress Route Errors:', 
-        routeErrorKeys.reduce((acc, key) => {
-          acc[key] = routeErrors[key]?.message || 'Unknown error';
-          return acc;
-        }, {} as Record<string, string>)
-      );
+    // Log route-specific errors with safety checks
+    if (routeErrors && typeof routeErrors === 'object') {
+      const routeErrorKeys = Object.keys(routeErrors).filter(key => routeErrors[key] !== null);
+      if (routeErrorKeys.length > 0) {
+        console.warn('WordPress Route Errors:', 
+          routeErrorKeys.reduce((acc, key) => {
+            acc[key] = routeErrors[key]?.message || 'Unknown error';
+            return acc;
+          }, {} as Record<string, string>)
+        );
+      }
     }
   }, [loading, error, routeErrors]);
 
   // Helper function to check if a specific route has an error
   const hasRouteError = (routeKey: string): boolean => {
-    return !!routeErrors && !!routeErrors[routeKey];
+    return !!(routeErrors && routeErrors[routeKey]);
   };
   
   // Helper function to check if a specific route is loaded
   const isRouteLoaded = (routeKey: string): boolean => {
-    return !!data && !!data[routeKey];
+    return !!(data && data[routeKey]);
   };
   
   // Mémoriser la valeur du contexte pour éviter les rendus inutiles
   const contextValue = useMemo(() => ({
-    data,
+    data: data || {},
     loading,
     error,
-    routeErrors,
+    routeErrors: routeErrors || {},
     hasRouteError,
     isRouteLoaded
   }), [data, loading, error, routeErrors]);
@@ -95,6 +98,29 @@ export const usePageData = (pageKey: string) => {
 
 export const useCouteauxData = () => {
   const { data, loading, error, hasRouteError, isRouteLoaded } = useWordPressContext();
+  const [processedCouteaux, setProcessedCouteaux] = useState<any[]>([]);
+  const [imagesLoading, setImagesLoading] = useState(false);
+  
+  // Process couteaux images when data is loaded
+  useEffect(() => {
+    const processImages = async () => {
+      if (isRouteLoaded('couteaux') && Array.isArray(data['couteaux'])) {
+        setImagesLoading(true);
+        try {
+          const processed = await processCouteauxImages(data['couteaux']);
+          setProcessedCouteaux(processed);
+          console.log('Processed couteaux with images:', processed);
+        } catch (error) {
+          console.error('Error processing couteaux images:', error);
+          setProcessedCouteaux(data['couteaux'] || []);
+        } finally {
+          setImagesLoading(false);
+        }
+      }
+    };
+    
+    processImages();
+  }, [isRouteLoaded('couteaux'), data['couteaux']]);
   
   // Log when couteaux data is accessed, mais seulement une fois
   useEffect(() => {
@@ -106,10 +132,10 @@ export const useCouteauxData = () => {
   }, [isRouteLoaded('couteaux'), data]);
   
   return {
-    couteaux: Array.isArray(data['couteaux']) ? data['couteaux'] : [],
-    loading: loading && !isRouteLoaded('couteaux'),
+    couteaux: processedCouteaux.length > 0 ? processedCouteaux : (Array.isArray(data['couteaux']) ? data['couteaux'] : []),
+    loading: (loading && !isRouteLoaded('couteaux')) || imagesLoading,
     error: hasRouteError('couteaux') ? error : null,
     hasError: hasRouteError('couteaux'),
-    isLoaded: isRouteLoaded('couteaux')
+    isLoaded: isRouteLoaded('couteaux') && !imagesLoading
   };
 }; 

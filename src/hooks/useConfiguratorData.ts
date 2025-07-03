@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import useWordPressData from '@/hooks/useWordPressData';
+import { useWordPressData } from '@/hooks/useWordPressData';
 import { getTestDataForStep } from '@/mockData/configurateur-mock-data';
 import { adaptACFDataForStep, USE_TEST_DATA } from '@/utils/configurateur-utils';
 import { ConfiguratorStepData } from '@/types/configurateur';

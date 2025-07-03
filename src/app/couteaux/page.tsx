@@ -5,6 +5,8 @@ import SearchBar from "@/components/SearchBar";
 import { Switcher } from "@/components/Switcher";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { getCouteauImages, parseWordPressContent, decodeHtmlEntities } from '@/utils/wordpressApi';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function CreationsPage() {
   const [search, setSearch] = useState("");
@@ -14,10 +16,27 @@ export default function CreationsPage() {
   const router = useRouter();
 
   useEffect(() => {
-    fetch("https://xulinos.xyz-agency.com/wp-json/wp/v2/couteaux?_embed")
+    fetch("https://xulinos.xyz-agency.com/wp-json/wp/v2/couteaux")
       .then((res) => res.json())
-      .then((data) => {
-        setKnives(data);
+      .then(async (data) => {
+        const processedKnives = await Promise.all(
+          data.map(async (knife: any) => {
+            const { mainImage, gallery } = await getCouteauImages(knife);
+            return {
+              ...knife,
+              title: { rendered: decodeHtmlEntities(parseWordPressContent(knife.title?.rendered)) },
+              excerpt: {
+                rendered: `<div style='display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;'>${parseWordPressContent(knife.excerpt?.rendered)}</div>`
+              },
+              acf: {
+                ...knife.acf,
+                image_principale: mainImage ? { url: mainImage, alt: '' } : null,
+              },
+              gallery: gallery,
+            };
+          })
+        );
+        setKnives(processedKnives);
         setLoading(false);
       });
   }, []);
@@ -43,7 +62,7 @@ export default function CreationsPage() {
         </div>
 
         {loading ? (
-          <div className="text-white">Chargement...</div>
+          <LoadingSpinner />
         ) : (
           <KnifeGallery
             knives={knives}
