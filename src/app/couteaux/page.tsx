@@ -5,7 +5,7 @@ import SearchBar from "@/components/SearchBar";
 import { Switcher } from "@/components/Switcher";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { processCouteauxImages, parseWordPressContent, decodeHtmlEntities } from '@/utils/wordpressApi';
+import { getCouteauImages, parseWordPressContent, decodeHtmlEntities } from '@/utils/wordpressApi';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function CreationsPage() {
@@ -19,14 +19,23 @@ export default function CreationsPage() {
     fetch("https://xulinos.xyz-agency.com/wp-json/wp/v2/couteaux")
       .then((res) => res.json())
       .then(async (data) => {
-        const processed = await processCouteauxImages(data);
-        const processedKnives = processed.map((knife: any) => ({
-          ...knife,
-          title: { rendered: decodeHtmlEntities(parseWordPressContent(knife.title?.rendered)) },
-          excerpt: {
-            rendered: `<div style='display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;'>${parseWordPressContent(knife.excerpt?.rendered)}</div>`
-          }
-        }));
+        const processedKnives = await Promise.all(
+          data.map(async (knife: any) => {
+            const { mainImage, gallery } = await getCouteauImages(knife);
+            return {
+              ...knife,
+              title: { rendered: decodeHtmlEntities(parseWordPressContent(knife.title?.rendered)) },
+              excerpt: {
+                rendered: `<div style='display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;'>${parseWordPressContent(knife.excerpt?.rendered)}</div>`
+              },
+              acf: {
+                ...knife.acf,
+                image_principale: mainImage ? { url: mainImage, alt: '' } : null,
+              },
+              gallery: gallery,
+            };
+          })
+        );
         setKnives(processedKnives);
         setLoading(false);
       });
