@@ -167,12 +167,12 @@ export const getCouteauImages = async (couteau: any): Promise<{
       
       if (mediaRes.ok) {
         const mediaData = await mediaRes.json();
-        console.log('📸 Media found by parent:', mediaData);
+        // console.log('📸 Media found by parent:', mediaData);
         if (mediaData.length > 0) {
           mainImage = mediaData[0].source_url || null;
           // Ajouter les autres images à la galerie
           gallery = mediaData.slice(1).map((media: any) => media.source_url).filter(Boolean);
-          console.log('✅ Images from media by parent - mainImage:', mainImage, 'gallery:', gallery);
+          // console.log('✅ Images from media by parent - mainImage:', mainImage, 'gallery:', gallery);
         }
       }
     } catch (error) {
@@ -204,7 +204,7 @@ export const getCouteauImages = async (couteau: any): Promise<{
   
   // 5. Essayer de récupérer la galerie depuis d'autres champs ACF
   if (gallery.length === 0) {
-    console.log('🔍 Looking for additional gallery images in ACF');
+    // console.log('🔍 Looking for additional gallery images in ACF');
     
     // Essayer différents noms de champs pour la galerie
     const galleryFields = [
@@ -254,7 +254,7 @@ export const getCouteauImages = async (couteau: any): Promise<{
     }
   }
   
-  console.log('🎯 Final result - mainImage:', mainImage, 'gallery:', gallery);
+  // console.log('🎯 Final result - mainImage:', mainImage, 'gallery:', gallery);
   return { mainImage, gallery };
 };
 

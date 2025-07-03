@@ -1,4 +1,5 @@
 import { ConfiguratorStepData } from '@/types/configurateur';
+import SearchInput from '@/components/SearchInput';
 
 interface EngravingSelectionProps {
   stepData: ConfiguratorStepData;
@@ -29,21 +30,12 @@ export default function EngravingSelection({
           {stepData.description}
         </p>
       )}
-      <div className="mb-4 lg:mb-6">
-        <input
-          type="text"
-          placeholder="Recherchez un motif de guillochage (floral, géométrique...)"
-          value={engravingSearchTerm}
-          onChange={(e) => setEngravingSearchTerm(e.target.value)}
-          className="w-full px-3 sm:px-4 py-2 lg:py-3 rounded-full bg-pure-white text-deep-black placeholder-gray-400 border border-gray-600 focus:border-white focus:outline-none text-sm sm:text-base"
-          style={{
-            backgroundColor: 'var(--color-pure-white)',
-            color: 'var(--color-deep-black)',
-            borderColor: 'var(--color-gray-medium)',
-            borderWidth: '1px'
-          }}
-        />
-      </div>
+      <SearchInput
+        value={engravingSearchTerm}
+        onChange={setEngravingSearchTerm}
+        placeholder="Recherchez un motif de guillochage (floral, géométrique...)"
+        className="mb-4 lg:mb-6"
+      />
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-4 mb-6 lg:mb-8">
         {!stepData.patterns || stepData.patterns.length === 0 ? (
           <div className="col-span-full text-center py-6 lg:py-8">

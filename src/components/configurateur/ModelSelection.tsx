@@ -1,4 +1,5 @@
 import { ConfiguratorStepData } from '@/types/configurateur';
+import SearchInput from '@/components/SearchInput';
 
 interface ModelSelectionProps {
   stepData: ConfiguratorStepData;
@@ -25,21 +26,12 @@ export default function ModelSelection({
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 lg:mb-6 text-white">
         {stepData.title || "Étape 1"}
       </h2>
-      <div className="mb-4 lg:mb-6">
-        <input
-          type="text"
-          placeholder="Recherchez par modèle, matériau ou couleur..."
-          value={modelSearchTerm}
-          onChange={(e) => setModelSearchTerm(e.target.value)}
-          className="w-full px-3 sm:px-4 py-2 rounded-full bg-pure-white placeholder-gray-400 border border-gray-600 focus:border-white focus:outline-none text-deep-black text-sm sm:text-base"
-          style={{
-            backgroundColor: 'var(--color-pure-white)',
-            color: 'var(--color-deep-black)',
-            borderColor: 'var(--color-gray-medium)',
-            borderWidth: '1px'
-          }}
-        />
-      </div>
+      <SearchInput
+        value={modelSearchTerm}
+        onChange={setModelSearchTerm}
+        placeholder="Recherchez par modèle, matériau ou couleur..."
+        className="mb-4 lg:mb-6"
+      />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4 mb-6 lg:mb-8">
         {!stepData.models || stepData.models.length === 0 ? (
           <div className="col-span-full text-center py-6 lg:py-8">

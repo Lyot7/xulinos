@@ -1,4 +1,5 @@
 import { ConfiguratorStepData } from '@/types/configurateur';
+import SearchInput from '@/components/SearchInput';
 
 interface WoodSelectionProps {
   stepData: ConfiguratorStepData;
@@ -24,21 +25,12 @@ export default function WoodSelection({
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 lg:mb-6 text-white">
         {stepData.title || "Étape 2"}
       </h2>
-      <div className="mb-4 lg:mb-6">
-        <input
-          type="text"
-          placeholder="Recherchez un type de bois (noyer, chêne, érable...)"
-          value={woodSearchTerm}
-          onChange={(e) => setWoodSearchTerm(e.target.value)}
-          className="w-full px-3 sm:px-4 py-2 rounded-full bg-pure-white placeholder-gray-400 border border-gray-600 focus:border-white focus:outline-none text-deep-black text-sm sm:text-base"
-          style={{
-            backgroundColor: 'var(--color-pure-white)',
-            color: 'var(--color-deep-black)',
-            borderColor: 'var(--color-gray-medium)',
-            borderWidth: '1px'
-          }}
-        />
-      </div>
+      <SearchInput
+        value={woodSearchTerm}
+        onChange={setWoodSearchTerm}
+        placeholder="Recherchez un type de bois (noyer, chêne, érable...)"
+        className="mb-4 lg:mb-6"
+      />
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-4 mb-6 lg:mb-8">
         {!stepData.woods || stepData.woods.length === 0 ? (
           <div className="col-span-full text-center py-6 lg:py-8">

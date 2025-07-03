@@ -116,10 +116,11 @@ export const adaptACFDataForStep = (acfData: any, step: number): ConfiguratorSte
           // Inclure tous les motifs, même ceux avec des champs vides
           // Gérer les différents noms de champs possibles
           if (patternData.hasOwnProperty('titlepattern') || patternData.hasOwnProperty('imagepattern') || 
-              patternData.hasOwnProperty('patterntext') || Object.keys(patternData).length > 0) {
+              patternData.hasOwnProperty('patterntext') || patternData.hasOwnProperty('NomGuillochage') ||
+              Object.keys(patternData).length > 0) {
             adaptedData.patterns!.push({
               id: key,
-              name: patternData.titlepattern || key.charAt(0).toUpperCase() + key.slice(1),
+              name: patternData.NomGuillochage || patternData.titlepattern || key.charAt(0).toUpperCase() + key.slice(1),
               pattern: patternData.patterntext || '',
               image: getImageUrl(patternData.imagepattern, '/images/tattoos/tattoo_snake.png')
             });
