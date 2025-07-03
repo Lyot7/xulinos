@@ -64,29 +64,13 @@ export const submitWordPressForm = async (formKey: string, formData: FormData): 
  * @param content The WordPress content to parse
  * @returns The parsed content with preserved HTML tags
  */
-export const parseWordPressContent = (content: { rendered?: string } | string | undefined): string => {
+export function parseWordPressContent(content: { rendered?: string } | string | undefined): string {
   if (!content) return '';
-  
-  let rawContent: string;
-  
   if (typeof content === 'object' && content.rendered) {
-    rawContent = content.rendered;
-  } else {
-    rawContent = content as string;
+    return decodeHtmlEntities(content.rendered);
   }
-  
-  // Décode les entités HTML pour gérer l'encodage UTF-8
-  // Utilisation d'une approche compatible SSR
-  const decodedContent = rawContent
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#039;/g, "'")
-    .replace(/&nbsp;/g, ' ');
-  
-  return decodedContent;
-};
+  return decodeHtmlEntities(content as string);
+}
 
 /**
  * Gets the featured image URL from a WordPress post
