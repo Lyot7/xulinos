@@ -35,3 +35,77 @@ body {
 .animate-spin-slow {
   animation: spin-slow 3s linear infinite;
 }
+
+/* Styles pour le contenu HTML des pages légales */
+.legal-content h1,
+.legal-content h2,
+.legal-content h3,
+.legal-content h4,
+.legal-content h5,
+.legal-content h6 {
+  color: #FFFFFF;
+  font-weight: bold;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.legal-content h1 {
+  font-size: 2rem;
+}
+
+.legal-content h2 {
+  font-size: 1.5rem;
+}
+
+.legal-content h3 {
+  font-size: 1.25rem;
+}
+
+.legal-content p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.legal-content ul,
+.legal-content ol {
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.legal-content li {
+  margin-bottom: 0.5rem;
+}
+
+.legal-content a {
+  color: #BCC4A7;
+  text-decoration: underline;
+}
+
+.legal-content a:hover {
+  color: #705D56;
+}
+
+.legal-content blockquote {
+  border-left: 4px solid #705D56;
+  padding-left: 1rem;
+  margin: 1rem 0;
+  font-style: italic;
+}
+
+.legal-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.legal-content th,
+.legal-content td {
+  border: 1px solid #6B7280;
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.legal-content th {
+  background-color: #503B31;
+  font-weight: bold;
+}

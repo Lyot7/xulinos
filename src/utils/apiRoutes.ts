@@ -71,6 +71,23 @@ export const apiRoutes: Record<string, ApiRoute> = {
     endpoint: `${WP_BASE_URL}/wp/v2/pages/41`,
     priority: 10,
   },
+  
+  // Pages légales
+  cgv: {
+    key: 'cgv',
+    endpoint: `${WP_BASE_URL}/wp/v2/pages/287`,
+    priority: 11,
+  },
+  configuration: {
+    key: 'configuration',
+    endpoint: `${WP_BASE_URL}/wp/v2/pages/289`,
+    priority: 12,
+  },
+  mentions: {
+    key: 'mentions',
+    endpoint: `${WP_BASE_URL}/wp/v2/pages/3`,
+    priority: 13,
+  },
 };
 
 // Map of page paths to their corresponding API route keys
@@ -81,6 +98,9 @@ export const pathToRouteKeyMap: Record<string, string> = {
   '/service': 'service',
   '/configurateur': 'configurateur',
   '/couteaux': 'couteaux',
+  '/tos': 'cgv',
+  '/privacy': 'mentions',
+  '/cookie-policy': 'configuration',
 };
 
 // Helper function to get route key from current path

@@ -60,18 +60,32 @@ export const submitWordPressForm = async (formKey: string, formData: FormData): 
 };
 
 /**
- * Parses WordPress content to handle HTML content
+ * Parses WordPress content to handle HTML content with UTF-8 encoding
  * @param content The WordPress content to parse
- * @returns The parsed content
+ * @returns The parsed content with preserved HTML tags
  */
 export const parseWordPressContent = (content: { rendered?: string } | string | undefined): string => {
   if (!content) return '';
   
+  let rawContent: string;
+  
   if (typeof content === 'object' && content.rendered) {
-    return content.rendered;
+    rawContent = content.rendered;
+  } else {
+    rawContent = content as string;
   }
   
-  return content as string;
+  // Décode les entités HTML pour gérer l'encodage UTF-8
+  // Utilisation d'une approche compatible SSR
+  const decodedContent = rawContent
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&nbsp;/g, ' ');
+  
+  return decodedContent;
 };
 
 /**
