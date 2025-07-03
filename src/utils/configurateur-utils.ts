@@ -62,7 +62,7 @@ export const adaptACFDataForStep = (acfData: any, step: number): ConfiguratorSte
             adaptedData.models!.push({
               id: key,
               name: modelData.titlecouteau || key.charAt(0).toUpperCase() + key.slice(1), // Capitaliser le nom de la clé si pas de titre
-              description: modelData.descriptioncouteau || 'Modèle disponible',
+              description: modelData.descriptioncouteau,
               image: getImageUrl(modelData.imagecouteau, '/images/knives/desosseur_en_bois_de_noyer/desosseur_en_bois_de_noyer.png')
             });
           }

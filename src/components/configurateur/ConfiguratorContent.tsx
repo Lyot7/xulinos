@@ -7,7 +7,6 @@ import WoodSelection from './WoodSelection';
 import EngravingSelection from './EngravingSelection';
 import PersonalizationForm from './PersonalizationForm';
 import ConfigurationSummary from './ConfigurationSummary';
-import LoadingIndicator from './LoadingIndicator';
 
 interface ConfiguratorContentProps {
   currentStep: number;
@@ -173,7 +172,6 @@ export default function ConfiguratorContent({
 
   return (
     <div>
-      <LoadingIndicator allStepsData={allStepsData} loading={loading} />
       {renderContent()}
     </div>
   );

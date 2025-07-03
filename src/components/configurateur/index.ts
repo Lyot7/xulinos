@@ -4,4 +4,3 @@ export { default as WoodSelection } from './WoodSelection';
 export { default as EngravingSelection } from './EngravingSelection';
 export { default as PersonalizationForm } from './PersonalizationForm';
 export { default as ConfigurationSummary } from './ConfigurationSummary';
-export { default as LoadingIndicator } from './LoadingIndicator'; 
