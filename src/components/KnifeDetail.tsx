@@ -210,7 +210,7 @@ export default function KnifeDetail({
               </span>
             )}
          
-            <p className="text-4xl font-bold">{price}</p>
+            <p className="text-4xl font-bold">{price} €</p>
 
             
             <div
