@@ -35,9 +35,25 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [items, setItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  // Calculer les totaux
+  // Fonction utilitaire pour nettoyer et formater le prix
+  const formatPrice = (price: any): number => {
+    if (typeof price === 'number') {
+      return price;
+    }
+    if (typeof price === 'string') {
+      // Supprimer le symbole € et les espaces, puis convertir en nombre
+      const cleanPrice = price.replace(/[€\s]/g, '').replace(',', '.');
+      return parseFloat(cleanPrice) || 0;
+    }
+    return 0;
+  };
+
+  // Calculer les totaux avec des prix nettoyés
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const totalPrice = items.reduce((sum, item) => {
+    const cleanPrice = formatPrice(item.price);
+    return sum + (cleanPrice * item.quantity);
+  }, 0);
 
   // Charger le panier depuis le localStorage au démarrage
   useEffect(() => {
@@ -58,19 +74,25 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Ajouter un article au panier
   const addItem = (newItem: Omit<CartItem, 'quantity'>) => {
+    // Nettoyer le prix avant d'ajouter l'article
+    const cleanItem = {
+      ...newItem,
+      price: formatPrice(newItem.price)
+    };
+
     setItems(currentItems => {
-      const existingItem = currentItems.find(item => item.id === newItem.id);
+      const existingItem = currentItems.find(item => item.id === cleanItem.id);
       
       if (existingItem) {
         // Si l'article existe déjà, augmenter la quantité
         return currentItems.map(item =>
-          item.id === newItem.id
+          item.id === cleanItem.id
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       } else {
         // Sinon, ajouter un nouvel article
-        return [...currentItems, { ...newItem, quantity: 1 }];
+        return [...currentItems, { ...cleanItem, quantity: 1 }];
       }
     });
   };
@@ -115,10 +137,13 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     let summary = `Détail du panier (${totalItems} article${totalItems > 1 ? 's' : ''}):\n\n`;
     
     items.forEach((item, index) => {
+      const cleanPrice = formatPrice(item.price);
+      const subtotal = cleanPrice * item.quantity;
+      
       summary += `${index + 1}. ${item.name}\n`;
-      summary += `   - Prix unitaire: ${item.price}€\n`;
+      summary += `   - Prix unitaire: ${cleanPrice} €\n`;
       summary += `   - Quantité: ${item.quantity}\n`;
-      summary += `   - Sous-total: ${item.price * item.quantity}€\n`;
+      summary += `   - Sous-total: ${subtotal} €\n`;
       
       if (item.type === 'configurateur' && item.customizations) {
         summary += `   - Personnalisations:\n`;
@@ -130,7 +155,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       summary += `\n`;
     });
     
-    summary += `TOTAL: ${totalPrice}€`;
+    summary += `TOTAL: ${totalPrice} €`;
     
     return summary;
   };

@@ -5,6 +5,7 @@ import Navbar from './Navbar';
 import { FaInstagram, FaLinkedin, FaYoutube } from 'react-icons/fa';
 import Logo from './Logo';
 import { useRouter } from 'next/navigation';
+import CookieManager from './CookieManager';
 
 const Footer = () => {
   const router = useRouter();
@@ -56,6 +57,8 @@ const Footer = () => {
             >
               Confidentialité
             </a>
+            <span className="text-white/30">—</span>
+            <CookieManager />
           </div>
         </div>
 
@@ -106,6 +109,8 @@ const Footer = () => {
           >
             Confidentialité
           </a>
+          <span className="text-white/30">—</span>
+          <CookieManager />
         </div>
 
         {/* Copyright centré - visible uniquement sur mobile */}

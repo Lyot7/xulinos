@@ -35,3 +35,116 @@ body {
 .animate-spin-slow {
   animation: spin-slow 3s linear infinite;
 }
+
+/* Styles pour le contenu HTML des pages légales */
+.legal-content h1,
+.legal-content h2,
+.legal-content h3,
+.legal-content h4,
+.legal-content h5,
+.legal-content h6 {
+  color: #FFFFFF;
+  font-weight: bold;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.legal-content h1 {
+  font-size: 2rem;
+  margin-top: 0; /* Pas de marge en haut pour le premier h1 */
+}
+
+.legal-content h2 {
+  font-size: 1.5rem;
+}
+
+.legal-content h3 {
+  font-size: 1.25rem;
+}
+
+.legal-content p {
+  margin-bottom: 1rem;
+  line-height: 1.7;
+  text-align: justify;
+}
+
+.legal-content ul,
+.legal-content ol {
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+  padding-left: 0.5rem;
+}
+
+.legal-content li {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.legal-content a {
+  color: #BCC4A7;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.legal-content a:hover {
+  color: #705D56;
+}
+
+.legal-content blockquote {
+  border-left: 4px solid #705D56;
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+  font-style: italic;
+  background-color: rgba(112, 93, 86, 0.1);
+  padding: 1rem;
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+
+.legal-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.legal-content th,
+.legal-content td {
+  border: 1px solid #6B7280;
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.legal-content th {
+  background-color: #503B31;
+  font-weight: bold;
+  color: #FFFFFF;
+}
+
+.legal-content td {
+  background-color: rgba(112, 93, 86, 0.05);
+}
+
+/* Amélioration de l'espacement général */
+.legal-content > *:first-child {
+  margin-top: 0;
+}
+
+.legal-content > *:last-child {
+  margin-bottom: 0;
+}
+
+/* Styles pour les sections */
+.legal-content section {
+  margin-bottom: 2rem;
+}
+
+/* Styles pour les listes à puces personnalisées */
+.legal-content ul li::marker {
+  color: #BCC4A7;
+}
+
+.legal-content ol li::marker {
+  color: #BCC4A7;
+  font-weight: bold;
+}
