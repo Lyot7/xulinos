@@ -285,12 +285,19 @@ export default function Home() {
     couteau2Description,
   ];
 
+  // Debug logs for couteaux data
+  console.log('Raw couteaux data:', couteaux);
+  console.log('Couteaux loading state:', couteauxLoading);
+  console.log('Couteaux array length:', Array.isArray(couteaux) ? couteaux.length : 'Not an array');
+
   const processedCouteaux = (couteaux as WPCouteau[]).map((couteau, i) => ({
     ...couteau,
     processedTitle: couteauxTitles[i] || PLACEHOLDERS.couteauTitle,
     processedDescription:
       couteauxDescriptions[i] || PLACEHOLDERS.couteauDescription,
   }));
+
+  console.log('Processed couteaux:', processedCouteaux);
 
   // Process dynamic temoignages text at top level (individual hook calls for each item)
   const temoignages = (acfData.temoignages || []) as WPTemoignage[];
@@ -472,10 +479,6 @@ export default function Home() {
     fetchImages();
   }, []);
 
-  if (loading || !pageData) {
-    return <LoadingSpinner />;
-  }
-
   // Fallback images pour les icônes de services
   const fallbackIcons = {
     banniere1: "/icons/knife.svg",
@@ -483,17 +486,13 @@ export default function Home() {
     banniere3: "/icons/pencil-rule.svg"
   };
 
-  // Show skeleton while loading critical data
-  if (loading && !pageData) {
-    return (
-      <main className="flex items-center justify-center min-h-screen bg-dark">
-        <div className="text-white text-xl">{PLACEHOLDERS.loadingText}</div>
-      </main>
-    );
+  // Show loading spinner while data is being fetched
+  if (loading) {
+    return <LoadingSpinner />;
   }
 
-  // Ensure we have valid data before rendering
-  if (!pageData && !loading) {
+  // Show error message if no data is available
+  if (!pageData) {
     return (
       <main className="flex items-center justify-center min-h-screen bg-dark">
         <div className="text-white text-xl">{PLACEHOLDERS.errorText}</div>
@@ -729,7 +728,11 @@ export default function Home() {
               ))
             ) : (
               processedCouteaux.slice(0, 3).map((couteau, index) => (
-                <div key={couteau.id || index} className="bg-dark rounded-xl overflow-hidden shadow-lg">
+                <div 
+                  key={couteau.id || index} 
+                  className="bg-dark rounded-xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                  onClick={() => handleNavigation(`/couteaux/${couteau.id}`)}
+                >
                   <div className="relative h-72">
                     {couteau.acf?.image_principale?.url ? (
                       <Image 

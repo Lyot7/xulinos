@@ -189,6 +189,12 @@ export const useWordPressData = () => {
 
       try {
         await fetchData(route);
+        
+        // Load couteaux data for home page as well
+        if (routeKey === 'home' && apiRoutes.couteaux) {
+          console.log('Loading couteaux data for home page');
+          await fetchData(apiRoutes.couteaux);
+        }
       } catch (error) {
         console.error(`Error loading data for route ${routeKey}:`, error);
       }
