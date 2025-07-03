@@ -30,9 +30,22 @@ export default function KnifeDetail({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Debug logs
+  console.log('🔍 KnifeDetail props:', {
+    id,
+    name,
+    price,
+    available,
+    mainImage,
+    gallery,
+    galleryLength: gallery?.length || 0
+  });
+
   // Combiner mainImage et gallery pour créer toutes les images
   // Filter out empty or invalid URLs
   const allImages = [mainImage, ...gallery].filter(img => img && img.trim() !== '');
+  
+  console.log('📸 All images for carousel:', allImages);
 
   const handleAddToCart = () => {
     addItem({

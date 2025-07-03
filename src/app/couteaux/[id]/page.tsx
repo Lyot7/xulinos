@@ -19,6 +19,15 @@ export default async function KnifeDetailPage({ params }: Props) {
 
   const knife = await res.json();
 
+  // Log complet des données du couteau pour debug
+  console.log('🔍 Complete knife data:', {
+    id: knife?.id,
+    title: knife?.title?.rendered,
+    acf: knife?.acf,
+    featured_media: knife?.featured_media,
+    _embedded: knife?._embedded
+  });
+
   // Utiliser la fonction commune pour récupérer les images
   const { mainImage, gallery } = await getCouteauImagesServer(knife);
 
@@ -27,14 +36,15 @@ export default async function KnifeDetailPage({ params }: Props) {
   const description = parseWordPressContentServer(knife.content?.rendered);
 
   // Log de debug pour vérifier les valeurs
-  console.log({
+  console.log('🎯 KnifeDetailPage result:', {
     id: knife?.id,
     name,
     price: knife.acf?.prix,
     available: knife.class_list?.includes("couteaux_tag-disponible-a-lachat"),
-    description,
+    description: description?.substring(0, 100) + '...',
     mainImage,
-    gallery
+    gallery,
+    galleryLength: gallery?.length || 0
   });
 
   return (
