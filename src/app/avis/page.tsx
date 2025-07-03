@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { FaStar } from 'react-icons/fa';
+import { FaStar, FaPaperPlane } from 'react-icons/fa';
 
 interface Testimonial {
   id: number;
@@ -39,10 +39,14 @@ export default function AvisPage() {
 
   // État pour le formulaire d'avis
   const [newReview, setNewReview] = useState({
-    name: '',
-    rating: 5,
-    comment: ''
+    nom: '',
+    objet: '',
+    message: ''
   });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState('');
+  const [mailtoLink, setMailtoLink] = useState<string | null>(null);
 
   // Gérer les changements dans le formulaire
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -53,45 +57,73 @@ export default function AvisPage() {
     });
   };
 
-  // Gérer le changement de note
-  const handleRatingChange = (rating: number) => {
-    setNewReview({
-      ...newReview,
-      rating
-    });
-  };
-
   // Soumettre un nouvel avis
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Vérifier que tous les champs sont remplis
-    if (!newReview.name || !newReview.comment) {
-      alert("Veuillez remplir tous les champs obligatoires.");
+    if (!newReview.nom || !newReview.objet || !newReview.message) {
+      setSubmitMessage('Veuillez remplir tous les champs obligatoires.');
       return;
     }
     
-    // Créer un nouvel avis
-    const currentDate = new Date();
-    const formattedDate = `${currentDate.getDate().toString().padStart(2, '0')}/${(currentDate.getMonth() + 1).toString().padStart(2, '0')}/${currentDate.getFullYear()}`;
-    
-    const newTestimonial: Testimonial = {
-      id: testimonials.length + 1,
-      name: newReview.name,
-      rating: newReview.rating,
-      comment: newReview.comment,
-      date: formattedDate
-    };
-    
-    // Ajouter le nouvel avis à la liste
-    setTestimonials([...testimonials, newTestimonial]);
-    
-    // Réinitialiser le formulaire
-    setNewReview({
-      name: '',
-      rating: 5,
-      comment: ''
-    });
+    setIsSubmitting(true);
+    setSubmitMessage('');
+    setMailtoLink(null);
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...newReview,
+          type: 'avis'
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        setSubmitMessage('Votre avis a été préparé. Votre client email va s\'ouvrir...');
+        
+        // Ouvrir directement le client email
+        window.location.href = result.mailtoLink;
+        
+        // Ajouter l'avis localement pour l'affichage
+        const currentDate = new Date();
+        const formattedDate = `${currentDate.getDate().toString().padStart(2, '0')}/${(currentDate.getMonth() + 1).toString().padStart(2, '0')}/${currentDate.getFullYear()}`;
+        
+        const newTestimonial: Testimonial = {
+          id: testimonials.length + 1,
+          name: newReview.nom,
+          rating: 5, // Note par défaut
+          comment: newReview.message,
+          date: formattedDate
+        };
+        
+        setTestimonials([...testimonials, newTestimonial]);
+        
+        // Réinitialiser le formulaire après un délai
+        setTimeout(() => {
+          setNewReview({
+            nom: '',
+            objet: '',
+            message: ''
+          });
+          setSubmitMessage('');
+          setMailtoLink(null);
+        }, 2000);
+      } else {
+        setSubmitMessage(result.error || 'Une erreur est survenue. Veuillez réessayer.');
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi:', error);
+      setSubmitMessage('Une erreur de connexion est survenue. Veuillez vérifier votre connexion internet et réessayer.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -130,12 +162,12 @@ export default function AvisPage() {
           
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="name" className="block text-white mb-2">Votre nom *</label>
+              <label htmlFor="nom" className="block text-white mb-2">Votre nom *</label>
               <input
                 type="text"
-                id="name"
-                name="name"
-                value={newReview.name}
+                id="nom"
+                name="nom"
+                value={newReview.nom}
                 onChange={handleInputChange}
                 className="w-full p-3 bg-white text-gray-800 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary"
                 required
@@ -143,32 +175,29 @@ export default function AvisPage() {
             </div>
             
             <div>
-              <label className="block text-white mb-2">Votre note *</label>
-              <div className="flex gap-2 p-3 rounded-md">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    type="button"
-                    onClick={() => handleRatingChange(star)}
-                    className="text-2xl focus:outline-none"
-                  >
-                    <FaStar 
-                      className={`w-8 h-8 ${star <= newReview.rating ? 'text-yellow-400' : 'text-white'}`}
-                    />
-                  </button>
-                ))}
-              </div>
+              <label htmlFor="objet" className="block text-white mb-2">Objet *</label>
+              <input
+                type="text"
+                id="objet"
+                name="objet"
+                value={newReview.objet}
+                onChange={handleInputChange}
+                className="w-full p-3 bg-white text-gray-800 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="Ex: Avis sur mon couteau personnalisé"
+                required
+              />
             </div>
             
             <div>
-              <label htmlFor="comment" className="block text-white mb-2">Votre commentaire *</label>
+              <label htmlFor="message" className="block text-white mb-2">Votre commentaire *</label>
               <textarea
-                id="comment"
-                name="comment"
-                value={newReview.comment}
+                id="message"
+                name="message"
+                value={newReview.message}
                 onChange={handleInputChange}
                 rows={4}
                 className="w-full p-3 bg-white text-gray-800 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="Partagez votre expérience avec Xulinos..."
                 required
               ></textarea>
             </div>
@@ -176,12 +205,27 @@ export default function AvisPage() {
             <div>
               <button
                 type="submit"
-                className="bg-primary hover:bg-primary/90 text-white font-medium py-3 px-6 rounded-md transition-colors"
+                disabled={isSubmitting}
+                className="bg-primary hover:bg-primary/90 disabled:bg-primary/50 text-white font-medium py-3 px-6 rounded-md transition-colors"
               >
-                Publier mon avis
+                {isSubmitting ? 'Préparation en cours...' : 'Préparer mon avis'}
               </button>
             </div>
           </form>
+
+          {submitMessage && (
+            <div className={`mt-6 p-4 rounded-md border-l-4 ${
+              submitMessage.includes('préparé') ? 'bg-green-900/20 border-green-500 text-green-100' 
+              : 'bg-red-900/20 border-red-500 text-red-100'
+            }`}>
+              <div className="flex items-center">
+                <span className="mr-2">
+                  {submitMessage.includes('préparé') ? '✅' : '❌'}
+                </span>
+                <p className="text-sm font-medium">{submitMessage}</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </main>
