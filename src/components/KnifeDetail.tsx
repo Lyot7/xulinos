@@ -61,9 +61,11 @@ export default function KnifeDetail({
        
           <p className="text-4xl font-bold">{price}</p>
 
-          {(description || '').split('\n').map((para, idx) => (
-            <p className="text-gray-200" key={idx}>{para}</p>
-          ))}
+          
+          <div
+            className="text-white prose prose-invert"
+            dangerouslySetInnerHTML={{ __html: description }}
+          />
 
           {available ? (
             <PrimaryButton 
