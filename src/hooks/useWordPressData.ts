@@ -73,6 +73,23 @@ export const useWordPressData = () => {
     error: null,
     routeErrors: {},
   });
+
+  // Update loading state when data changes
+  useEffect(() => {
+    const routeKey = getRouteKeyFromPath(pathname);
+    if (routeKey === 'configurateur') {
+      // For configurateur, check if all 5 steps have data
+      const allConfiguratorLoaded = [1, 2, 3, 4, 5].every(i => 
+        state.data[`configurateur${i}`] !== undefined
+      );
+      
+      if (allConfiguratorLoaded && state.loading) {
+        setState(prev => ({ ...prev, loading: false }));
+      }
+    } else if (routeKey && state.data[routeKey] && state.loading) {
+      setState(prev => ({ ...prev, loading: false }));
+    }
+  }, [pathname, state.data, state.loading]);
   
   const isMountedRef = useRef(true);
   const currentPathnameRef = useRef(pathname);
@@ -181,13 +198,27 @@ export const useWordPressData = () => {
   // Main effect to load data based on current path
   useEffect(() => {
     const loadDataForPath = async () => {
+      console.log('=== WORDPRESS DATA HOOK DEBUG ===');
+      console.log('Current pathname:', pathname);
+      
       const routeKey = getRouteKeyFromPath(pathname);
-      if (!routeKey) return;
+      console.log('Route key:', routeKey);
+      
+      if (!routeKey) {
+        console.log('No route key found for pathname');
+        return;
+      }
 
       const route = apiRoutes[routeKey];
-      if (!route) return;
+      console.log('Route found:', route);
+      
+      if (!route) {
+        console.log('No route found in apiRoutes');
+        return;
+      }
 
       try {
+        console.log('Fetching data for route:', routeKey);
         await fetchData(route);
         
         // Load couteaux data for home page as well
@@ -195,6 +226,21 @@ export const useWordPressData = () => {
           console.log('Loading couteaux data for home page');
           await fetchData(apiRoutes.couteaux);
         }
+        
+        // Load all configurateur data when on configurateur page
+        if (routeKey === 'configurateur') {
+          console.log('Loading all configurateur data');
+          const configuratorPromises = [];
+          for (let i = 1; i <= 5; i++) {
+            const configRoute = apiRoutes[`configurateur${i}`];
+            if (configRoute) {
+              configuratorPromises.push(fetchData(configRoute));
+            }
+          }
+          await Promise.all(configuratorPromises);
+        }
+        
+        console.log('Data loading completed for route:', routeKey);
       } catch (error) {
         console.error(`Error loading data for route ${routeKey}:`, error);
       }
@@ -209,6 +255,14 @@ export const useWordPressData = () => {
       isMountedRef.current = false;
     };
   }, []);
+
+  useEffect(() => {
+    console.log('=== WORDPRESS DATA STATE ===');
+    console.log('Loading:', state.loading);
+    console.log('Error:', state.error);
+    console.log('Data keys:', Object.keys(state.data));
+    console.log('Route errors:', state.routeErrors);
+  }, [state.loading, state.error, state.data, state.routeErrors]);
 
   return { 
     data: state.data, 

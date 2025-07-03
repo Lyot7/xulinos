@@ -46,6 +46,11 @@ export const apiRoutes: Record<string, ApiRoute> = {
   },
   
   // Configurateur pages
+  configurateur: {
+    key: 'configurateur',
+    endpoint: `${WP_BASE_URL}/wp/v2/pages/33`,
+    priority: 6,
+  },
   configurateur1: {
     key: 'configurateur1',
     endpoint: `${WP_BASE_URL}/wp/v2/pages/33`,

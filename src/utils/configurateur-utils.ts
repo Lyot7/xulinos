@@ -42,12 +42,12 @@ export const adaptACFDataForStep = (acfData: any, step: number): ConfiguratorSte
   const adaptedData: ConfiguratorStepData = {};
   
   // Debug: afficher la structure des données ACF reçues
-  // console.log(`--- ACF Data Structure for Step ${step} ---`);
-  // console.log('Raw ACF data:', acfData);
-  // console.log('ACF keys:', Object.keys(acfData));
+  console.log(`--- ACF Data Structure for Step ${step} ---`);
+  console.log('Raw ACF data:', acfData);
+  console.log('ACF keys:', Object.keys(acfData));
   Object.keys(acfData).forEach(key => {
     if (key !== 'title' && key !== 'description' && key !== 'message' && acfData[key] && typeof acfData[key] === 'object') {
-      // console.log(`${key}:`, acfData[key], 'Keys:', Object.keys(acfData[key]));
+      console.log(`${key}:`, acfData[key], 'Keys:', Object.keys(acfData[key]));
     }
   });
   
@@ -172,6 +172,6 @@ export const adaptACFDataForStep = (acfData: any, step: number): ConfiguratorSte
       break;
   }
   
-  // console.log('Adapted ACF data:', adaptedData);
+  console.log('Adapted ACF data:', adaptedData);
   return adaptedData;
 }; 

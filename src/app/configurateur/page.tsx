@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Stepper from '@/components/Stepper';
 import ConfiguratorContent from '@/components/configurateur/ConfiguratorContent';
 import { ConfiguratorFormData } from '@/types/configurateur';
+import { useConfiguratorData } from '@/hooks/useConfiguratorData';
 
 export default function ConfiguratorPage() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -16,6 +17,31 @@ export default function ConfiguratorPage() {
     otherDetails: '',
     email: '',
   });
+
+  const { stepData, allStepsData, loading, error } = useConfiguratorData(currentStep);
+
+  useEffect(() => {
+    console.log('=== CONFIGURATOR PAGE DEBUG ===');
+    console.log('Current step:', currentStep);
+    console.log('Loading:', loading);
+    console.log('Error:', error);
+    console.log('Step data:', stepData);
+    console.log('All steps data:', allStepsData);
+    
+    if (stepData && stepData.models) {
+      console.log('Models found:', stepData.models.length);
+      console.log('Models data:', stepData.models);
+    } else {
+      console.log('No models in stepData');
+    }
+    
+    if (allStepsData[1] && allStepsData[1].models) {
+      console.log('Models in step 1:', allStepsData[1].models.length);
+      console.log('Step 1 models:', allStepsData[1].models);
+    } else {
+      console.log('No models in allStepsData[1]');
+    }
+  }, [currentStep, loading, error, stepData, allStepsData]);
 
   const nextStep = () => {
     if (currentStep < 5) {
