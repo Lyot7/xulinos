@@ -28,12 +28,19 @@ export default function KnifeGallery({ knives, search, onlyAvailable, onKnifeCli
 
   const handleAddToCart = (e: React.MouseEvent, knife: any) => {
     e.stopPropagation();
+    
+    // Récupérer l'image avec plusieurs fallbacks
+    const imageUrl = knife._embedded?.["wp:featuredmedia"]?.[0]?.source_url || 
+                    knife._embedded?.["wp:featuredmedia"]?.[0]?.guid?.rendered ||
+                    knife.acf?.image_principale?.url ||
+                    "/images/knives/le-souverain/le-souverain.png"; // Image par défaut
+    
     addItem({
       id: knife.id.toString(),
       name: knife.title?.rendered,
       price: knife.acf?.prix || 0,
       description: knife.excerpt?.rendered,
-      image: knife._embedded?.["wp:featuredmedia"]?.[0]?.guid?.rendered || "",
+      image: imageUrl,
       type: 'couteau',
     });
   };
@@ -48,15 +55,20 @@ export default function KnifeGallery({ knives, search, onlyAvailable, onKnifeCli
             onClick={() => onKnifeClick && onKnifeClick(knife)}
           >
             <div className="relative w-full h-48">
-              {knife._embedded?.["wp:featuredmedia"]?.[0]?.source_url && (
-                
-                <Image
-                  src={knife._embedded["wp:featuredmedia"][0].source_url}
-                  alt={knife.title?.rendered}
-                  fill
-                  className="object-cover rounded-lg"
-                />
-              )}
+              {(() => {
+                const imageUrl = knife._embedded?.["wp:featuredmedia"]?.[0]?.source_url || 
+                                knife._embedded?.["wp:featuredmedia"]?.[0]?.guid?.rendered ||
+                                knife.acf?.image_principale?.url ||
+                                "/images/knives/le-souverain/le-souverain.png";
+                return (
+                  <Image
+                    src={imageUrl}
+                    alt={knife.title?.rendered}
+                    fill
+                    className="object-cover rounded-lg"
+                  />
+                );
+              })()}
               
               {knife.class_list?.includes("couteaux_tag-disponible-a-lachat") && (
                 <span className="absolute top-2 right-1 bg-sage text-black text-xs px-2 py-1 rounded-lg">
