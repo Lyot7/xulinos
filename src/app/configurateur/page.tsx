@@ -118,33 +118,25 @@ export default function ConfiguratorPage() {
               </button>
               
               {currentStep < 4 ? (
-                <button
-                  onClick={nextStep}
-                  disabled={
-                    (currentStep === 1 && !selectedModel) ||
-                    (currentStep === 2 && !selectedWood) ||
-                    (currentStep === 3 && !selectedEngraving)
-                  }
-                  className={`w-full sm:w-auto px-4 lg:px-6 py-2 lg:py-3 rounded-lg font-medium transition-all text-xs sm:text-sm lg:text-base ${
-                    (currentStep === 1 && !selectedModel) ||
-                    (currentStep === 2 && !selectedWood) ||
-                    (currentStep === 3 && !selectedEngraving)
-                      ? 'cursor-not-allowed'
-                      : 'hover:opacity-90'
-                  }`}
-                  style={{
-                    backgroundColor: (currentStep === 1 && !selectedModel) ||
-                      (currentStep === 2 && !selectedWood) ||
-                      (currentStep === 3 && !selectedEngraving)
-                      ? 'var(--color-gray-medium)'
-                      : 'var(--color-wenge)',
-                    color: (currentStep === 1 && !selectedModel) ||
-                      (currentStep === 2 && !selectedWood) ||
-                      (currentStep === 3 && !selectedEngraving)
-                      ? 'var(--color-gray-medium)'
-                      : 'var(--color-pure-white)'
-                  }}
-                >
+                              <button
+                onClick={nextStep}
+                disabled={
+                  (currentStep === 1 && !selectedModel) ||
+                  (currentStep === 2 && !selectedWood) ||
+                  (currentStep === 3 && !selectedEngraving)
+                }
+                className={`w-full sm:w-auto px-4 lg:px-6 py-2 lg:py-3 rounded-lg font-medium transition-all text-xs sm:text-sm lg:text-base ${
+                  (currentStep === 1 && !selectedModel) ||
+                  (currentStep === 2 && !selectedWood) ||
+                  (currentStep === 3 && !selectedEngraving)
+                    ? 'cursor-not-allowed opacity-50'
+                    : 'hover:opacity-90'
+                }`}
+                style={{
+                  backgroundColor: 'var(--color-wenge)',
+                  color: 'var(--color-pure-white)'
+                }}
+              >
                   {currentStep === 3 ? "CHOISIR MON GUILLAUCHAGE ET CONTINUER" : "Valider mon choix et continuer".toUpperCase()}
                 </button>
               ) : currentStep === 4 ? (
@@ -153,16 +145,12 @@ export default function ConfiguratorPage() {
                   disabled={!formData.email}
                   className={`w-full sm:w-auto px-4 lg:px-6 py-2 lg:py-3 rounded-lg font-medium transition-all text-sm lg:text-base ${
                     !formData.email
-                      ? 'cursor-not-allowed'
+                      ? 'cursor-not-allowed opacity-50'
                       : 'hover:opacity-90'
                   }`}
                   style={{
-                    backgroundColor: !formData.email 
-                      ? 'var(--color-gray-medium)' 
-                      : 'var(--color-wenge)',
-                    color: !formData.email 
-                      ? 'var(--color-gray-medium)' 
-                      : 'var(--color-pure-white)'
+                    backgroundColor: 'var(--color-wenge)',
+                    color: 'var(--color-pure-white)'
                   }}
                 >
                   {"Valider mes personnalisations et terminer".toUpperCase()}
