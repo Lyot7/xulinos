@@ -152,7 +152,7 @@ const Cart: React.FC = () => {
 
         {/* Contenu du panier */}
         <div className="flex-1 overflow-y-auto">
-          {items.length === 0 ? (
+          {processedItems.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full p-6 text-center">
               <div className="text-white/50 mb-4">
                 <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor">
@@ -169,7 +169,6 @@ const Cart: React.FC = () => {
               {processedItems.map((item) => {
                 // Vérifier si l'image a échoué à charger
                 const imageHasError = imageErrors.has(item.id);
-                
                 return (
                   <div key={item.id} className="bg-primary rounded-lg p-4">
                     <div className="flex gap-4">
@@ -190,32 +189,6 @@ const Cart: React.FC = () => {
                           </svg>
                         )}
                       </div>
-              {items.map((item) => (
-                <div key={item.id} className="bg-primary rounded-lg p-4">
-                  <div className="flex gap-4">
-                    {/* Image du produit */}
-                    <div className="w-16 h-16 rounded-md overflow-hidden flex-shrink-0">
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        width={64}
-                        height={64}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    
-                    {/* Détails du produit */}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-white font-medium truncate">
-                        {item.name}
-                      </h3>
-                      <p className="text-white/70 text-sm truncate" dangerouslySetInnerHTML={{ __html: item.description || "" }} >
-                        
-                      </p>
-                      <p className="text-white font-bold text-lg">
-                        {item.price}
-                      </p>
-                      
                       {/* Détails du produit */}
                       <div className="flex-1 min-w-0">
                         <h3 className="text-white font-medium truncate">
@@ -227,7 +200,6 @@ const Cart: React.FC = () => {
                         <p className="text-white font-bold text-lg">
                           {item.cleanPrice} €
                         </p>
-                        
                         {/* Personnalisations pour les couteaux configurés */}
                         {item.type === 'configurateur' && item.processedCustomizations && (
                           <div className="mt-2 space-y-1">
@@ -243,19 +215,17 @@ const Cart: React.FC = () => {
                             )}
                           </div>
                         )}
+                        {/* Bouton supprimer */}
+                        <button
+                          onClick={() => removeItem(item.id)}
+                          className="text-white/50 hover:text-red-400 transition-colors p-2"
+                          aria-label="Supprimer cet article"
+                        >
+                          <FaTrash size={14} />
+                        </button>
                       </div>
-                      
-                      {/* Bouton supprimer */}
-                      <button
-                        onClick={() => removeItem(item.id)}
-                        className="text-white/50 hover:text-red-400 transition-colors p-2"
-                        aria-label="Supprimer cet article"
-                      >
-                        <FaTrash size={14} />
-                      </button>
                     </div>
-                    
-                    {/* Contrôles de quantité */}
+                    {/* Contrôles de quantité et sous-total */}
                     <div className="flex items-center justify-between mt-4">
                       <div className="flex items-center gap-3">
                         <button
@@ -276,20 +246,15 @@ const Cart: React.FC = () => {
                           <FaPlus size={12} />
                         </button>
                       </div>
-                      
                       <p className="text-white font-bold">
                         Sous-total: {item.subtotal} €
                       </p>
                     </div>
-                    <p className="text-white font-bold">
-                      Sous-total: {Number(item.price) * Number(item.quantity)}€
-                    </p>
                   </div>
                 );
               })}
-              
               {/* Bouton vider le panier */}
-              {items.length > 0 && (
+              {processedItems.length > 0 && (
                 <button
                   onClick={clearCart}
                   className="w-full text-red-400 hover:text-red-300 text-sm py-2 transition-colors"
@@ -302,21 +267,19 @@ const Cart: React.FC = () => {
         </div>
 
         {/* Footer du panier */}
-        {items.length > 0 && (
+        {processedItems.length > 0 && (
           <div className="border-t border-white/10 p-6 space-y-4">
             {/* Total */}
             <div className="flex justify-between items-center">
               <span className="text-white text-lg font-medium">Total:</span>
               <span className="text-white text-2xl font-bold">{totalPrice} €</span>
             </div>
-            
             {/* Bouton demander un devis */}
             <PrimaryButton
               name="Demander un devis"
               onClick={handleDevis}
               className="w-full py-4 text-lg"
             />
-            
             <p className="text-white/60 text-xs text-center">
               Les prix sont indicatifs. Un devis personnalisé vous sera envoyé.
             </p>
