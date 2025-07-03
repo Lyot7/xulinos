@@ -148,7 +148,7 @@ const Header = () => {
             {/* Navigation mobile - centrée */}
             <div className="flex-1 px-6 py-8 flex flex-col justify-center">
               <nav className="flex flex-col items-start space-y-8">
-                <Navbar mobile />
+                <Navbar mobile onLinkClick={closeMenu} />
               </nav>
             </div>
             
