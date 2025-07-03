@@ -172,7 +172,7 @@ export default function ConfiguratorPage() {
                     color: 'var(--color-pure-white)'
                   }}
                 >
-                  {"Valider mes personnalisations et terminer".toUpperCase()}
+                  {"Valider mes personnalisations et envoyer".toUpperCase()}
                 </button>
               ) : (
                 <button

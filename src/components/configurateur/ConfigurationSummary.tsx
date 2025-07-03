@@ -30,17 +30,6 @@ export default function ConfigurationSummary({
           </p>
         )}
         
-        <div className="bg-primary rounded-lg p-4 border border-white/10">
-          <h3 className="text-white font-medium mb-2">Résumé de votre configuration :</h3>
-          <ul className="space-y-1 text-sm">
-            <li>• Modèle : {(stepData && stepData.models) ? stepData.models.find(m => m.id === selectedModel)?.name || 'Non sélectionné' : 'Non sélectionné'}</li>
-            <li>• Bois : {(stepData && stepData.woods) ? stepData.woods.find(w => w.id === selectedWood)?.name || 'Non sélectionné' : 'Non sélectionné'}</li>
-            <li>• Gravure : {(stepData && stepData.patterns) ? stepData.patterns.find(e => e.id === selectedEngraving)?.name || 'Non sélectionné' : 'Non sélectionné'}</li>
-            {formData.bladeEngraving && <li>• Gravure lame : {formData.bladeEngraving}</li>}
-            {formData.handleEngraving && <li>• Gravure manche : {formData.handleEngraving}</li>}
-          </ul>
-        </div>
-        
         {stepData.actions && stepData.actions.length > 0 ? (
           <div className="flex flex-col sm:flex-row gap-4">
             {stepData.actions.map((action) => (
