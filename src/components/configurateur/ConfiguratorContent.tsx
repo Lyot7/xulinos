@@ -7,7 +7,6 @@ import WoodSelection from './WoodSelection';
 import EngravingSelection from './EngravingSelection';
 import PersonalizationForm from './PersonalizationForm';
 import ConfigurationSummary from './ConfigurationSummary';
-import StepPreview from './StepPreview';
 import LoadingIndicator from './LoadingIndicator';
 
 interface ConfiguratorContentProps {
@@ -115,7 +114,6 @@ export default function ConfiguratorContent({
               modelSearchTerm={modelSearchTerm}
               setModelSearchTerm={setModelSearchTerm}
             />
-            <StepPreview allStepsData={allStepsData} currentStep={currentStep} />
           </div>
         );
 
@@ -129,7 +127,6 @@ export default function ConfiguratorContent({
               woodSearchTerm={woodSearchTerm}
               setWoodSearchTerm={setWoodSearchTerm}
             />
-            <StepPreview allStepsData={allStepsData} currentStep={currentStep} />
           </div>
         );
 
@@ -143,7 +140,6 @@ export default function ConfiguratorContent({
               engravingSearchTerm={engravingSearchTerm}
               setEngravingSearchTerm={setEngravingSearchTerm}
             />
-            <StepPreview allStepsData={allStepsData} currentStep={currentStep} />
           </div>
         );
 
@@ -155,7 +151,6 @@ export default function ConfiguratorContent({
               formData={formData}
               setFormData={setFormData}
             />
-            <StepPreview allStepsData={allStepsData} currentStep={currentStep} />
           </div>
         );
 
