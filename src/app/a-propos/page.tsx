@@ -1,37 +1,19 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { usePageData } from "@/context/WordPressContext";
 import { parseWordPressContent } from "@/utils/wordpressApi";
 
-// Define types for WordPress data
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-interface AcfData {
-  titre_1: string;
-  paragraphe_1: string;
-  titre_2: string;
-  paragraphe_2: string;
-  titre_3: string;
-  paragraphe_3: string;
-  titre_4: string;
-  paragraphe_4: string;
-  [key: string]: unknown;
-}
-
-// Cache local pour les images
 const imageCache: Record<number, string> = {};
 
 export default function AboutSection() {
-  // Utiliser notre hook WordPress
   const { pageData, loading, error, hasError, isLoaded } = usePageData('about');
   const [featuredImageUrl, setFeaturedImageUrl] = useState<string | null>(null);
   const fetchingImageRef = useRef<boolean>(false);
 
-  // Charger l'image mise en avant si nécessaire et une seule fois
   useEffect(() => {
     if (pageData?.featured_media && !featuredImageUrl && !fetchingImageRef.current) {
-      // Vérifier si l'image est déjà dans le cache
       if (imageCache[pageData.featured_media]) {
         setFeaturedImageUrl(imageCache[pageData.featured_media]);
         return;
@@ -52,7 +34,6 @@ export default function AboutSection() {
           const mediaData = await response.json();
           console.log("Featured media data:", mediaData);
           
-          // Mettre en cache l'URL de l'image
           if (mediaData.source_url) {
             imageCache[pageData.featured_media] = mediaData.source_url;
           }
@@ -69,7 +50,6 @@ export default function AboutSection() {
     }
   }, [pageData, featuredImageUrl]);
 
-  // Afficher un état de chargement uniquement si les données ne sont pas encore chargées
   if (loading && !isLoaded) {
     return (
       <section className="text-white py-10 px-3 sm:py-12 sm:px-6">
@@ -80,7 +60,6 @@ export default function AboutSection() {
     );
   }
 
-  // Afficher une erreur si nécessaire
   if ((error || hasError) && !pageData) {
     return (
       <section className="text-white py-10 px-3 sm:py-12 sm:px-6">
@@ -91,14 +70,13 @@ export default function AboutSection() {
     );
   }
 
-  // Accéder aux données ACF
   const acf = pageData?.acf || {};
 
   return (
     <section className="text-white py-10 px-3 sm:py-12 sm:px-6">
       <div className="max-w-7xl mx-auto flex flex-col gap-8 sm:gap-12">
         <div className="flex flex-col lg:flex-row gap-8 sm:gap-10 items-start">
-          <div className="order-1 lg:order-1 lg:w-1/2 w-full mb-6 lg:mb-0 flex justify-center">
+          <div className="lg:order-1 lg:w-1/2 w-full mb-6 lg:mb-0 flex justify-center">
             {featuredImageUrl && (
               <img
                 src={featuredImageUrl}
@@ -108,7 +86,7 @@ export default function AboutSection() {
             )}
           </div>
 
-          <div className="order-2 lg:order-2 lg:w-1/2 w-full space-y-4 sm:space-y-6 text-base sm:text-sm leading-relaxed">
+          <div className="lg:order-2 lg:w-1/2 w-full space-y-4 sm:space-y-6 text-base sm:text-sm leading-relaxed">
             {pageData?.title?.rendered && (
               <h2
                 dangerouslySetInnerHTML={{ __html: pageData.title.rendered }}
@@ -132,7 +110,7 @@ export default function AboutSection() {
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8 sm:gap-10 items-start">
-          <div className="order-1 lg:order-1 lg:w-1/2 w-full space-y-4 sm:space-y-6 text-base sm:text-sm leading-relaxed">
+          <div className="lg:order-1 lg:w-1/2 w-full space-y-4 sm:space-y-6 text-base sm:text-sm leading-relaxed">
             {acf.titre_3 && (
               <div>
                 <h3 className="font-bold mb-1">{acf.titre_3}</h3>
@@ -148,7 +126,7 @@ export default function AboutSection() {
             )}
           </div>
 
-          <div className="order-2 lg:order-2 w-full lg:w-auto flex flex-col lg:flex-row justify-center items-center gap-4 sm:gap-6 flex-wrap mt-6 lg:mt-0">
+          <div className="lg:order-2 w-full lg:w-auto flex flex-col lg:flex-row justify-center items-center gap-4 sm:gap-6 flex-wrap mt-6 lg:mt-0">
             <Image
               src="/images/tree-logo.png"
               alt="Logos Xulinos"

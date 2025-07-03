@@ -1,15 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState, useMemo } from 'react';
-import Image from 'next/image';
-import PrimaryButton from '@/components/PrimaryButton';
-import SecondaryButton from '@/components/SecondaryButton';
-import LoadingSpinner from '@/components/LoadingSpinner';
-import { FaArrowRight, FaStar, FaPaperPlane } from 'react-icons/fa';
-import { useRouter } from 'next/navigation';
-import { usePageData, useCouteauxData } from '@/context/WordPressContext';
-import { useSafeWordPressText } from '@/hooks/useWordPressText';
-import { extractTextFromWordPress } from '@/utils/textEncoding';
+import { useEffect, useRef, useState, useMemo } from "react";
+import Image from "next/image";
+import PrimaryButton from "@/components/PrimaryButton";
+import SecondaryButton from "@/components/SecondaryButton";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import { FaArrowRight, FaStar, FaPaperPlane } from "react-icons/fa";
+import { useRouter } from "next/navigation";
+import { usePageData, useCouteauxData } from "@/context/WordPressContext";
+import { useSafeWordPressText } from "@/hooks/useWordPressText";
+import { extractTextFromWordPress } from "@/utils/textEncoding";
 
 // Types for WordPress data
 export interface WPCouteau {
@@ -35,16 +35,16 @@ export default function Home() {
   const router = useRouter();
   const heroRef = useRef<HTMLDivElement>(null);
   const [heroHeight, setHeroHeight] = useState<number | null>(null);
-  
+
   // Fetch WordPress data
-  const { pageData, loading, error } = usePageData('home');
+  const { pageData, loading, error } = usePageData("home");
   const { couteaux, loading: couteauxLoading } = useCouteauxData();
   const [images, setImages] = useState<any[]>([]);
   const [featuredImageUrl, setFeaturedImageUrl] = useState<string | null>(null);
 
   // Extract ACF data with safety checks
   const acfData = pageData?.acf || {};
-  
+
   // Text placeholders - all fallback text defined at top level
   const PLACEHOLDERS = {
     // Hero section
@@ -52,130 +52,224 @@ export default function Home() {
     heroSubtitle: "Des pièces uniques, créées avec passion et savoir-faire.",
     banniereBouton1: "Personnaliser mon couteau",
     banniereBouton2: "Service Affûtage & Rémoulage",
-    
+
     // Service features
     banniereIcon1Alt: "Savoir-faire artisanal",
     banniereTitre1: "Savoir-faire artisanal",
     banniereDescription1: "Chaque couteau est forgé avec précision et passion.",
     banniereIcon2Alt: "Affûtage & entretien",
     banniereTitre2: "Affûtage & entretien",
-    banniereDescription2: "Offrez une seconde vie à vos lames avec un tranchant parfait.",
+    banniereDescription2:
+      "Offrez une seconde vie à vos lames avec un tranchant parfait.",
     banniereIcon3Alt: "Personnalisation",
     banniereTitre3: "Personnalisation",
-    banniereDescription3: "Imaginez votre couteau idéal, nous le créons pour vous.",
-    
+    banniereDescription3:
+      "Imaginez votre couteau idéal, nous le créons pour vous.",
+
     // Atelier section
     sectionAtelierImageAlt: "Couteaux artisanaux sur une table de cuisine",
     sectionAtelierTitre: "Entrez dans l'atelier : où l'acier prend vie",
-    sectionAtelierDescription: "Chaque pièce que nous créons raconte une histoire. Entre tradition et innovation, notre atelier façonne des couteaux uniques, pensés pour durer. Découvrez nos matériaux nobles, nos techniques de fabrication et l'univers passionnant de la coutellerie artisanale.",
+    sectionAtelierDescription:
+      "Chaque pièce que nous créons raconte une histoire. Entre tradition et innovation, notre atelier façonne des couteaux uniques, pensés pour durer. Découvrez nos matériaux nobles, nos techniques de fabrication et l'univers passionnant de la coutellerie artisanale.",
     sectionAtelierLien: "Découvrir notre savoir-faire",
-    
+
     // Products section
     sectionProduitsTitre: "Disponible immédiatement",
-    sectionProduitsDescription: "Chaque couteau est une pièce unique, façonnée avec soin. Trouvez celui qui vous accompagnera au quotidien.",
+    sectionProduitsDescription:
+      "Chaque couteau est une pièce unique, façonnée avec soin. Trouvez celui qui vous accompagnera au quotidien.",
     sectionProduitsLien: "Explorer toute la collection",
     couteauTitle: "Couteau artisanal",
     couteauDescription: "Description du couteau",
     couteauImageAlt: "Couteau artisanal",
     disponibilite: "Disponible à l'achat",
-    
+
     // Personalization section
     sectionPersonnalisationImageAlt: "Couteau dans la nature",
     sectionPersonnalisationTitre: "Votre couteau, votre signature",
-    sectionPersonnalisationDescription: "Lame, manche, finition... Tout est entre vos mains. Choisissez un modèle existant et adaptez-le à votre style ou partez de zéro pour une création 100% unique.",
+    sectionPersonnalisationDescription:
+      "Lame, manche, finition... Tout est entre vos mains. Choisissez un modèle existant et adaptez-le à votre style ou partez de zéro pour une création 100% unique.",
     sectionPersonnalisationLien: "Personnaliser mon couteau",
-    
+
     // Testimonials section
     sectionTemoignagesTitre: "Ils ont fait confiance à notre savoir-faire",
-    
+
     // Contact section
     sectionContactTitre: "Un projet en tête ? Parlons-en !",
-    sectionContactSousTitre: "Besoin d'un couteau sur mesure ? Une question sur nos services ?",
-    sectionContactDescription: "Laissez-nous un message et nous vous répondrons rapidement.",
-    
+    sectionContactSousTitre:
+      "Besoin d'un couteau sur mesure ? Une question sur nos services ?",
+    sectionContactDescription:
+      "Laissez-nous un message et nous vous répondrons rapidement.",
+
     // Loading states
     loadingText: "Chargement...",
-    errorText: "Erreur de chargement des données"
+    errorText: "Erreur de chargement des données",
   };
-  
+
   // Process all WordPress text at the top level (hooks must be called here)
-  const title = useSafeWordPressText(pageData?.title?.rendered) || PLACEHOLDERS.heroTitle;
-  const subtitle = useSafeWordPressText(acfData['sous-titre']) || PLACEHOLDERS.heroSubtitle;
-  const banniereBouton1Title = useSafeWordPressText(acfData.banniere_bouton_1?.title) || PLACEHOLDERS.banniereBouton1;
-  const banniereBouton2Title = useSafeWordPressText(acfData.banniere_bouton_2?.title) || PLACEHOLDERS.banniereBouton2;
-  const banniereIcon1Alt = useSafeWordPressText(acfData.banniere_icon_1?.alt) || PLACEHOLDERS.banniereIcon1Alt;
-  const banniereTitre1 = useSafeWordPressText(acfData.banniere_titre_1) || PLACEHOLDERS.banniereTitre1;
-  const banniereDescription1 = useSafeWordPressText(acfData.banniere_description_1) || PLACEHOLDERS.banniereDescription1;
-  const banniereIcon2Alt = useSafeWordPressText(acfData.banniere_icon_2?.alt) || PLACEHOLDERS.banniereIcon2Alt;
-  const banniereTitre2 = useSafeWordPressText(acfData.banniere_titre_2) || PLACEHOLDERS.banniereTitre2;
-  const banniereDescription2 = useSafeWordPressText(acfData.banniere_description_2) || PLACEHOLDERS.banniereDescription2;
-  const banniereIcon3Alt = useSafeWordPressText(acfData.banniere_icon_3?.alt) || PLACEHOLDERS.banniereIcon3Alt;
-  const banniereTitre3 = useSafeWordPressText(acfData.banniere_titre_3) || PLACEHOLDERS.banniereTitre3;
-  const banniereDescription3 = useSafeWordPressText(acfData.banniere_description_3) || PLACEHOLDERS.banniereDescription3;
-  const sectionAtelierImageAlt = useSafeWordPressText(acfData.section_atelier_image?.alt) || PLACEHOLDERS.sectionAtelierImageAlt;
-  const sectionAtelierTitre = useSafeWordPressText(acfData.section_atelier_titre) || PLACEHOLDERS.sectionAtelierTitre;
-  const sectionAtelierDescription = useSafeWordPressText(acfData.section_atelier_description) || PLACEHOLDERS.sectionAtelierDescription;
-  const sectionAtelierLienTitle = useSafeWordPressText(acfData.section_atelier_lien?.title) || PLACEHOLDERS.sectionAtelierLien;
-  const sectionProduitsTitre = useSafeWordPressText(acfData.section_produits_titre) || PLACEHOLDERS.sectionProduitsTitre;
-  const sectionProduitsDescription = useSafeWordPressText(acfData.section_produits_description) || PLACEHOLDERS.sectionProduitsDescription;
-  const sectionProduitsLienTitle = useSafeWordPressText(acfData.section_produits_lien?.title) || PLACEHOLDERS.sectionProduitsLien;
-  const sectionPersonnalisationImageAlt = useSafeWordPressText(acfData.section_personnalisation_image?.alt) || PLACEHOLDERS.sectionPersonnalisationImageAlt;
-  const sectionPersonnalisationTitre = useSafeWordPressText(acfData.section_personnalisation_titre) || PLACEHOLDERS.sectionPersonnalisationTitre;
-  const sectionPersonnalisationDescription = useSafeWordPressText(acfData.section_personnalisation_description) || PLACEHOLDERS.sectionPersonnalisationDescription;
-  const sectionPersonnalisationLienTitle = useSafeWordPressText(acfData.section_personnalisation_lien?.title) || PLACEHOLDERS.sectionPersonnalisationLien;
-  const sectionTemoignagesTitre = useSafeWordPressText(acfData.section_temoignages_titre) || PLACEHOLDERS.sectionTemoignagesTitre;
-  const sectionContactTitre = useSafeWordPressText(acfData.section_contact_titre) || PLACEHOLDERS.sectionContactTitre;
-  const sectionContactSousTitre = useSafeWordPressText(acfData.section_contact_sous_titre) || PLACEHOLDERS.sectionContactSousTitre;
-  const sectionContactDescription = useSafeWordPressText(acfData.section_contact_description) || PLACEHOLDERS.sectionContactDescription;
+  const title =
+    useSafeWordPressText(pageData?.title?.rendered) || PLACEHOLDERS.heroTitle;
+  const subtitle =
+    useSafeWordPressText(acfData["sous-titre"]) || PLACEHOLDERS.heroSubtitle;
+  const banniereBouton1Title =
+    useSafeWordPressText(acfData.banniere_bouton_1?.title) ||
+    PLACEHOLDERS.banniereBouton1;
+  const banniereBouton2Title =
+    useSafeWordPressText(acfData.banniere_bouton_2?.title) ||
+    PLACEHOLDERS.banniereBouton2;
+  const banniereIcon1Alt =
+    useSafeWordPressText(acfData.banniere_icon_1?.alt) ||
+    PLACEHOLDERS.banniereIcon1Alt;
+  const banniereTitre1 =
+    useSafeWordPressText(acfData.banniere_titre_1) ||
+    PLACEHOLDERS.banniereTitre1;
+  const banniereDescription1 =
+    useSafeWordPressText(acfData.banniere_description_1) ||
+    PLACEHOLDERS.banniereDescription1;
+  const banniereIcon2Alt =
+    useSafeWordPressText(acfData.banniere_icon_2?.alt) ||
+    PLACEHOLDERS.banniereIcon2Alt;
+  const banniereTitre2 =
+    useSafeWordPressText(acfData.banniere_titre_2) ||
+    PLACEHOLDERS.banniereTitre2;
+  const banniereDescription2 =
+    useSafeWordPressText(acfData.banniere_description_2) ||
+    PLACEHOLDERS.banniereDescription2;
+  const banniereIcon3Alt =
+    useSafeWordPressText(acfData.banniere_icon_3?.alt) ||
+    PLACEHOLDERS.banniereIcon3Alt;
+  const banniereTitre3 =
+    useSafeWordPressText(acfData.banniere_titre_3) ||
+    PLACEHOLDERS.banniereTitre3;
+  const banniereDescription3 =
+    useSafeWordPressText(acfData.banniere_description_3) ||
+    PLACEHOLDERS.banniereDescription3;
+  const sectionAtelierImageAlt =
+    useSafeWordPressText(acfData.section_atelier_image?.alt) ||
+    PLACEHOLDERS.sectionAtelierImageAlt;
+  const sectionAtelierTitre =
+    useSafeWordPressText(acfData.section_atelier_titre) ||
+    PLACEHOLDERS.sectionAtelierTitre;
+  const sectionAtelierDescription =
+    useSafeWordPressText(acfData.section_atelier_description) ||
+    PLACEHOLDERS.sectionAtelierDescription;
+  const sectionAtelierLienTitle =
+    useSafeWordPressText(acfData.section_atelier_lien?.title) ||
+    PLACEHOLDERS.sectionAtelierLien;
+  const sectionProduitsTitre =
+    useSafeWordPressText(acfData.section_produits_titre) ||
+    PLACEHOLDERS.sectionProduitsTitre;
+  const sectionProduitsDescription =
+    useSafeWordPressText(acfData.section_produits_description) ||
+    PLACEHOLDERS.sectionProduitsDescription;
+  const sectionProduitsLienTitle =
+    useSafeWordPressText(acfData.section_produits_lien?.title) ||
+    PLACEHOLDERS.sectionProduitsLien;
+  const sectionPersonnalisationImageAlt =
+    useSafeWordPressText(acfData.section_personnalisation_image?.alt) ||
+    PLACEHOLDERS.sectionPersonnalisationImageAlt;
+  const sectionPersonnalisationTitre =
+    useSafeWordPressText(acfData.section_personnalisation_titre) ||
+    PLACEHOLDERS.sectionPersonnalisationTitre;
+  const sectionPersonnalisationDescription =
+    useSafeWordPressText(acfData.section_personnalisation_description) ||
+    PLACEHOLDERS.sectionPersonnalisationDescription;
+  const sectionPersonnalisationLienTitle =
+    useSafeWordPressText(acfData.section_personnalisation_lien?.title) ||
+    PLACEHOLDERS.sectionPersonnalisationLien;
+  const sectionTemoignagesTitre =
+    useSafeWordPressText(acfData.section_temoignages_titre) ||
+    PLACEHOLDERS.sectionTemoignagesTitre;
+  const sectionContactTitre =
+    useSafeWordPressText(acfData.section_contact_titre) ||
+    PLACEHOLDERS.sectionContactTitre;
+  const sectionContactSousTitre =
+    useSafeWordPressText(acfData.section_contact_sous_titre) ||
+    PLACEHOLDERS.sectionContactSousTitre;
+  const sectionContactDescription =
+    useSafeWordPressText(acfData.section_contact_description) ||
+    PLACEHOLDERS.sectionContactDescription;
 
   // Process dynamic couteaux text at top level (individual hook calls for each item)
-  const couteau0Title = useSafeWordPressText((couteaux as WPCouteau[])[0]?.title?.rendered) || PLACEHOLDERS.couteauTitle;
-  const couteau0Description = useSafeWordPressText((couteaux as WPCouteau[])[0]?.acf?.description_courte) || useSafeWordPressText((couteaux as WPCouteau[])[0]?.excerpt?.rendered) || PLACEHOLDERS.couteauDescription;
-  const couteau1Title = useSafeWordPressText((couteaux as WPCouteau[])[1]?.title?.rendered) || PLACEHOLDERS.couteauTitle;
-  const couteau1Description = useSafeWordPressText((couteaux as WPCouteau[])[1]?.acf?.description_courte) || useSafeWordPressText((couteaux as WPCouteau[])[1]?.excerpt?.rendered) || PLACEHOLDERS.couteauDescription;
-  const couteau2Title = useSafeWordPressText((couteaux as WPCouteau[])[2]?.title?.rendered) || PLACEHOLDERS.couteauTitle;
-  const couteau2Description = useSafeWordPressText((couteaux as WPCouteau[])[2]?.acf?.description_courte) || useSafeWordPressText((couteaux as WPCouteau[])[2]?.excerpt?.rendered) || PLACEHOLDERS.couteauDescription;
-  
+  const couteau0Title =
+    useSafeWordPressText((couteaux as WPCouteau[])[0]?.title?.rendered) ||
+    PLACEHOLDERS.couteauTitle;
+  const couteau0Description =
+    useSafeWordPressText(
+      (couteaux as WPCouteau[])[0]?.acf?.description_courte
+    ) ||
+    useSafeWordPressText((couteaux as WPCouteau[])[0]?.excerpt?.rendered) ||
+    PLACEHOLDERS.couteauDescription;
+  const couteau1Title =
+    useSafeWordPressText((couteaux as WPCouteau[])[1]?.title?.rendered) ||
+    PLACEHOLDERS.couteauTitle;
+  const couteau1Description =
+    useSafeWordPressText(
+      (couteaux as WPCouteau[])[1]?.acf?.description_courte
+    ) ||
+    useSafeWordPressText((couteaux as WPCouteau[])[1]?.excerpt?.rendered) ||
+    PLACEHOLDERS.couteauDescription;
+  const couteau2Title =
+    useSafeWordPressText((couteaux as WPCouteau[])[2]?.title?.rendered) ||
+    PLACEHOLDERS.couteauTitle;
+  const couteau2Description =
+    useSafeWordPressText(
+      (couteaux as WPCouteau[])[2]?.acf?.description_courte
+    ) ||
+    useSafeWordPressText((couteaux as WPCouteau[])[2]?.excerpt?.rendered) ||
+    PLACEHOLDERS.couteauDescription;
+
   const couteauxTitles = [couteau0Title, couteau1Title, couteau2Title];
-  const couteauxDescriptions = [couteau0Description, couteau1Description, couteau2Description];
-  
+  const couteauxDescriptions = [
+    couteau0Description,
+    couteau1Description,
+    couteau2Description,
+  ];
+
   const processedCouteaux = (couteaux as WPCouteau[]).map((couteau, i) => ({
     ...couteau,
     processedTitle: couteauxTitles[i] || PLACEHOLDERS.couteauTitle,
-    processedDescription: couteauxDescriptions[i] || PLACEHOLDERS.couteauDescription,
+    processedDescription:
+      couteauxDescriptions[i] || PLACEHOLDERS.couteauDescription,
   }));
 
   // Process dynamic temoignages text at top level (individual hook calls for each item)
   const temoignages = (acfData.temoignages || []) as WPTemoignage[];
-  const temoignage0Nom = useSafeWordPressText(temoignages[0]?.nom) || '';
-  const temoignage0Commentaire = useSafeWordPressText(temoignages[0]?.commentaire) || '';
-  const temoignage1Nom = useSafeWordPressText(temoignages[1]?.nom) || '';
-  const temoignage1Commentaire = useSafeWordPressText(temoignages[1]?.commentaire) || '';
-  const temoignage2Nom = useSafeWordPressText(temoignages[2]?.nom) || '';
-  const temoignage2Commentaire = useSafeWordPressText(temoignages[2]?.commentaire) || '';
-  
+  const temoignage0Nom = useSafeWordPressText(temoignages[0]?.nom) || "";
+  const temoignage0Commentaire =
+    useSafeWordPressText(temoignages[0]?.commentaire) || "";
+  const temoignage1Nom = useSafeWordPressText(temoignages[1]?.nom) || "";
+  const temoignage1Commentaire =
+    useSafeWordPressText(temoignages[1]?.commentaire) || "";
+  const temoignage2Nom = useSafeWordPressText(temoignages[2]?.nom) || "";
+  const temoignage2Commentaire =
+    useSafeWordPressText(temoignages[2]?.commentaire) || "";
+
   const temoignagesNoms = [temoignage0Nom, temoignage1Nom, temoignage2Nom];
-  const temoignagesCommentaires = [temoignage0Commentaire, temoignage1Commentaire, temoignage2Commentaire];
-  
+  const temoignagesCommentaires = [
+    temoignage0Commentaire,
+    temoignage1Commentaire,
+    temoignage2Commentaire,
+  ];
+
   const processedTemoignages = temoignages.map((t, i) => ({
     ...t,
-    processedNom: temoignagesNoms[i] || '',
-    processedCommentaire: temoignagesCommentaires[i] || '',
+    processedNom: temoignagesNoms[i] || "",
+    processedCommentaire: temoignagesCommentaires[i] || "",
   }));
 
   // Form submission state
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitMessage, setSubmitMessage] = useState('');
+  const [submitMessage, setSubmitMessage] = useState("");
 
-  // Log WordPress data when it changes
-  useEffect(() => {
-    console.log('Home page data:', pageData);
-    console.log('Home page loading state:', loading);
-    console.log('ACF Data:', acfData);
-    if (error) {
-      console.error('Home page error:', error);
-    }
-  }, [pageData, loading, error, acfData]);
+  //Log WordPress data when it changes
+  // useEffect(() => {
+  //   console.log("Home page data:", pageData);
+  //   console.log("Home page loading state:", loading);
+  //   console.log("ACF Data:", acfData);
+  //   if (error) {
+  //     console.error("Home page error:", error);
+  //   }
+  // }, [pageData, loading, error, acfData]);
 
   // // Log couteaux data when it changes
   // useEffect(() => {
@@ -186,7 +280,7 @@ export default function Home() {
   //CAPTCHA
   const [token, setToken] = useState<string | null>(null);
   const handleVerify = (token: string) => {
-    console.log("Turnstile token:", token);
+    // console.log("Turnstile token:", token);
     setToken(token);
   };
 
@@ -229,21 +323,21 @@ export default function Home() {
   const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setSubmitMessage('');
+    setSubmitMessage("");
     setMailtoLink(null);
 
     const formData = new FormData(e.currentTarget);
     const contactData = {
-      nom: formData.get('nom') as string,
-      objet: formData.get('objet') as string,
-      message: formData.get('message') as string,
+      nom: formData.get("nom") as string,
+      objet: formData.get("objet") as string,
+      message: formData.get("message") as string,
     };
 
     try {
-      const response = await fetch('/api/contact', {
-        method: 'POST',
+      const response = await fetch("/api/contact", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(contactData),
       });
@@ -251,25 +345,32 @@ export default function Home() {
       const result = await response.json();
 
       if (response.ok && result.success) {
-        setSubmitMessage('Votre message a été préparé. Votre client email va s\'ouvrir...');
-        
+        setSubmitMessage(
+          "Votre message a été préparé. Votre client email va s'ouvrir..."
+        );
+
         // Ouvrir directement le client email
         window.location.href = result.mailtoLink;
-        
+
         // Réinitialiser le formulaire après un délai
         setTimeout(() => {
-          const form = document.getElementById('contactForm') as HTMLFormElement;
+          const form = document.getElementById(
+            "contactForm"
+          ) as HTMLFormElement;
           if (form) form.reset();
-          setSubmitMessage('');
+          setSubmitMessage("");
           setMailtoLink(null);
         }, 2000);
       } else {
-        setSubmitMessage(result.error || 'Une erreur est survenue. Veuillez réessayer.');
+        setSubmitMessage(
+          result.error || "Une erreur est survenue. Veuillez réessayer."
+        );
       }
-      
     } catch (error) {
-      console.error('Erreur lors de l\'envoi:', error);
-      setSubmitMessage('Une erreur de connexion est survenue. Veuillez vérifier votre connexion internet et réessayer.');
+      // console.error("Erreur lors de l'envoi:", error);
+      setSubmitMessage(
+        "Une erreur de connexion est survenue. Veuillez vérifier votre connexion internet et réessayer."
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -310,24 +411,9 @@ export default function Home() {
     fetchImages();
   }, []);
 
-  if (loading || !pageData) {
+  if (loading || !pageData || images.length === 0) {
     return <LoadingSpinner />;
   }
-
-  // Fonction utilitaire pour récupérer une image par ID dans images
-  const getImageById = (id: number | undefined) => {
-    if (!id) return null;
-    return images.find((img) => img.id == id) || null;
-  };
-
-  // Images extraites par champ ACF
-  const imageAtelier = getImageById(pageData.acf.entrez_dans_latelier.image);
-  const imageSignature = getImageById(
-    pageData.acf.votre_couteau_votre_signature.image
-  );
-  const imageBanniere3 = getImageById(pageData.acf.banniere_icon_3.icon.value);
-  const imageBanniere2 = getImageById(pageData.acf.banniere_icon_2.icon.value);
-  const imageBanniere1 = getImageById(pageData.acf.banniere_icon_1.icon.value);
 
   // Show skeleton while loading critical data
   if (loading && !pageData) {
@@ -346,6 +432,21 @@ export default function Home() {
       </main>
     );
   }
+
+  // Fonction utilitaire pour récupérer une image par ID dans images
+  const getImageById = (id: number | undefined) => {
+    if (!id) return null;
+    return images.find((img) => img.id == id) || null;
+  };
+
+  // Images extraites par champ ACF
+  const imageAtelier = getImageById(pageData.acf.entrez_dans_latelier.image);
+  const imageSignature = getImageById(
+    pageData.acf.votre_couteau_votre_signature.image
+  );
+  const imageBanniere1 = getImageById(pageData.acf.banniere_icon_1.icon.value);
+  const imageBanniere2 = getImageById(pageData.acf.banniere_icon_2.icon.value);
+  const imageBanniere3 = getImageById(pageData.acf.banniere_icon_3.icon.value);
 
   return (
     <main className="flex flex-col">
@@ -377,15 +478,23 @@ export default function Home() {
               {pageData.acf.sous_titre}
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <PrimaryButton 
+              <PrimaryButton
                 name={banniereBouton1Title}
                 className="text-lg py-3 px-6"
-                onClick={() => handleNavigation(acfData.banniere_bouton_1?.url || '/configurateur')}
+                onClick={() =>
+                  handleNavigation(
+                    acfData.banniere_bouton_1?.url || "/configurateur"
+                  )
+                }
               />
-              <SecondaryButton 
+              <SecondaryButton
                 name={banniereBouton2Title}
                 className="text-lg py-3 px-6"
-                onClick={() => handleNavigation(acfData.banniere_bouton_2?.url || '/affutage-remoulage')}
+                onClick={() =>
+                  handleNavigation(
+                    acfData.banniere_bouton_2?.url || "/affutage-remoulage"
+                  )
+                }
               />
             </div>
           </div>
@@ -472,8 +581,12 @@ export default function Home() {
               <p className="text-white/90 mb-6">
                 {pageData.acf.entrez_dans_latelier.contenu}
               </p>
-              <button 
-                onClick={() => handleNavigation(acfData.section_atelier_lien?.url || '/a-propos')}
+              <button
+                onClick={() =>
+                  handleNavigation(
+                    acfData.section_atelier_lien?.url || "/a-propos"
+                  )
+                }
                 className="inline-flex items-center text-white hover:text-white/80 font-medium"
               >
                 {sectionAtelierLienTitle} <FaArrowRight className="ml-2" />
@@ -496,13 +609,19 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
             {/* Affiche seulement les 3 premiers produits */}
             {processedCouteaux.slice(0, 3).map((couteau, index) => (
-              <div key={couteau.id || index} className="bg-dark rounded-xl overflow-hidden shadow-lg">
+              <div
+                key={couteau.id || index}
+                className="bg-dark rounded-xl overflow-hidden shadow-lg"
+              >
                 <div className="relative h-72">
-                  <Image 
-                    src={couteau.acf?.image_principale?.url || "/images/knives/le-souverain/le-souverain.png"}
+                  <Image
+                    src={
+                      couteau.acf?.image_principale?.url ||
+                      "/images/knives/le-souverain/le-souverain.png"
+                    }
                     alt={couteau.processedTitle || PLACEHOLDERS.couteauTitle}
                     fill
-                    style={{ objectFit: 'cover', objectPosition: 'center' }}
+                    style={{ objectFit: "cover", objectPosition: "center" }}
                     className="hover:scale-105 transition-transform duration-300"
                   />
                   <div className="absolute top-4 right-4 bg-primary/80 text-white text-sm px-4 py-1.5 rounded-full">
@@ -514,7 +633,10 @@ export default function Home() {
                     {couteau.processedTitle || PLACEHOLDERS.couteauTitle}
                   </h3>
                   <p className="text-white/80 line-clamp-4">
-                    {extractTextFromWordPress(couteau.processedDescription || PLACEHOLDERS.couteauDescription)}
+                    {extractTextFromWordPress(
+                      couteau.processedDescription ||
+                        PLACEHOLDERS.couteauDescription
+                    )}
                   </p>
                 </div>
               </div>
@@ -555,11 +677,17 @@ export default function Home() {
               <p className="text-white/90 mb-6">
                 {pageData.acf.votre_couteau_votre_signature.parapgraphe}
               </p>
-              <button 
-                onClick={() => handleNavigation(acfData.section_personnalisation_lien?.url || '/configurateur')} 
+              <button
+                onClick={() =>
+                  handleNavigation(
+                    acfData.section_personnalisation_lien?.url ||
+                      "/configurateur"
+                  )
+                }
                 className="inline-flex items-center bg-primary hover:bg-primary/90 text-white font-medium py-3 px-6 rounded-md transition-colors"
               >
-                {sectionPersonnalisationLienTitle} <FaArrowRight className="ml-2" />
+                {sectionPersonnalisationLienTitle}{" "}
+                <FaArrowRight className="ml-2" />
               </button>
             </div>
           </div>
@@ -577,15 +705,22 @@ export default function Home() {
             {/* Display dynamic testimonials or fallback to static ones */}
             {processedTemoignages && processedTemoignages.length > 0 ? (
               processedTemoignages.map((temoignage: any, index: number) => (
-                <div key={index} className="bg-white p-6 rounded-lg shadow-md w-[260px] h-[120px] flex flex-col justify-center">
+                <div
+                  key={index}
+                  className="bg-white p-6 rounded-lg shadow-md w-[260px] h-[120px] flex flex-col justify-center"
+                >
                   <div className="flex text-primary mb-2">
                     {[...Array(5)].map((_, i) => (
                       <FaStar key={i} className="w-5 h-5" />
                     ))}
                   </div>
-                  <h3 className="text-lg font-bold text-gray-800">{temoignage.processedNom || ''}</h3>
+                  <h3 className="text-lg font-bold text-gray-800">
+                    {temoignage.processedNom || ""}
+                  </h3>
                   {temoignage.processedCommentaire && (
-                    <p className="text-sm text-gray-600 mt-1">{temoignage.processedCommentaire || ''}</p>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {temoignage.processedCommentaire || ""}
+                    </p>
                   )}
                 </div>
               ))
@@ -601,9 +736,11 @@ export default function Home() {
                     <FaStar className="w-5 h-5" />
                     <FaStar className="w-5 h-5" />
                   </div>
-                  <h3 className="text-lg font-bold text-gray-800">James Dean</h3>
+                  <h3 className="text-lg font-bold text-gray-800">
+                    James Dean
+                  </h3>
                 </div>
-                
+
                 {/* Témoignage 2 */}
                 <div className="bg-white p-6 rounded-lg shadow-md w-[260px] h-[120px] flex flex-col justify-center">
                   <div className="flex text-primary mb-2">
@@ -613,9 +750,11 @@ export default function Home() {
                     <FaStar className="w-5 h-5" />
                     <FaStar className="w-5 h-5" />
                   </div>
-                  <h3 className="text-lg font-bold text-gray-800">Marie Lefevre</h3>
+                  <h3 className="text-lg font-bold text-gray-800">
+                    Marie Lefevre
+                  </h3>
                 </div>
-                
+
                 {/* Témoignage 3 */}
                 <div className="bg-white p-6 rounded-lg shadow-md w-[260px] h-[120px] flex flex-col justify-center">
                   <div className="flex text-primary mb-2">
@@ -625,7 +764,9 @@ export default function Home() {
                     <FaStar className="w-5 h-5" />
                     <FaStar className="w-5 h-5" />
                   </div>
-                  <h3 className="text-lg font-bold text-gray-800">Alex Moreau</h3>
+                  <h3 className="text-lg font-bold text-gray-800">
+                    Alex Moreau
+                  </h3>
                 </div>
               </>
             )}
@@ -676,61 +817,72 @@ export default function Home() {
 
           {/* Formulaire */}
           <div className="max-w-2xl">
-            <form id="contactForm" onSubmit={handleContactSubmit} className="flex flex-col gap-4">
+            <form
+              id="contactForm"
+              onSubmit={handleContactSubmit}
+              className="flex flex-col gap-4"
+            >
               <div>
-                <label htmlFor="nom" className="block text-white mb-2">Nom complet</label>
-                <input 
-                  type="text" 
-                  id="nom" 
+                <label htmlFor="nom" className="block text-white mb-2">
+                  Nom complet
+                </label>
+                <input
+                  type="text"
+                  id="nom"
                   name="nom"
-                  className="w-full bg-white rounded-md p-3 text-gray-800" 
+                  className="w-full bg-white rounded-md p-3 text-gray-800"
                   placeholder="Votre nom complet"
                   required
                 />
               </div>
 
               <div>
-                <label htmlFor="objet" className="block text-white mb-2">Objet</label>
-                <input 
-                  type="text" 
-                  id="objet" 
+                <label htmlFor="objet" className="block text-white mb-2">
+                  Objet
+                </label>
+                <input
+                  type="text"
+                  id="objet"
                   name="objet"
-                  className="w-full bg-white rounded-md p-3 text-gray-800" 
+                  className="w-full bg-white rounded-md p-3 text-gray-800"
                   placeholder="Objet de votre message"
                   required
                 />
               </div>
-              
 
-              
               <div>
-                <label htmlFor="message" className="block text-white mb-2">Message</label>
-                <textarea 
-                  id="message" 
+                <label htmlFor="message" className="block text-white mb-2">
+                  Message
+                </label>
+                <textarea
+                  id="message"
                   name="message"
-                  className="w-full bg-white rounded-md p-3 text-gray-800 min-h-[120px]" 
+                  className="w-full bg-white rounded-md p-3 text-gray-800 min-h-[120px]"
                   placeholder="Votre message"
                   required
                 ></textarea>
               </div>
-              
-              <button 
-                type="submit" 
+
+              <button
+                type="submit"
                 disabled={isSubmitting}
                 className="mt-2 bg-primary hover:bg-primary/90 disabled:bg-primary/50 text-white font-medium py-3 px-6 rounded-md transition-colors flex items-center"
               >
-                <FaPaperPlane className="mr-2" /> 
-                {isSubmitting ? 'Envoi en cours...' : 'Soumettre mon projet'}
+                <FaPaperPlane className="mr-2" />
+                {isSubmitting ? "Envoi en cours..." : "Soumettre mon projet"}
               </button>
-              
+
               {submitMessage && (
-                <div className={`mt-4 p-4 rounded-md border-l-4 ${
-                  submitMessage.includes('préparé') ? 'bg-green-900/20 border-green-500 text-green-100' 
-                  : 'bg-red-900/20 border-red-500 text-red-100'
-                }`}>
+                <div
+                  className={`mt-4 p-4 rounded-md border-l-4 ${
+                    submitMessage.includes("préparé")
+                      ? "bg-green-900/20 border-green-500 text-green-100"
+                      : "bg-red-900/20 border-red-500 text-red-100"
+                  }`}
+                >
                   <div className="flex items-center">
                     <span className="mr-2">
-                      {submitMessage.includes('préparé') ? '✅' : '❌'}
+                      {submitMessage.includes("préparé") ? "✅" : "❌"}
                     </span>
                     <p className="text-sm font-medium">{submitMessage}</p>
                   </div>
