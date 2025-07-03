@@ -40,7 +40,7 @@ export default function PersonalizationForm({
                     borderWidth: '1px'
                   }}
                   rows={3}
-                  value={formData[field.id as keyof ConfiguratorFormData] || ''}
+                  value={formData[field.id] || ''}
                   onChange={(e) => setFormData({...formData, [field.id]: e.target.value})}
                 />
               ) : (
@@ -54,7 +54,7 @@ export default function PersonalizationForm({
                     borderColor: 'var(--color-gray-medium)',
                     borderWidth: '1px'
                   }}
-                  value={formData[field.id as keyof ConfiguratorFormData] || ''}
+                  value={formData[field.id] || ''}
                   onChange={(e) => setFormData({...formData, [field.id]: e.target.value})}
                   required={field.required}
                 />

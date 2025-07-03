@@ -47,4 +47,9 @@ export interface ConfiguratorFormData {
   handleEngraving: string;
   otherDetails: string;
   email: string;
+  sub1?: string;
+  sub2?: string;
+  sub3?: string;
+  sub4?: string;
+  [key: string]: string | undefined;
 } 

@@ -119,17 +119,20 @@ export const adaptACFDataForStep = (acfData: any, step: number): ConfiguratorSte
         if (key !== 'title' && key !== 'description' && key !== 'message' && acfData[key] && typeof acfData[key] === 'object') {
           const fieldData = acfData[key];
           // Inclure tous les champs, même ceux avec des données minimales
-          if (fieldData.label || fieldData.placeholder || Object.keys(fieldData).length > 0) {
+          // Gérer les noms de champs spécifiques : libelle/texte_indicatif et label/placeholder
+          if (fieldData.label || fieldData.placeholder || fieldData.libelle || fieldData.texte_indicatif || Object.keys(fieldData).length > 0) {
             adaptedData.fields!.push({
               id: key,
-              label: fieldData.label || key.charAt(0).toUpperCase() + key.slice(1),
-              placeholder: fieldData.placeholder || '',
+              label: fieldData.label || fieldData.libelle || '',
+              placeholder: fieldData.placeholder || fieldData.texte_indicatif || '',
               type: fieldData.type || 'text',
               required: fieldData.required || false
             });
           }
         }
       });
+      
+
       break;
       
     case 5:
