@@ -29,6 +29,7 @@ export interface FormField {
 export interface ConfiguratorStepData {
   title?: string;
   description?: string;
+  paragraph?: string;
   message?: string;
   models?: ModelOption[];
   woods?: WoodOption[];

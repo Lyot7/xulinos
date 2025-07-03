@@ -46,7 +46,7 @@ export const adaptACFDataForStep = (acfData: any, step: number): ConfiguratorSte
   console.log('Raw ACF data:', acfData);
   console.log('ACF keys:', Object.keys(acfData));
   Object.keys(acfData).forEach(key => {
-    if (key !== 'title' && key !== 'description' && key !== 'message' && acfData[key] && typeof acfData[key] === 'object') {
+    if (key !== 'title' && key !== 'description' && key !== 'paragraph' && key !== 'message' && acfData[key] && typeof acfData[key] === 'object') {
       console.log(`${key}:`, acfData[key], 'Keys:', Object.keys(acfData[key]));
     }
   });
@@ -61,6 +61,11 @@ export const adaptACFDataForStep = (acfData: any, step: number): ConfiguratorSte
     adaptedData.description = acfData.description;
   }
   
+  // Copier le paragraphe s'il existe
+  if (acfData.paragraph) {
+    adaptedData.paragraph = acfData.paragraph;
+  }
+  
   // Copier le message s'il existe
   if (acfData.message) {
     adaptedData.message = acfData.message;
@@ -71,7 +76,7 @@ export const adaptACFDataForStep = (acfData: any, step: number): ConfiguratorSte
       // Convertir les données de modèles
       adaptedData.models = [];
       Object.keys(acfData).forEach(key => {
-        if (key !== 'title' && key !== 'description' && key !== 'message' && acfData[key] && typeof acfData[key] === 'object') {
+        if (key !== 'title' && key !== 'description' && key !== 'paragraph' && key !== 'message' && acfData[key] && typeof acfData[key] === 'object') {
           const modelData = acfData[key];
           // Inclure tous les modèles, même ceux avec des champs vides
           if (modelData.hasOwnProperty('titlecouteau') || modelData.hasOwnProperty('imagecouteau') || modelData.hasOwnProperty('descriptioncouteau')) {
@@ -90,7 +95,7 @@ export const adaptACFDataForStep = (acfData: any, step: number): ConfiguratorSte
       // Convertir les données de bois
       adaptedData.woods = [];
       Object.keys(acfData).forEach(key => {
-        if (key !== 'title' && key !== 'description' && key !== 'message' && acfData[key] && typeof acfData[key] === 'object') {
+        if (key !== 'title' && key !== 'description' && key !== 'paragraph' && key !== 'message' && acfData[key] && typeof acfData[key] === 'object') {
           const woodData = acfData[key];
           // Inclure tous les bois, même ceux avec des champs vides
           // Gérer les différents noms de champs pour les bois
@@ -111,7 +116,7 @@ export const adaptACFDataForStep = (acfData: any, step: number): ConfiguratorSte
       // Convertir les données de motifs
       adaptedData.patterns = [];
       Object.keys(acfData).forEach(key => {
-        if (key !== 'title' && key !== 'description' && key !== 'message' && acfData[key] && typeof acfData[key] === 'object') {
+        if (key !== 'title' && key !== 'description' && key !== 'paragraph' && key !== 'message' && acfData[key] && typeof acfData[key] === 'object') {
           const patternData = acfData[key];
           // Inclure tous les motifs, même ceux avec des champs vides
           // Gérer les différents noms de champs possibles
@@ -133,7 +138,7 @@ export const adaptACFDataForStep = (acfData: any, step: number): ConfiguratorSte
       // Convertir les données de champs
       adaptedData.fields = [];
       Object.keys(acfData).forEach(key => {
-        if (key !== 'title' && key !== 'description' && key !== 'message' && acfData[key] && typeof acfData[key] === 'object') {
+        if (key !== 'title' && key !== 'description' && key !== 'paragraph' && key !== 'message' && acfData[key] && typeof acfData[key] === 'object') {
           const fieldData = acfData[key];
           // Inclure tous les champs, même ceux avec des données minimales
           // Gérer les noms de champs spécifiques : libelle/texte_indicatif et label/placeholder
@@ -156,7 +161,7 @@ export const adaptACFDataForStep = (acfData: any, step: number): ConfiguratorSte
       // Convertir les données d'actions
       adaptedData.actions = [];
       Object.keys(acfData).forEach(key => {
-        if (key !== 'title' && key !== 'description' && key !== 'message' && acfData[key] && typeof acfData[key] === 'object') {
+        if (key !== 'title' && key !== 'description' && key !== 'paragraph' && key !== 'message' && acfData[key] && typeof acfData[key] === 'object') {
           const actionData = acfData[key];
           // Inclure toutes les actions, même celles avec des données minimales
           if (actionData.label || actionData.url || Object.keys(actionData).length > 0) {

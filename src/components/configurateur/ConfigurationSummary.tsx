@@ -24,9 +24,11 @@ export default function ConfigurationSummary({
         {stepData.title || "Étape 5"}
       </h2>
       <div className="space-y-6 text-gray-300 text-sm sm:text-base">
-        <p>
-          {stepData.message || "Configuration terminée."}
-        </p>
+        {stepData.paragraph && (
+          <p className="text-left">
+            {stepData.paragraph}
+          </p>
+        )}
         
         <div className="bg-primary rounded-lg p-4 border border-white/10">
           <h3 className="text-white font-medium mb-2">Résumé de votre configuration :</h3>
@@ -51,16 +53,8 @@ export default function ConfigurationSummary({
             ))}
           </div>
         ) : (
-          <div className="text-center py-4">
-            <p className="text-gray-400">
-              Aucune action configurée
-            </p>
-          </div>
+          <></>
         )}
-        
-        <p className="text-center text-white/60 text-xs">
-          Un devis personnalisé vous sera envoyé après validation de votre demande.
-        </p>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { ConfiguratorStepData } from "@/app/configurateur/page";
+import { ConfiguratorStepData } from "@/types/configurateur";
 
 export const getTestDataForStep = (step: number): ConfiguratorStepData => {
   switch (step) {
@@ -88,6 +88,7 @@ export const getTestDataForStep = (step: number): ConfiguratorStepData => {
     case 5:
       return {
         title: "Configuration terminée !",
+        paragraph: "Félicitations ! Votre couteau artisanal personnalisé a été créé selon vos spécifications. Chaque pièce est unique et sera fabriquée avec le plus grand soin par nos artisans.",
         message: "Votre couteau personnalisé a été ajouté à votre panier. Vous pouvez maintenant :",
         actions: [
           { 
