@@ -93,7 +93,7 @@ export default function ConfiguratorContent({
       name: `Couteau configuré - ${selectedModelData?.name || 'Personnalisé'}`,
       price: estimatedPrice,
       description: `Couteau artisanal personnalisé selon vos spécifications`,
-      image: selectedModelData?.image,
+      image: selectedModelData?.image || '',
       type: 'configurateur',
       customizations,
     });
@@ -172,7 +172,14 @@ export default function ConfiguratorContent({
 
   return (
     <div>
-      {renderContent()}
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-12 lg:py-16">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mb-4"></div>
+          <p className="text-white text-lg">Chargement...</p>
+        </div>
+      ) : (
+        renderContent()
+      )}
     </div>
   );
 }
