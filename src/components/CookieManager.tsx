@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { FaCookieBite, FaTimes, FaCheck, FaShieldAlt, FaBan } from 'react-icons/fa';
 import { useCookieConsent, CookieConsentType } from '@/hooks/useCookieConsent';
+import Link from 'next/link';
 
 export default function CookieManager() {
   const [isVisible, setIsVisible] = useState(false);
@@ -163,9 +164,9 @@ export default function CookieManager() {
           {/* Footer */}
           <div className="mt-3 text-xs text-white/60 text-center">
             En continuant à utiliser ce site, vous acceptez notre{' '}
-            <a href="/privacy" className="text-white hover:underline">
+            <Link href="/privacy" className="text-white hover:underline">
               politique de confidentialité
-            </a>
+            </Link>
           </div>
         </div>
       </div>
