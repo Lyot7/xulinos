@@ -357,11 +357,13 @@ export default function Home() {
       >
         {/* Background Image with responsive container */}
         <div className="absolute inset-0 z-0">
-          <img
-            src={featuredImageUrl}
-            alt={pageData.title.rendered}
-            className="object-cover w-full h-full absolute inset-0"
-          />
+          {featuredImageUrl && (
+            <img
+              src={featuredImageUrl}
+              alt={pageData.title.rendered}
+              className="object-cover w-full h-full absolute inset-0"
+            />
+          )}
         </div>
 
         {/* Hero Content - Centered vertically with responsive padding */}
