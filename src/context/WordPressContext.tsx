@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, ReactNode, useEffect, useMemo, useState } from 'react';
-import useWordPressData from '@/hooks/useWordPressData';
+import { useWordPressData } from '@/hooks/useWordPressData';
 import { processCouteauxImages } from '@/utils/wordpressApi';
 
 interface WordPressContextType {
@@ -28,34 +28,36 @@ export const WordPressProvider: React.FC<{ children: ReactNode }> = ({ children 
       console.error('WordPress Context Error:', error);
     }
     
-    // Log route-specific errors
-    const routeErrorKeys = Object.keys(routeErrors || {}).filter(key => routeErrors[key] !== null);
-    if (routeErrorKeys.length > 0) {
-      console.warn('WordPress Route Errors:', 
-        routeErrorKeys.reduce((acc, key) => {
-          acc[key] = routeErrors[key]?.message || 'Unknown error';
-          return acc;
-        }, {} as Record<string, string>)
-      );
+    // Log route-specific errors with safety checks
+    if (routeErrors && typeof routeErrors === 'object') {
+      const routeErrorKeys = Object.keys(routeErrors).filter(key => routeErrors[key] !== null);
+      if (routeErrorKeys.length > 0) {
+        console.warn('WordPress Route Errors:', 
+          routeErrorKeys.reduce((acc, key) => {
+            acc[key] = routeErrors[key]?.message || 'Unknown error';
+            return acc;
+          }, {} as Record<string, string>)
+        );
+      }
     }
   }, [loading, error, routeErrors]);
 
   // Helper function to check if a specific route has an error
   const hasRouteError = (routeKey: string): boolean => {
-    return !!routeErrors && !!routeErrors[routeKey];
+    return !!(routeErrors && routeErrors[routeKey]);
   };
   
   // Helper function to check if a specific route is loaded
   const isRouteLoaded = (routeKey: string): boolean => {
-    return !!data && !!data[routeKey];
+    return !!(data && data[routeKey]);
   };
   
   // Mémoriser la valeur du contexte pour éviter les rendus inutiles
   const contextValue = useMemo(() => ({
-    data,
+    data: data || {},
     loading,
     error,
-    routeErrors,
+    routeErrors: routeErrors || {},
     hasRouteError,
     isRouteLoaded
   }), [data, loading, error, routeErrors]);

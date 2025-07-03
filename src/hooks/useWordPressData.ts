@@ -169,18 +169,45 @@ export const useWordPressData = () => {
         }
         
         throw routeError;
-      } finally {
-        pending--;
-        if (pending === 0 && isMounted) {
-          setLoading(false);
-        }
       }
-    });
+    })();
 
+    // Store the promise in the cache
+    fetchPromises[route.key] = fetchPromise;
+    
+    return fetchPromise;
+  }, []);
+
+  // Main effect to load data based on current path
+  useEffect(() => {
+    const loadDataForPath = async () => {
+      const routeKey = getRouteKeyFromPath(pathname);
+      if (!routeKey) return;
+
+      const route = apiRoutes[routeKey];
+      if (!route) return;
+
+      try {
+        await fetchData(route);
+      } catch (error) {
+        console.error(`Error loading data for route ${routeKey}:`, error);
+      }
+    };
+
+    loadDataForPath();
+  }, [pathname, fetchData]);
+
+  // Cleanup effect
+  useEffect(() => {
     return () => {
-      isMounted = false;
+      isMountedRef.current = false;
     };
   }, []);
 
-  return { data, loading, error };
+  return { 
+    data: state.data, 
+    loading: state.loading, 
+    error: state.error, 
+    routeErrors: state.routeErrors 
+  };
 }

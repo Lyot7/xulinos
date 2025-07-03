@@ -41,9 +41,69 @@ export default function Home() {
   const { couteaux, loading: couteauxLoading } = useCouteauxData();
   const [images, setImages] = useState<any[]>([]);
   const [featuredImageUrl, setFeaturedImageUrl] = useState<string | null>(null);
+  
+  // Images extraites par champ ACF - avec gestion d'erreur améliorée
+  const [acfImages, setAcfImages] = useState<{
+    atelier: any;
+    signature: any;
+    banniere1: any;
+    banniere2: any;
+    banniere3: any;
+  }>({
+    atelier: null,
+    signature: null,
+    banniere1: null,
+    banniere2: null,
+    banniere3: null
+  });
 
   // Extract ACF data with safety checks
   const acfData = pageData?.acf || {};
+  
+  // Fonction pour récupérer une image ACF directement depuis l'API
+  const getACFImage = async (imageId: number | undefined) => {
+    if (!imageId) return null;
+    
+    try {
+      const response = await fetch(`https://xulinos.xyz-agency.com/wp-json/wp/v2/media/${imageId}`);
+      if (!response.ok) return null;
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error(`Error fetching ACF image ${imageId}:`, error);
+      return null;
+    }
+  };
+
+  // Charger les images ACF
+  useEffect(() => {
+    const loadACFImages = async () => {
+      if (!pageData?.acf) return;
+
+      const imagePromises = [
+        getACFImage(pageData.acf.entrez_dans_latelier?.image),
+        getACFImage(pageData.acf.votre_couteau_votre_signature?.image),
+        getACFImage(pageData.acf.banniere_icon_1?.icon?.value),
+        getACFImage(pageData.acf.banniere_icon_2?.icon?.value),
+        getACFImage(pageData.acf.banniere_icon_3?.icon?.value)
+      ];
+
+      try {
+        const [atelier, signature, banniere1, banniere2, banniere3] = await Promise.all(imagePromises);
+        setAcfImages({
+          atelier,
+          signature,
+          banniere1,
+          banniere2,
+          banniere3
+        });
+      } catch (error) {
+        console.error('Error loading ACF images:', error);
+      }
+    };
+
+    loadACFImages();
+  }, [pageData?.acf]);
 
   // Text placeholders - all fallback text defined at top level
   const PLACEHOLDERS = {
@@ -412,75 +472,9 @@ export default function Home() {
     fetchImages();
   }, []);
 
-  if (loading || !pageData || images.length === 0) {
+  if (loading || !pageData) {
     return <LoadingSpinner />;
   }
-
-  // Fonction utilitaire pour récupérer une image par ID dans images
-  const getImageById = (id: number | undefined) => {
-    if (!id) return null;
-    return images.find((img) => img.id == id) || null;
-  };
-
-  // Fonction pour récupérer une image ACF directement depuis l'API
-  const getACFImage = async (imageId: number | undefined) => {
-    if (!imageId) return null;
-    
-    try {
-      const response = await fetch(`https://xulinos.xyz-agency.com/wp-json/wp/v2/media/${imageId}`);
-      if (!response.ok) return null;
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error(`Error fetching ACF image ${imageId}:`, error);
-      return null;
-    }
-  };
-
-  // Images extraites par champ ACF - avec gestion d'erreur améliorée
-  const [acfImages, setAcfImages] = useState<{
-    atelier: any;
-    signature: any;
-    banniere1: any;
-    banniere2: any;
-    banniere3: any;
-  }>({
-    atelier: null,
-    signature: null,
-    banniere1: null,
-    banniere2: null,
-    banniere3: null
-  });
-
-  // Charger les images ACF
-  useEffect(() => {
-    const loadACFImages = async () => {
-      if (!pageData?.acf) return;
-
-      const imagePromises = [
-        getACFImage(pageData.acf.entrez_dans_latelier?.image),
-        getACFImage(pageData.acf.votre_couteau_votre_signature?.image),
-        getACFImage(pageData.acf.banniere_icon_1?.icon?.value),
-        getACFImage(pageData.acf.banniere_icon_2?.icon?.value),
-        getACFImage(pageData.acf.banniere_icon_3?.icon?.value)
-      ];
-
-      try {
-        const [atelier, signature, banniere1, banniere2, banniere3] = await Promise.all(imagePromises);
-        setAcfImages({
-          atelier,
-          signature,
-          banniere1,
-          banniere2,
-          banniere3
-        });
-      } catch (error) {
-        console.error('Error loading ACF images:', error);
-      }
-    };
-
-    loadACFImages();
-  }, [pageData?.acf]);
 
   // Fallback images pour les icônes de services
   const fallbackIcons = {
@@ -506,21 +500,6 @@ export default function Home() {
       </main>
     );
   }
-
-  // Fonction utilitaire pour récupérer une image par ID dans images
-  const getImageById = (id: number | undefined) => {
-    if (!id) return null;
-    return images.find((img) => img.id == id) || null;
-  };
-
-  // Images extraites par champ ACF
-  const imageAtelier = getImageById(pageData.acf.entrez_dans_latelier.image);
-  const imageSignature = getImageById(
-    pageData.acf.votre_couteau_votre_signature.image
-  );
-  const imageBanniere1 = getImageById(pageData.acf.banniere_icon_1.icon.value);
-  const imageBanniere2 = getImageById(pageData.acf.banniere_icon_2.icon.value);
-  const imageBanniere3 = getImageById(pageData.acf.banniere_icon_3.icon.value);
 
   return (
     <main className="flex flex-col">
