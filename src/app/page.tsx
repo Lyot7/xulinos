@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useMemo } from 'react';
 import Image from 'next/image';
 import PrimaryButton from '@/components/PrimaryButton';
 import SecondaryButton from '@/components/SecondaryButton';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import { FaArrowRight, FaStar, FaPaperPlane } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 import { usePageData, useCouteauxData } from '@/context/WordPressContext';
@@ -273,6 +274,60 @@ export default function Home() {
       setIsSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    async function fetchFeaturedImage() {
+      if (!pageData || !pageData.featured_media) return;
+
+      try {
+        const res = await fetch(
+          `https://xulinos.xyz-agency.com/wp-json/wp/v2/media/${pageData.featured_media}`
+        );
+        const data = await res.json();
+        setFeaturedImageUrl(data.source_url);
+      } catch (err) {
+        console.error("Erreur lors du fetch de l'image mise en avant:", err);
+      }
+    }
+
+    fetchFeaturedImage();
+  }, [pageData]);
+
+  // Fetch des images pour la page d'accueil
+  useEffect(() => {
+    async function fetchImages() {
+      try {
+        const response = await fetch(
+          "https://xulinos.xyz-agency.com/index.php/wp-json/wp/v2/media?parent=6"
+        );
+        const data = await response.json();
+        setImages(data);
+        console.log("Images fetched:", data);
+      } catch (err) {
+        console.error("Erreur lors du fetch images :", err);
+      }
+    }
+    fetchImages();
+  }, []);
+
+  if (loading || !pageData) {
+    return <LoadingSpinner />;
+  }
+
+  // Fonction utilitaire pour récupérer une image par ID dans images
+  const getImageById = (id: number | undefined) => {
+    if (!id) return null;
+    return images.find((img) => img.id == id) || null;
+  };
+
+  // Images extraites par champ ACF
+  const imageAtelier = getImageById(pageData.acf.entrez_dans_latelier.image);
+  const imageSignature = getImageById(
+    pageData.acf.votre_couteau_votre_signature.image
+  );
+  const imageBanniere3 = getImageById(pageData.acf.banniere_icon_3.icon.value);
+  const imageBanniere2 = getImageById(pageData.acf.banniere_icon_2.icon.value);
+  const imageBanniere1 = getImageById(pageData.acf.banniere_icon_1.icon.value);
 
   // Show skeleton while loading critical data
   if (loading && !pageData) {

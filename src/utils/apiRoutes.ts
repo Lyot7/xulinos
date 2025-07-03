@@ -46,35 +46,30 @@ export const apiRoutes: Record<string, ApiRoute> = {
   },
   
   // Configurateur pages
-  configurateurHome: {
-    key: 'configurateurHome',
-    endpoint: `${WP_BASE_URL}/wp/v2/pages/25`,
-    priority: 6,
-  },
   configurateur1: {
     key: 'configurateur1',
     endpoint: `${WP_BASE_URL}/wp/v2/pages/33`,
-    priority: 7,
+    priority: 6,
   },
   configurateur2: {
     key: 'configurateur2',
     endpoint: `${WP_BASE_URL}/wp/v2/pages/35`,
-    priority: 8,
+    priority: 7,
   },
   configurateur3: {
     key: 'configurateur3',
     endpoint: `${WP_BASE_URL}/wp/v2/pages/37`,
-    priority: 9,
+    priority: 8,
   },
   configurateur4: {
     key: 'configurateur4',
     endpoint: `${WP_BASE_URL}/wp/v2/pages/39`,
-    priority: 10,
+    priority: 9,
   },
   configurateur5: {
     key: 'configurateur5',
     endpoint: `${WP_BASE_URL}/wp/v2/pages/41`,
-    priority: 11,
+    priority: 10,
   },
 };
 
