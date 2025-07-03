@@ -20,6 +20,51 @@ interface WordPressDataState {
   routeErrors: Record<string, Error | null>;
 }
 
+// Retry configuration
+const RETRY_CONFIG = {
+  maxRetries: 3,
+  baseDelay: 1000, // 1 second
+  maxDelay: 5000,  // 5 seconds
+};
+
+// Exponential backoff retry function
+const retryWithBackoff = async <T>(
+  fn: () => Promise<T>,
+  maxRetries: number = RETRY_CONFIG.maxRetries,
+  baseDelay: number = RETRY_CONFIG.baseDelay
+): Promise<T> => {
+  let lastError: Error;
+  
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+      
+      // Don't retry on 404 errors (page doesn't exist)
+      if (lastError.message.includes('404')) {
+        throw lastError;
+      }
+      
+      // If this is the last attempt, throw the error
+      if (attempt === maxRetries) {
+        throw lastError;
+      }
+      
+      // Calculate delay with exponential backoff
+      const delay = Math.min(baseDelay * Math.pow(2, attempt), RETRY_CONFIG.maxDelay);
+      
+      // Add some jitter to prevent thundering herd
+      const jitter = Math.random() * 200;
+      
+      console.log(`Retry attempt ${attempt + 1}/${maxRetries} for fetch after ${delay + jitter}ms`);
+      await new Promise(resolve => setTimeout(resolve, delay + jitter));
+    }
+  }
+  
+  throw lastError!;
+};
+
 export const useWordPressData = () => {
   const pathname = usePathname();
   const [state, setState] = useState<WordPressDataState>({
@@ -36,7 +81,7 @@ export const useWordPressData = () => {
     currentPathnameRef.current = pathname;
   }, [pathname]);
 
-  // Function to fetch data from a specific endpoint with promise caching
+  // Function to fetch data from a specific endpoint with promise caching and retry logic
   const fetchData = useCallback(async (route: ApiRoute, forceRefresh = false): Promise<unknown> => {
     if (!route || !route.endpoint) {
       throw new Error('Invalid route provided to fetchData');
@@ -54,29 +99,33 @@ export const useWordPressData = () => {
       return fetchPromises[route.key]!;
     }
 
-    // Créer une nouvelle promesse de fetch
+    // Créer une nouvelle promesse de fetch avec retry logic
     const fetchPromise = (async () => {
       try {
         console.log(`Fetching data from ${route.key} endpoint: ${route.endpoint}`);
         
-        const response = await fetch(route.endpoint, { 
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json; charset=utf-8',
-            'Accept': 'application/json',
-            'Accept-Charset': 'utf-8'
-          },
-          cache: 'no-store'
+        const data = await retryWithBackoff(async () => {
+          const response = await fetch(route.endpoint, { 
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json; charset=utf-8',
+              'Accept': 'application/json',
+              'Accept-Charset': 'utf-8'
+            },
+            cache: 'no-store',
+            // Add timeout to prevent hanging requests
+            signal: AbortSignal.timeout(10000) // 10 second timeout
+          });
+          
+          if (!response.ok) {
+            throw new Error(`Failed to fetch ${route.key}: ${response.status} ${response.statusText}`);
+          }
+          
+          const rawData = await response.json();
+          
+          // Process the data to fix UTF-8 encoding issues
+          return processWordPressData(rawData);
         });
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch ${route.key}: ${response.status} ${response.statusText}`);
-        }
-        
-        const rawData = await response.json();
-        
-        // Process the data to fix UTF-8 encoding issues
-        const data = processWordPressData(rawData);
         
         console.log(`Data fetched and processed successfully for ${route.key}`);
         

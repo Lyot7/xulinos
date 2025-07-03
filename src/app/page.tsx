@@ -357,12 +357,14 @@ export default function Home() {
       >
         {/* Background Image with responsive container */}
         <div className="absolute inset-0 z-0">
-          {featuredImageUrl && (
+          {featuredImageUrl ? (
             <img
               src={featuredImageUrl}
               alt={pageData.title.rendered}
               className="object-cover w-full h-full absolute inset-0"
             />
+          ) : (
+            <div className="w-full h-full bg-gray-900"></div>
           )}
         </div>
 
@@ -399,11 +401,17 @@ export default function Home() {
             {/* Service Feature 1 */}
             <div className="flex flex-col items-center text-center flex-1 basis-[280px] min-w-[280px]">
               <div className="w-24 h-24 mb-6">
-                <img
-                  src={imageBanniere1.source_url}
-                  alt={pageData.acf.banniere_icon_1.titre}
-                  className="object-contain w-full h-full"
-                />
+                {imageBanniere1?.source_url ? (
+                  <img
+                    src={imageBanniere1.source_url}
+                    alt={pageData.acf.banniere_icon_1.titre}
+                    className="object-contain w-full h-full"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-700 flex items-center justify-center text-gray-400 text-xs">
+                    <span>Icon</span>
+                  </div>
+                )}
               </div>
               <h3 className="text-2xl font-bold text-white mb-3">
                 {pageData.acf.banniere_icon_1.titre}
@@ -415,11 +423,17 @@ export default function Home() {
             {/* Service Feature 2 */}
             <div className="flex flex-col items-center text-center flex-1 basis-[280px] min-w-[280px]">
               <div className="w-24 h-24 mb-6">
-                <img
-                  src={imageBanniere2.source_url}
-                  alt={pageData.acf.banniere_icon_2.titre}
-                  className="object-contain w-full h-full"
-                />
+                {imageBanniere2?.source_url ? (
+                  <img
+                    src={imageBanniere2.source_url}
+                    alt={pageData.acf.banniere_icon_2.titre}
+                    className="object-contain w-full h-full"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-700 flex items-center justify-center text-gray-400 text-xs">
+                    <span>Icon</span>
+                  </div>
+                )}
               </div>
               <h3 className="text-2xl font-bold text-white mb-3">
                 {pageData.acf.banniere_icon_2.titre}
@@ -432,11 +446,17 @@ export default function Home() {
             {/* Service Feature 3 */}
             <div className="flex flex-col items-center text-center flex-1 basis-[280px] min-w-[280px]">
               <div className="w-24 h-24 mb-6">
-                <img
-                  src={imageBanniere3.source_url}
-                  alt={pageData.acf.banniere_icon_3.titre}
-                  className="object-contain w-full h-full"
-                />
+                {imageBanniere3?.source_url ? (
+                  <img
+                    src={imageBanniere3.source_url}
+                    alt={pageData.acf.banniere_icon_3.titre}
+                    className="object-contain w-full h-full"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-700 flex items-center justify-center text-gray-400 text-xs">
+                    <span>Icon</span>
+                  </div>
+                )}
               </div>
               <h3 className="text-2xl font-bold text-white mb-3">
                 {pageData.acf.banniere_icon_3.titre}
@@ -456,11 +476,17 @@ export default function Home() {
             {/* Image */}
             <div className="w-full md:w-1/2">
               <div className="rounded-lg overflow-hidden">
-                <img
-                  src={imageAtelier.source_url}
-                  alt={pageData.acf.entrez_dans_latelier.titre}
-                  className="rounded-md object-cover w-full h-auto"
-                />
+                {imageAtelier?.source_url ? (
+                  <img
+                    src={imageAtelier.source_url}
+                    alt={pageData.acf.entrez_dans_latelier.titre}
+                    className="rounded-md object-cover w-full h-auto"
+                  />
+                ) : (
+                  <div className="w-full h-64 bg-gray-800 flex items-center justify-center text-gray-400">
+                    <span>Image non disponible</span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -514,18 +540,32 @@ export default function Home() {
               processedCouteaux.slice(0, 3).map((couteau, index) => (
                 <div key={couteau.id || index} className="bg-dark rounded-xl overflow-hidden shadow-lg">
                   <div className="relative h-72">
-                    <Image 
-                      src={couteau.acf?.image_principale?.url || "/images/knives/le-souverain/le-souverain.png"}
-                      alt={couteau.acf?.image_principale?.alt || couteau.processedTitle || PLACEHOLDERS.couteauTitle}
-                      fill
-                      style={{ objectFit: 'cover', objectPosition: 'center' }}
-                      className="hover:scale-105 transition-transform duration-300"
-                      onError={(e) => {
-                        // Fallback to default image if WordPress image fails to load
-                        const target = e.target as HTMLImageElement;
-                        target.src = "/images/knives/le-souverain/le-souverain.png";
-                      }}
-                    />
+                    {couteau.acf?.image_principale?.url ? (
+                      <Image 
+                        src={couteau.acf.image_principale.url}
+                        alt={couteau.acf.image_principale.alt || couteau.processedTitle || PLACEHOLDERS.couteauTitle}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        style={{ objectFit: 'cover', objectPosition: 'center' }}
+                        className="hover:scale-105 transition-transform duration-300"
+                        onError={(e) => {
+                          // Fallback to default image if WordPress image fails to load
+                          const target = e.target as HTMLImageElement;
+                          target.src = "/images/knives/le-souverain/le-souverain.png";
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+                        <Image 
+                          src="/images/knives/le-souverain/le-souverain.png"
+                          alt={couteau.processedTitle || PLACEHOLDERS.couteauTitle}
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          style={{ objectFit: 'cover', objectPosition: 'center' }}
+                          className="hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                    )}
                     <div className="absolute top-4 right-4 bg-primary/80 text-white text-sm px-4 py-1.5 rounded-full">
                       {couteau.acf?.disponibilite || PLACEHOLDERS.disponibilite}
                     </div>
@@ -561,11 +601,17 @@ export default function Home() {
             {/* Image */}
             <div className="w-full md:w-1/2">
               <div className="rounded-lg overflow-hidden">
-                <img
-                  src={imageSignature.source_url}
-                  alt={pageData.acf.votre_couteau_votre_signature.titre}
-                  className="rounded-md object-cover w-full h-auto max-w-[400px] sm:max-w-[700px]"
-                />
+                {imageSignature?.source_url ? (
+                  <img
+                    src={imageSignature.source_url}
+                    alt={pageData.acf.votre_couteau_votre_signature.titre}
+                    className="rounded-md object-cover w-full h-auto max-w-[400px] sm:max-w-[700px]"
+                  />
+                ) : (
+                  <div className="w-full h-64 bg-gray-800 flex items-center justify-center text-gray-400">
+                    <span>Image non disponible</span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -673,6 +719,7 @@ export default function Home() {
               src="/images/tree-logo.png"
               alt="Logo Xulinos"
               fill
+              sizes="100vw"
               style={{
                 objectFit: "contain",
                 objectPosition: "right bottom",

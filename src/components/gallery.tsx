@@ -42,6 +42,27 @@ export default function KnifeGallery({ knives, search, onlyAvailable, onKnifeCli
     });
   };
 
+  // Helper function to render image with proper guards
+  const renderImage = (imageUrl: string, imageAlt: string) => {
+    if (!imageUrl || imageUrl.trim() === '') {
+      return (
+        <div className="w-full h-full bg-gray-800 flex items-center justify-center text-gray-400 text-sm">
+          <span>Image non disponible</span>
+        </div>
+      );
+    }
+
+    return (
+      <Image
+        src={imageUrl}
+        alt={imageAlt}
+        fill
+        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+        className="object-cover rounded-lg"
+      />
+    );
+  };
+
   return (
     <section className="text-white w-full">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -55,14 +76,7 @@ export default function KnifeGallery({ knives, search, onlyAvailable, onKnifeCli
               {(() => {
                 const imageUrl = knife.acf?.image_principale?.url || "/images/knives/le-souverain/le-souverain.png";
                 const imageAlt = knife.acf?.image_principale?.alt || knife.title?.rendered || "Couteau artisanal";
-                return (
-                  <Image
-                    src={imageUrl}
-                    alt={imageAlt}
-                    fill
-                    className="object-cover rounded-lg"
-                  />
-                );
+                return renderImage(imageUrl, imageAlt);
               })()}
               
               {knife.class_list?.includes("couteaux_tag-disponible-a-lachat") && (
