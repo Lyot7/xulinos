@@ -74,8 +74,7 @@ export const useWordPressData = () => {
     try {
       // Marquer cette route comme en cours de chargement
       fetchingRef.current[route.key] = true;
-      
-      console.log(`Fetching data from ${route.key} endpoint: ${route.endpoint}`);
+      // console.log(`Fetching data from ${route.key} endpoint: ${route.endpoint}`);
       
       // Use a basic fetch without AbortController to avoid issues
       const response = await fetch(route.endpoint, { 
@@ -93,7 +92,7 @@ export const useWordPressData = () => {
       }
       
       const data = await response.json();
-      console.log(`Data fetched successfully for ${route.key}`);
+      // console.log(`Data fetched successfully for ${route.key}`);
       
       // Mettre à jour le cache global
       globalCache[route.key] = data;
@@ -160,7 +159,7 @@ export const useWordPressData = () => {
       
       // Get the current page route key
       const currentRouteKey = getRouteKeyFromPath(pathname);
-      console.log(`Current path: ${pathname}, Route key: ${currentRouteKey}`);
+      // console.log(`Current path: ${pathname}, Route key: ${currentRouteKey}`);
       
       // Ne pas réinitialiser l'état loading si nous avons déjà des données pour la route actuelle
       if (!currentRouteKey || !globalCache[currentRouteKey]) {
@@ -179,7 +178,7 @@ export const useWordPressData = () => {
         if (currentRouteKey) {
           const currentRoute = apiRoutes[currentRouteKey];
           if (currentRoute) {
-            console.log(`Prioritizing current route: ${currentRouteKey}`);
+            // console.log(`Prioritizing current route: ${currentRouteKey}`);
             routesToFetch = [
               currentRoute,
               ...routesToFetch.filter(route => route.key !== currentRouteKey),
@@ -189,7 +188,7 @@ export const useWordPressData = () => {
         
         // Fetch the current route first (always refresh current route)
         if (currentRouteKey && apiRoutes[currentRouteKey] && isMountedRef.current) {
-          console.log(`Fetching current route first: ${currentRouteKey}`);
+          // console.log(`Fetching current route first: ${currentRouteKey}`);
           await fetchData(apiRoutes[currentRouteKey], true); // Force refresh for current route
         }
         

@@ -37,11 +37,6 @@ export const apiRoutes: Record<string, ApiRoute> = {
   },
   
   // Configurateur pages
-  configurateurHome: {
-    key: 'configurateurHome',
-    endpoint: `${WP_BASE_URL}/wp/v2/pages/25`,
-    priority: 5,
-  },
   configurateur1: {
     key: 'configurateur1',
     endpoint: `${WP_BASE_URL}/wp/v2/pages/33`,
@@ -82,7 +77,7 @@ export const pathToRouteKeyMap: Record<string, string> = {
   '/a-propos': 'about',
   '/affutage-remoulage': 'affutageRemoulage',
   '/service': 'service',
-  '/configurateur': 'configurateurHome',
+  '/configurateur': 'configurateur1',
   '/couteaux': 'couteaux',
 };
 

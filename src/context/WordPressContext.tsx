@@ -20,8 +20,8 @@ export const WordPressProvider: React.FC<{ children: ReactNode }> = ({ children 
   // Log the context data only when it changes significantly
   useEffect(() => {
     // Éviter de logger à chaque rendu
-    console.log('WordPress Context Data:', Object.keys(data));
-    console.log('WordPress Context Loading State:', loading);
+    // console.log('WordPress Context Data:', Object.keys(data));
+    // console.log('WordPress Context Loading State:', loading);
     
     if (error) {
       console.error('WordPress Context Error:', error);
