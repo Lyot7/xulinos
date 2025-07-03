@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { apiRoutes, getRouteKeyFromPath, ApiRoute } from '@/utils/apiRoutes';
+import { processWordPressData } from '@/utils/textEncoding';
 
 // Cache global pour stocker les données entre les rendus
 const globalCache: Record<string, unknown> = {};
@@ -61,8 +62,9 @@ export const useWordPressData = () => {
         const response = await fetch(route.endpoint, { 
           method: 'GET',
           headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            'Content-Type': 'application/json; charset=utf-8',
+            'Accept': 'application/json',
+            'Accept-Charset': 'utf-8'
           },
           cache: 'no-store'
         });
@@ -71,8 +73,12 @@ export const useWordPressData = () => {
           throw new Error(`Failed to fetch ${route.key}: ${response.status} ${response.statusText}`);
         }
         
-        const data = await response.json();
-        console.log(`Data fetched successfully for ${route.key}`);
+        const rawData = await response.json();
+        
+        // Process the data to fix UTF-8 encoding issues
+        const data = processWordPressData(rawData);
+        
+        console.log(`Data fetched and processed successfully for ${route.key}`);
         
         // Mettre à jour le cache global
         globalCache[route.key] = data;
