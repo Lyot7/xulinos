@@ -38,16 +38,6 @@ export default function Stepper({ currentStep, totalSteps }: StepperProps) {
               >
                 {step.number}
               </div>
-              {index < totalSteps - 1 && (
-                <div
-                  className="w-8 h-[2px]"
-                  style={{
-                    backgroundColor: isCompleted
-                      ? 'var(--color-pure-white)' 
-                      : '#6C6C6C'
-                  }}
-                />
-              )}
             </div>
           );
         })}
@@ -62,7 +52,7 @@ export default function Stepper({ currentStep, totalSteps }: StepperProps) {
           const isFuture = stepNumber > currentStep;
 
           return (
-            <div key={step.number} className="flex flex-col items-center relative" style={{ minWidth: '80px' }}>
+            <div key={step.number} className="flex flex-col items-center relative" style={{ minWidth: '115px' }}>
               <div 
                 className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold relative z-10 ${
                   isCompleted || isCurrent
@@ -87,7 +77,7 @@ export default function Stepper({ currentStep, totalSteps }: StepperProps) {
                   className="absolute top-6 h-[2px] z-0"
                   style={{
                     left: '54px', // 24px (demi-cercle) + 30px (espacement)
-                    width: '52px', // 80px (minWidth) - 28px (pour centrer)
+                    width: '100px', // Agrandi
                     backgroundColor: isCompleted
                       ? 'var(--color-pure-white)' 
                       : '#6C6C6C'
