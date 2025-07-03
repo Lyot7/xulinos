@@ -11,6 +11,7 @@ export default function PersonalizationForm({
   formData,
   setFormData
 }: PersonalizationFormProps) {
+
   return (
     <div>
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 lg:mb-6 text-white">
