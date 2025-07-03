@@ -23,12 +23,12 @@ export const Switcher = ({ label, checked, onChange, className = '' }: SwitcherP
           className="sr-only"
         />
         <div
-          className={`box block h-8 w-14 rounded-full transition-colors duration-200 ${
-            checked ? 'bg-green-500' : 'bg-gray-400'
+          className={`box block h-8 w-14 rounded-full border border-[#757575] transition-colors duration-200 ${
+            checked ? 'bg-gray-400' : 'bg-jet'
           }`}
         ></div>
         <div
-          className={`absolute top-1 flex h-6 w-6 items-center justify-center rounded-full bg-white transition-transform duration-200 ${
+          className={`absolute top-1 flex h-6 w-6 items-center justify-center rounded-full bg-sage transition-transform duration-200 ${
             checked ? 'translate-x-7' : 'translate-x-1'
           }`}
         ></div>
