@@ -30,8 +30,22 @@ export default function KnifeDetail({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Debug logs
+  console.log('🔍 KnifeDetail props:', {
+    id,
+    name,
+    price,
+    available,
+    mainImage,
+    gallery,
+    galleryLength: gallery?.length || 0
+  });
+
   // Combiner mainImage et gallery pour créer toutes les images
-  const allImages = [mainImage, ...gallery];
+  // Filter out empty or invalid URLs
+  const allImages = [mainImage, ...gallery].filter(img => img && img.trim() !== '');
+  
+  console.log('📸 All images for carousel:', allImages);
 
   const handleAddToCart = () => {
     addItem({
@@ -85,6 +99,27 @@ export default function KnifeDetail({
     }
   };
 
+  // Helper function to render image with proper guards
+  const renderImage = (src: string, alt: string, className: string, sizes?: string) => {
+    if (!src || src.trim() === '') {
+      return (
+        <div className={`${className} bg-gray-800 flex items-center justify-center text-gray-400`}>
+          <span>Image non disponible</span>
+        </div>
+      );
+    }
+
+    return (
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        sizes={sizes || "(max-width: 768px) 100vw, 50vw"}
+        className={className}
+      />
+    );
+  };
+
   return (
     <>
       <div className="bg-[#2d2d2d] text-white px-6 py-12 flex flex-col items-center" onKeyDown={handleKeyDown}>
@@ -95,13 +130,17 @@ export default function KnifeDetail({
               className="relative aspect-[4/3] rounded-md overflow-hidden bg-gray-800 cursor-pointer"
               onClick={openModal}
             >
-              {allImages.length > 0 && (
-                <Image
-                  src={allImages[currentImageIndex]}
-                  alt={`${name} - Image ${currentImageIndex + 1}`}
-                  fill
-                  className="object-cover transition-opacity duration-300"
-                />
+              {allImages.length > 0 ? (
+                renderImage(
+                  allImages[currentImageIndex],
+                  `${name} - Image ${currentImageIndex + 1}`,
+                  "object-cover transition-opacity duration-300",
+                  "(max-width: 768px) 100vw, 50vw"
+                )
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                  <span>Aucune image disponible</span>
+                </div>
               )}
               
               {/* Boutons de navigation */}
@@ -122,7 +161,7 @@ export default function KnifeDetail({
                       e.stopPropagation();
                       nextImage();
                     }}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors z-10"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-4 rounded-full transition-colors z-10"
                     aria-label="Image suivante"
                   >
                     <FaChevronRight size={20} />
@@ -156,13 +195,19 @@ export default function KnifeDetail({
                         : 'border-transparent hover:border-white/50'
                     }`}
                   >
-                    <Image
-                      src={image}
-                      alt={`Miniature ${index + 1}`}
-                      width={64}
-                      height={64}
-                      className="w-full h-full object-cover"
-                    />
+                    {image && image.trim() !== '' ? (
+                      <Image
+                        src={image}
+                        alt={`Miniature ${index + 1}`}
+                        width={64}
+                        height={64}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-700 flex items-center justify-center text-gray-400 text-xs">
+                        <span>N/A</span>
+                      </div>
+                    )}
                   </button>
                 ))}
               </div>
@@ -178,7 +223,7 @@ export default function KnifeDetail({
               </span>
             )}
          
-            <p className="text-4xl font-bold">{price}</p>
+            <p className="text-4xl font-bold">{price} €</p>
 
             
             <div
@@ -219,13 +264,17 @@ export default function KnifeDetail({
 
           {/* Image principale */}
           <div className="relative w-full h-full flex items-center justify-center p-4">
-            {allImages.length > 0 && (
-              <Image
-                src={allImages[currentImageIndex]}
-                alt={`${name} - Image ${currentImageIndex + 1}`}
-                fill
-                className="object-contain"
-              />
+            {allImages.length > 0 ? (
+              renderImage(
+                allImages[currentImageIndex],
+                `${name} - Image ${currentImageIndex + 1}`,
+                "object-contain",
+                "100vw"
+              )
+            ) : (
+              <div className="text-white text-center">
+                <span>Aucune image disponible</span>
+              </div>
             )}
             
             {/* Boutons de navigation */}
@@ -269,13 +318,19 @@ export default function KnifeDetail({
                       : 'border-transparent hover:border-white/50'
                   }`}
                 >
-                  <Image
-                    src={image}
-                    alt={`Miniature ${index + 1}`}
-                    width={80}
-                    height={80}
-                    className="w-full h-full object-cover"
-                  />
+                  {image && image.trim() !== '' ? (
+                    <Image
+                      src={image}
+                      alt={`Miniature ${index + 1}`}
+                      width={80}
+                      height={80}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-700 flex items-center justify-center text-gray-400 text-xs">
+                      <span>N/A</span>
+                    </div>
+                  )}
                 </button>
               ))}
             </div>

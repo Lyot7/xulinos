@@ -1,5 +1,6 @@
 import KnifeDetail from "@/components/KnifeDetail";
 import { notFound } from "next/navigation";
+import { getCouteauImagesServer, parseWordPressContentServer } from "@/utils/wordpressApiServer";
 
 interface Props {
   params: { id: string };
@@ -18,43 +19,43 @@ export default async function KnifeDetailPage({ params }: Props) {
 
   const knife = await res.json();
 
-  // Récupérer les images de la galerie depuis les champs ACF
-  let gallery: string[] = [];
-  
-  // Essayer de récupérer la galerie depuis les champs ACF
-  if (knife.acf?.galerie && Array.isArray(knife.acf.galerie)) {
-    gallery = knife.acf.galerie.map((item: any) => item.url || item).filter(Boolean);
-  }
-  
-  // Si pas de galerie ACF, essayer de récupérer les médias associés
-  if (gallery.length === 0 && knife._embedded?.["wp:featuredmedia"]) {
-    // Récupérer tous les médias associés à ce couteau
-    try {
-      const mediaRes = await fetch(
-        `https://xulinos.xyz-agency.com/wp-json/wp/v2/media?parent=${id}`,
-        { next: { revalidate: 60 } }
-      );
-      
-      if (mediaRes.ok) {
-        const mediaData = await mediaRes.json();
-        gallery = mediaData
-          .filter((media: any) => media.source_url && media.source_url !== knife._embedded?.["wp:featuredmedia"]?.[0]?.source_url)
-          .map((media: any) => media.source_url);
-      }
-    } catch (error) {
-      console.error("Erreur lors de la récupération des médias:", error);
-    }
-  }
+  // Log complet des données du couteau pour debug
+  console.log('🔍 Complete knife data:', {
+    id: knife?.id,
+    title: knife?.title?.rendered,
+    acf: knife?.acf,
+    featured_media: knife?.featured_media,
+    _embedded: knife?._embedded
+  });
+
+  // Utiliser la fonction commune pour récupérer les images
+  const { mainImage, gallery } = await getCouteauImagesServer(knife);
+
+  // Traite le titre et la description en UTF-8 (server-only)
+  const name = parseWordPressContentServer(knife.title?.rendered);
+  const description = parseWordPressContentServer(knife.content?.rendered);
+
+  // Log de debug pour vérifier les valeurs
+  console.log('🎯 KnifeDetailPage result:', {
+    id: knife?.id,
+    name,
+    price: knife.acf?.prix,
+    available: knife.class_list?.includes("couteaux_tag-disponible-a-lachat"),
+    description: description?.substring(0, 100) + '...',
+    mainImage,
+    gallery,
+    galleryLength: gallery?.length || 0
+  });
 
   return (
     <KnifeDetail
-      id={knife.id.toString()}
-      name={knife.title?.rendered}
-      price={knife.acf?.prix || "—"}
-      available={knife.class_list?.includes("couteaux_tag-disponible-a-lachat") || false}
-      description={knife.content?.rendered}
-      mainImage={knife._embedded?.["wp:featuredmedia"]?.[0]?.source_url || ""}
-      gallery={gallery}
+      id={knife?.id?.toString() || ''}
+      name={name || ''}
+      price={typeof knife.acf?.prix === 'number' ? knife.acf?.prix : (parseFloat(knife.acf?.prix) || '—')}
+      available={!!knife.class_list?.includes("couteaux_tag-disponible-a-lachat")}
+      description={description || ''}
+      mainImage={mainImage || ''}
+      gallery={Array.isArray(gallery) ? gallery : []}
     />
   );
 }

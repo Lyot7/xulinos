@@ -148,7 +148,7 @@ const Header = () => {
             {/* Navigation mobile - centrée */}
             <div className="flex-1 px-6 py-8 flex flex-col justify-center">
               <nav className="flex flex-col items-start space-y-8">
-                <Navbar mobile />
+                <Navbar mobile onLinkClick={closeMenu} />
               </nav>
             </div>
             
@@ -178,7 +178,7 @@ const Header = () => {
                     closeMenu();
                     toggleCart();
                   }}
-                  className="flex flex-col items-center justify-center p-4 bg-transparent border border-white/20 rounded-xl text-white hover:bg-white/5 transition-colors relative w-full max-w-xs"
+                  className="flex flex-col items-center justify-center p-4 bg-transparent border border-white/20 rounded-xl text-white hover:bg-white/5 transition-colors relative w-full"
                 >
                   <FaShoppingCart className="mb-2 text-xl" />
                   <span className="text-sm">Panier</span>

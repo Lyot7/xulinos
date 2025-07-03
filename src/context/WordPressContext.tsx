@@ -1,7 +1,8 @@
 'use client';
 
-import React, { createContext, useContext, ReactNode, useEffect, useMemo } from 'react';
+import React, { createContext, useContext, ReactNode, useEffect, useMemo, useState } from 'react';
 import useWordPressData from '@/hooks/useWordPressData';
+import { processCouteauxImages } from '@/utils/wordpressApi';
 
 interface WordPressContextType {
   data: Record<string, any>;
@@ -95,6 +96,29 @@ export const usePageData = (pageKey: string) => {
 
 export const useCouteauxData = () => {
   const { data, loading, error, hasRouteError, isRouteLoaded } = useWordPressContext();
+  const [processedCouteaux, setProcessedCouteaux] = useState<any[]>([]);
+  const [imagesLoading, setImagesLoading] = useState(false);
+  
+  // Process couteaux images when data is loaded
+  useEffect(() => {
+    const processImages = async () => {
+      if (isRouteLoaded('couteaux') && Array.isArray(data['couteaux'])) {
+        setImagesLoading(true);
+        try {
+          const processed = await processCouteauxImages(data['couteaux']);
+          setProcessedCouteaux(processed);
+          console.log('Processed couteaux with images:', processed);
+        } catch (error) {
+          console.error('Error processing couteaux images:', error);
+          setProcessedCouteaux(data['couteaux'] || []);
+        } finally {
+          setImagesLoading(false);
+        }
+      }
+    };
+    
+    processImages();
+  }, [isRouteLoaded('couteaux'), data['couteaux']]);
   
   // Log when couteaux data is accessed, mais seulement une fois
   useEffect(() => {
@@ -106,10 +130,10 @@ export const useCouteauxData = () => {
   }, [isRouteLoaded('couteaux'), data]);
   
   return {
-    couteaux: Array.isArray(data['couteaux']) ? data['couteaux'] : [],
-    loading: loading && !isRouteLoaded('couteaux'),
+    couteaux: processedCouteaux.length > 0 ? processedCouteaux : (Array.isArray(data['couteaux']) ? data['couteaux'] : []),
+    loading: (loading && !isRouteLoaded('couteaux')) || imagesLoading,
     error: hasRouteError('couteaux') ? error : null,
     hasError: hasRouteError('couteaux'),
-    isLoaded: isRouteLoaded('couteaux')
+    isLoaded: isRouteLoaded('couteaux') && !imagesLoading
   };
 }; 

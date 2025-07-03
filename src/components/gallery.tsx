@@ -30,10 +30,7 @@ export default function KnifeGallery({ knives, search, onlyAvailable, onKnifeCli
     e.stopPropagation();
     
     // Récupérer l'image avec plusieurs fallbacks
-    const imageUrl = knife._embedded?.["wp:featuredmedia"]?.[0]?.source_url || 
-                    knife._embedded?.["wp:featuredmedia"]?.[0]?.guid?.rendered ||
-                    knife.acf?.image_principale?.url ||
-                    "/images/knives/le-souverain/le-souverain.png"; // Image par défaut
+    const imageUrl = knife.acf?.image_principale?.url || "/images/knives/le-souverain/le-souverain.png";
     
     addItem({
       id: knife.id.toString(),
@@ -43,6 +40,27 @@ export default function KnifeGallery({ knives, search, onlyAvailable, onKnifeCli
       image: imageUrl,
       type: 'couteau',
     });
+  };
+
+  // Helper function to render image with proper guards
+  const renderImage = (imageUrl: string, imageAlt: string) => {
+    if (!imageUrl || imageUrl.trim() === '') {
+      return (
+        <div className="w-full h-full bg-gray-800 flex items-center justify-center text-gray-400 text-sm">
+          <span>Image non disponible</span>
+        </div>
+      );
+    }
+
+    return (
+      <Image
+        src={imageUrl}
+        alt={imageAlt}
+        fill
+        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+        className="object-cover rounded-lg"
+      />
+    );
   };
 
   return (
@@ -56,18 +74,9 @@ export default function KnifeGallery({ knives, search, onlyAvailable, onKnifeCli
           >
             <div className="relative w-full h-48">
               {(() => {
-                const imageUrl = knife._embedded?.["wp:featuredmedia"]?.[0]?.source_url || 
-                                knife._embedded?.["wp:featuredmedia"]?.[0]?.guid?.rendered ||
-                                knife.acf?.image_principale?.url ||
-                                "/images/knives/le-souverain/le-souverain.png";
-                return (
-                  <Image
-                    src={imageUrl}
-                    alt={knife.title?.rendered}
-                    fill
-                    className="object-cover rounded-lg"
-                  />
-                );
+                const imageUrl = knife.acf?.image_principale?.url || "/images/knives/le-souverain/le-souverain.png";
+                const imageAlt = knife.acf?.image_principale?.alt || knife.title?.rendered || "Couteau artisanal";
+                return renderImage(imageUrl, imageAlt);
               })()}
               
               {knife.class_list?.includes("couteaux_tag-disponible-a-lachat") && (

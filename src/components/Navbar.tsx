@@ -6,9 +6,10 @@ import React from 'react';
 
 interface NavbarProps {
   mobile?: boolean;
+  onLinkClick?: () => void;
 }
 
-const Navbar = ({ mobile = false }: NavbarProps) => {
+const Navbar = ({ mobile = false, onLinkClick }: NavbarProps) => {
   const pathname = usePathname();
 
   const navItems = [
@@ -17,6 +18,12 @@ const Navbar = ({ mobile = false }: NavbarProps) => {
     { href: '/affutage-remoulage', label: 'Affûtage & Rémoulage' },
     { href: '/a-propos', label: 'À propos' }
   ];
+
+  const handleLinkClick = () => {
+    if (onLinkClick) {
+      onLinkClick();
+    }
+  };
 
   return (
     <div className={`flex ${mobile ? 'flex-col items-start' : 'flex-row flex-wrap items-center'} justify-center gap-4 ${mobile ? 'gap-8 w-full' : 'gap-4'}`}>
@@ -28,6 +35,7 @@ const Navbar = ({ mobile = false }: NavbarProps) => {
           <Link
             key={item.href}
             href={item.href}
+            onClick={handleLinkClick}
             className={
               mobile
                 ? `text-white text-3xl font-normal transition-all duration-200 whitespace-nowrap text-left
