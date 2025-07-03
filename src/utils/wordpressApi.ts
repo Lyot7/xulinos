@@ -100,4 +100,25 @@ export const getFeaturedImageUrl = (post: any): string | null => {
   
   const media = post._embedded['wp:featuredmedia'][0];
   return media?.source_url || null;
+};
+
+/**
+ * Fetches configurator data from WordPress API
+ * @param step The configurator step (1-5)
+ * @returns The configurator data or null if not available
+ */
+export const fetchConfiguratorData = async (step: number): Promise<any> => {
+  try {
+    const routeKey = `configurateur${step}`;
+    const data = await fetchWordPressData(routeKey);
+    
+    if (data && data.acf && Object.keys(data.acf).length > 0) {
+      return data.acf;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error(`Error fetching configurator step ${step}:`, error);
+    return null;
+  }
 }; 
