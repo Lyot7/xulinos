@@ -47,7 +47,7 @@ export default function ServicesSection() {
   const handleRequestQuote = () => {
     if (selected.length > 0) {
       const query = selected.map((s) => encodeURIComponent(s)).join(",");
-      router.push(`/formulaire?services=${query}`);
+      router.push(`/demande-devis-services?services=${query}`);
     }
   };
 
