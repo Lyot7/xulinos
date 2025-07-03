@@ -106,7 +106,7 @@ export const useCouteauxData = () => {
   }, [isRouteLoaded('couteaux'), data]);
   
   return {
-    couteaux: data['couteaux'] || [],
+    couteaux: Array.isArray(data['couteaux']) ? data['couteaux'] : [],
     loading: loading && !isRouteLoaded('couteaux'),
     error: hasRouteError('couteaux') ? error : null,
     hasError: hasRouteError('couteaux'),
