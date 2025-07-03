@@ -1,18 +1,91 @@
-import React from 'react';
+"use client";
+
 import Image from 'next/image';
+import React, {useEffect, useState, useRef } from "react";
 import PrimaryButton from '@/components/PrimaryButton';
+import { usePageData } from "@/context/WordPressContext";
 
 export default function SharpeningPage() {
+  const { pageData, loading, error, hasError, isLoaded } = usePageData('affutageRemoulage');
+  const [featuredImageUrl, setFeaturedImageUrl] = useState<string | null>(null);
+  const fetchingImageRef = useRef<boolean>(false);
+  const imageCache: Record<number, string> = {};
+
+  useEffect(() => {
+      if (pageData?.featured_media && !featuredImageUrl && !fetchingImageRef.current) {
+        // Vérifier si l'image est déjà dans le cache
+        if (imageCache[pageData.featured_media]) {
+          setFeaturedImageUrl(imageCache[pageData.featured_media]);
+          return;
+        }
+        
+        fetchingImageRef.current = true;
+        
+        const fetchFeaturedImage = async () => {
+          try {
+            const response = await fetch(
+              `https://xulinos.xyz-agency.com/wp-json/wp/v2/media/${pageData.featured_media}`
+            );
+            
+            if (!response.ok) {
+              throw new Error(`Failed to fetch featured image: ${response.status}`);
+            }
+            
+            const mediaData = await response.json();
+            console.log("Featured media data:", mediaData);
+            
+            // Mettre en cache l'URL de l'image
+            if (mediaData.source_url) {
+              imageCache[pageData.featured_media] = mediaData.source_url;
+            }
+            
+            setFeaturedImageUrl(mediaData.source_url);
+          } catch (error) {
+            console.error("Erreur lors du chargement de l'image:", error);
+          } finally {
+            fetchingImageRef.current = false;
+          }
+        };
+        
+        fetchFeaturedImage();
+      }
+    }, [pageData, featuredImageUrl]);
+
+  if (loading && !isLoaded) {
+    return (
+      <section className="text-white py-10 px-3 sm:py-12 sm:px-6">
+        <div className="max-w-7xl mx-auto flex justify-center items-center h-64">
+          <p>Chargement...</p>
+        </div>
+      </section>
+    );
+  }
+  if ((error || hasError) && !pageData) {
+    return (
+      <section className="text-white py-10 px-3 sm:py-12 sm:px-6">
+        <div className="max-w-7xl mx-auto flex justify-center items-center h-64">
+          <p>Erreur: {error?.message || "Impossible de charger les données"}</p>
+        </div>
+      </section>
+    );
+  }
+  const acf = pageData?.acf || {};
   return (
+    
     <main className="py-16 px-6">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">Affûtage & Rémoulage</h1>
-        
+        <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">{acf.title}</h1>
+        <div className="w-full flex align-between flex-col">
+          <h2 className="text-2xl font-bold text-white mb-4">{acf.subtitle}</h2>
+          <p className="text-white/80 mb-4">
+            {acf.paragraphe}
+          </p>
+        </div>
         <div className="flex flex-col md:flex-row gap-8 mb-12">
           <div className="w-full md:w-1/2">
             <div className="rounded-lg overflow-hidden">
               <Image 
-                src="/images/affutage-remoulage.png" 
+                src={acf.image1}
                 alt="Service d'affûtage et rémoulage" 
                 width={800}
                 height={600}
@@ -22,29 +95,63 @@ export default function SharpeningPage() {
           </div>
           
           <div className="w-full md:w-1/2">
-            <h2 className="text-2xl font-bold text-white mb-4">Redonnez vie à vos lames</h2>
-            <p className="text-white/80 mb-4">
-              Un couteau bien affûté est un outil sûr et efficace. Notre service d'affûtage 
-              et de rémoulage redonne à vos lames leur tranchant d'origine, prolongeant ainsi 
-              leur durée de vie et préservant leur performance.
-            </p>
             <p className="text-white/80 mb-6">
-              Que ce soit pour vos couteaux de cuisine, vos outils de jardinage ou vos ciseaux, 
-              notre expertise vous garantit un résultat professionnel.
-            </p>
-            
-            <div className="bg-dark rounded-xl p-6 mb-6">
-              <h3 className="text-xl font-bold text-white mb-3">Nos services incluent :</h3>
-              <ul className="text-white/80 space-y-2">
-                <li>• Affûtage de couteaux de cuisine</li>
-                <li>• Rémoulage d'outils de jardinage</li>
-                <li>• Affûtage de ciseaux et matériel de coiffure</li>
-                <li>• Entretien et restauration de lames anciennes</li>
-              </ul>
-            </div>
-            
+              {acf.corpremoulage}
+            </p>            
             <PrimaryButton name="Prendre rendez-vous" className="text-lg py-3 px-6" />
           </div>
+        </div>
+        <div className="flex flex-col md:flex-row gap-8 mb-12">
+          <p>
+            {acf.jardinage}
+          </p>
+              <Image 
+                src={acf.image1}
+                alt="Service d'affûtage et rémoulage" 
+                width={800}
+                height={600}
+                className="w-full h-auto"
+              />
+        </div>
+        <div className="flex flex-col md:flex-row gap-8 mb-12">
+              <Image 
+                src={acf.image1}
+                alt="Service d'affûtage et rémoulage" 
+                width={800}
+                height={600}
+                className="w-full h-auto"
+              />
+          <p>{acf.bricolage}</p>
+        </div>
+        <div className="flex flex-col md:flex-row gap-8 mb-12">
+          <p>{acf.ciseauxetc}</p>
+              <Image 
+                src={acf.image1}
+                alt="Service d'affûtage et rémoulage" 
+                width={800}
+                height={600}
+                className="w-full h-auto"
+              />
+        </div>
+        <div className="flex flex-col md:flex-row gap-8 mb-12">
+              <Image 
+                src={acf.image1}
+                alt="Service d'affûtage et rémoulage" 
+                width={800}
+                height={600}
+                className="w-full h-auto"
+              />
+          <p>{acf.veterinaire}</p>
+        </div>
+        <div className="flex flex-col md:flex-row gap-8 mb-12">
+          <p>{acf.couteaux}</p>
+              <Image 
+                src={acf.image1}
+                alt="Service d'affûtage et rémoulage" 
+                width={800}
+                height={600}
+                className="w-full h-auto"
+              />
         </div>
         
         <div className="bg-dark rounded-xl p-8">
