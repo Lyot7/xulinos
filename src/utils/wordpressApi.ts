@@ -100,4 +100,79 @@ export const getFeaturedImageUrl = (post: any): string | null => {
   
   const media = post._embedded['wp:featuredmedia'][0];
   return media?.source_url || null;
-}; 
+};
+
+/**
+ * Fetches image URL from WordPress media ID
+ * @param mediaId The WordPress media ID
+ * @returns The image URL or null if not found
+ */
+export const getImageUrlFromId = async (mediaId: number | string): Promise<string | null> => {
+  if (!mediaId) return null;
+  
+  try {
+    const response = await fetch(`https://xulinos.xyz-agency.com/wp-json/wp/v2/media/${mediaId}`);
+    if (!response.ok) {
+      console.warn(`Failed to fetch media ${mediaId}: ${response.statusText}`);
+      return null;
+    }
+    
+    const mediaData = await response.json();
+    return mediaData.source_url || null;
+  } catch (error) {
+    console.error(`Error fetching media ${mediaId}:`, error);
+    return null;
+  }
+};
+
+/**
+ * Processes couteaux data to include image URLs
+ * @param couteaux The couteaux data from WordPress
+ * @returns Processed couteaux with image URLs
+ */
+export const processCouteauxImages = async (couteaux: any[]): Promise<any[]> => {
+  if (!Array.isArray(couteaux)) return [];
+
+  const processedCouteaux = await Promise.all(
+    couteaux.map(async (couteau) => {
+      // Cherche le premier champ image_X non vide
+      const imageFields = [couteau.acf?.image_1, couteau.acf?.image_2, couteau.acf?.image_3, couteau.acf?.image_4, couteau.acf?.image_5, couteau.acf?.image_6];
+      const imageId = imageFields.find((id) => id && String(id).trim() !== '');
+      let imageUrl = null;
+      let imageAlt = '';
+      if (imageId) {
+        try {
+          const response = await fetch(`https://xulinos.xyz-agency.com/wp-json/wp/v2/media/${imageId}`);
+          if (response.ok) {
+            const mediaData = await response.json();
+            imageUrl = mediaData.source_url || null;
+            imageAlt = mediaData.alt_text || '';
+          }
+        } catch (e) {
+          // ignore
+        }
+      }
+      return {
+        ...couteau,
+        acf: {
+          ...couteau.acf,
+          image_principale: imageUrl ? { url: imageUrl, alt: imageAlt } : null,
+        },
+      };
+    })
+  );
+
+  return processedCouteaux;
+};
+
+export function decodeHtmlEntities(str: string): string {
+  if (!str) return '';
+  return str
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&lsquo;/g, "'")
+    .replace(/&rsquo;/g, "'");
+} 

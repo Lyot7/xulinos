@@ -30,10 +30,7 @@ export default function KnifeGallery({ knives, search, onlyAvailable, onKnifeCli
     e.stopPropagation();
     
     // Récupérer l'image avec plusieurs fallbacks
-    const imageUrl = knife._embedded?.["wp:featuredmedia"]?.[0]?.source_url || 
-                    knife._embedded?.["wp:featuredmedia"]?.[0]?.guid?.rendered ||
-                    knife.acf?.image_principale?.url ||
-                    "/images/knives/le-souverain/le-souverain.png"; // Image par défaut
+    const imageUrl = knife.acf?.image_principale?.url || "/images/knives/le-souverain/le-souverain.png";
     
     addItem({
       id: knife.id.toString(),
@@ -56,14 +53,12 @@ export default function KnifeGallery({ knives, search, onlyAvailable, onKnifeCli
           >
             <div className="relative w-full h-48">
               {(() => {
-                const imageUrl = knife._embedded?.["wp:featuredmedia"]?.[0]?.source_url || 
-                                knife._embedded?.["wp:featuredmedia"]?.[0]?.guid?.rendered ||
-                                knife.acf?.image_principale?.url ||
-                                "/images/knives/le-souverain/le-souverain.png";
+                const imageUrl = knife.acf?.image_principale?.url || "/images/knives/le-souverain/le-souverain.png";
+                const imageAlt = knife.acf?.image_principale?.alt || knife.title?.rendered || "Couteau artisanal";
                 return (
                   <Image
                     src={imageUrl}
-                    alt={knife.title?.rendered}
+                    alt={imageAlt}
                     fill
                     className="object-cover rounded-lg"
                   />

@@ -495,30 +495,52 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
             {/* Affiche seulement les 3 premiers produits */}
-            {processedCouteaux.slice(0, 3).map((couteau, index) => (
-              <div key={couteau.id || index} className="bg-dark rounded-xl overflow-hidden shadow-lg">
-                <div className="relative h-72">
-                  <Image 
-                    src={couteau.acf?.image_principale?.url || "/images/knives/le-souverain/le-souverain.png"}
-                    alt={couteau.processedTitle || PLACEHOLDERS.couteauTitle}
-                    fill
-                    style={{ objectFit: 'cover', objectPosition: 'center' }}
-                    className="hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute top-4 right-4 bg-primary/80 text-white text-sm px-4 py-1.5 rounded-full">
-                    {couteau.acf?.disponibilite || PLACEHOLDERS.disponibilite}
+            {couteauxLoading ? (
+              // Loading state
+              Array.from({ length: 3 }).map((_, index) => (
+                <div key={`loading-${index}`} className="bg-dark rounded-xl overflow-hidden shadow-lg">
+                  <div className="relative h-72 bg-gray-700 animate-pulse">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <LoadingSpinner />
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <div className="h-6 bg-gray-700 rounded animate-pulse mb-2"></div>
+                    <div className="h-4 bg-gray-700 rounded animate-pulse"></div>
                   </div>
                 </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-white mb-2">
-                    {couteau.processedTitle || PLACEHOLDERS.couteauTitle}
-                  </h3>
-                  <p className="text-white/80 line-clamp-4">
-                    {extractTextFromWordPress(couteau.processedDescription || PLACEHOLDERS.couteauDescription)}
-                  </p>
+              ))
+            ) : (
+              processedCouteaux.slice(0, 3).map((couteau, index) => (
+                <div key={couteau.id || index} className="bg-dark rounded-xl overflow-hidden shadow-lg">
+                  <div className="relative h-72">
+                    <Image 
+                      src={couteau.acf?.image_principale?.url || "/images/knives/le-souverain/le-souverain.png"}
+                      alt={couteau.acf?.image_principale?.alt || couteau.processedTitle || PLACEHOLDERS.couteauTitle}
+                      fill
+                      style={{ objectFit: 'cover', objectPosition: 'center' }}
+                      className="hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        // Fallback to default image if WordPress image fails to load
+                        const target = e.target as HTMLImageElement;
+                        target.src = "/images/knives/le-souverain/le-souverain.png";
+                      }}
+                    />
+                    <div className="absolute top-4 right-4 bg-primary/80 text-white text-sm px-4 py-1.5 rounded-full">
+                      {couteau.acf?.disponibilite || PLACEHOLDERS.disponibilite}
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-white mb-2">
+                      {couteau.processedTitle || PLACEHOLDERS.couteauTitle}
+                    </h3>
+                    <p className="text-white/80 line-clamp-4">
+                      {extractTextFromWordPress(couteau.processedDescription || PLACEHOLDERS.couteauDescription)}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
 
           <div className="text-center mt-8">
