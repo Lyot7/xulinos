@@ -3,9 +3,11 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { apiRoutes, getRouteKeyFromPath, ApiRoute } from '@/utils/apiRoutes';
+import { processWordPressData } from '@/utils/textEncoding';
 
 // Cache global pour stocker les données entre les rendus
 const globalCache: Record<string, unknown> = {};
+const fetchPromises: Record<string, Promise<unknown> | null> = {};
 
 interface WordPressData {
   [key: string]: unknown;
@@ -21,203 +23,245 @@ interface WordPressDataState {
 export const useWordPressData = () => {
   const pathname = usePathname();
   const [state, setState] = useState<WordPressDataState>({
-    data: globalCache, // Utiliser le cache global comme état initial
-    loading: Object.keys(globalCache).length === 0, // Si le cache est vide, on est en chargement
+    data: globalCache,
+    loading: Object.keys(globalCache).length === 0,
     error: null,
     routeErrors: {},
   });
   
-  // Référence pour suivre les requêtes en cours
-  const fetchingRef = useRef<Record<string, boolean>>({});
   const isMountedRef = useRef(true);
   const currentPathnameRef = useRef(pathname);
   
-  // Update pathname ref when it changes
   useEffect(() => {
     currentPathnameRef.current = pathname;
   }, [pathname]);
-  
-  // Fonction pour vérifier si une route a déjà été chargée
-  const isRouteLoaded = useCallback((routeKey: string): boolean => {
-    return !!globalCache[routeKey] && !fetchingRef.current[routeKey];
-  }, []);
 
-  // Function to fetch data from a specific endpoint
-  const fetchData = useCallback(async (route: ApiRoute, forceRefresh = false) => {
+  // Function to fetch data from a specific endpoint with promise caching
+  const fetchData = useCallback(async (route: ApiRoute, forceRefresh = false): Promise<unknown> => {
     if (!route || !route.endpoint) {
-      console.error('Invalid route provided to fetchData');
-      return null;
+      throw new Error('Invalid route provided to fetchData');
     }
 
-    // Si la route est déjà en cours de chargement, ne pas refaire la requête
-    if (fetchingRef.current[route.key]) {
-      console.log(`Skip fetching ${route.key} - already in progress`);
-      return null;
-    }
-
-    // Si la route est déjà dans le cache et qu'on ne force pas le refresh, utiliser le cache
+    // Si on force pas le refresh et qu'on a les données en cache, les retourner
     if (globalCache[route.key] && !forceRefresh) {
       console.log(`Using cached data for ${route.key}`);
-      
-      // S'assurer que les données sont dans le state
-      setState(prevState => ({
-        ...prevState,
-        data: {
-          ...prevState.data,
-          [route.key]: globalCache[route.key],
-        },
-      }));
-      
       return globalCache[route.key];
     }
 
-    try {
-      // Marquer cette route comme en cours de chargement
-      fetchingRef.current[route.key] = true;
-      
-      console.log(`Fetching data from ${route.key} endpoint: ${route.endpoint}`);
-      
-      // Use a basic fetch without AbortController to avoid issues
-      const response = await fetch(route.endpoint, { 
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        // Désactiver le cache du navigateur pour éviter les problèmes de données périmées
-        cache: 'no-store'
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch ${route.key}: ${response.status} ${response.statusText}`);
-      }
-      
-      const data = await response.json();
-      console.log(`Data fetched successfully for ${route.key}`);
-      
-      // Mettre à jour le cache global
-      globalCache[route.key] = data;
-      
-      // Update state safely using functional update
-      if (isMountedRef.current) {
-        setState(prevState => ({
-          ...prevState,
-          data: {
-            ...prevState.data,
-            [route.key]: data,
+    // Si une promesse est en cours pour cette route, l'attendre
+    if (fetchPromises[route.key] && !forceRefresh) {
+      console.log(`Waiting for existing promise for ${route.key}`);
+      return fetchPromises[route.key]!;
+    }
+
+    // Créer une nouvelle promesse de fetch
+    const fetchPromise = (async () => {
+      try {
+        console.log(`Fetching data from ${route.key} endpoint: ${route.endpoint}`);
+        
+        const response = await fetch(route.endpoint, { 
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Accept': 'application/json',
+            'Accept-Charset': 'utf-8'
           },
-          routeErrors: {
-            ...prevState.routeErrors,
-            [route.key]: null,
-          },
-        }));
-      }
-      
-      return data;
-    } catch (error: unknown) {
-      console.error(`Error fetching ${route.key}:`, error);
-      
-      // Stocker l'erreur pour cette route spécifique
-      const routeError = error instanceof Error ? error : new Error(String(error));
-      
-      if (isMountedRef.current) {
-        setState(prevState => {
-          const newRouteErrors = {
-            ...prevState.routeErrors,
-            [route.key]: routeError,
-          };
-          
-          // Pour les routes optionnelles, ne pas définir l'erreur globale
-          if (route.optional) {
+          cache: 'no-store'
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch ${route.key}: ${response.status} ${response.statusText}`);
+        }
+        
+        const rawData = await response.json();
+        
+        // Process the data to fix UTF-8 encoding issues
+        const data = processWordPressData(rawData);
+        
+        console.log(`Data fetched and processed successfully for ${route.key}`);
+        
+        // Mettre à jour le cache global
+        globalCache[route.key] = data;
+        
+        // Update state safely
+        if (isMountedRef.current) {
+          setState(prevState => ({
+            ...prevState,
+            data: {
+              ...prevState.data,
+              [route.key]: data,
+            },
+            routeErrors: {
+              ...prevState.routeErrors,
+              [route.key]: null,
+            },
+          }));
+        }
+        
+        return data;
+      } catch (error: unknown) {
+        console.error(`Error fetching ${route.key}:`, error);
+        
+        const routeError = error instanceof Error ? error : new Error(String(error));
+        
+        if (isMountedRef.current) {
+          setState(prevState => {
+            const newRouteErrors = {
+              ...prevState.routeErrors,
+              [route.key]: routeError,
+            };
+            
             return {
               ...prevState,
               routeErrors: newRouteErrors,
+              error: route.optional ? prevState.error : routeError,
             };
-          }
-          
-          // Pour les routes non optionnelles, définir également l'erreur globale
-          return {
-            ...prevState,
-            routeErrors: newRouteErrors,
-            error: routeError,
-          };
-        });
+          });
+        }
+        
+        throw routeError;
+      } finally {
+        // Nettoyer la promesse
+        fetchPromises[route.key] = null;
       }
-      
-      return null;
-    } finally {
-      // Marquer cette route comme terminée
-      fetchingRef.current[route.key] = false;
-    }
+    })();
+
+    // Stocker la promesse
+    fetchPromises[route.key] = fetchPromise;
+    
+    return fetchPromise;
   }, []);
 
-  // Main function to load data with prioritization
+  // Helper function to get prioritized routes based on current page
+  const getPrioritizedRoutes = useCallback((currentRouteKey: string | null): ApiRoute[][] => {
+    const allRoutes = Object.values(apiRoutes);
+    
+    // Tier 1: Current page (highest priority)
+    const currentRoute = currentRouteKey ? apiRoutes[currentRouteKey] : null;
+    const tier1 = currentRoute ? [currentRoute] : [];
+    
+    // Tier 2: Related routes based on current page
+    let tier2: ApiRoute[] = [];
+    
+    // Special logic for configurator pages
+    if (currentRouteKey?.startsWith('configurateur')) {
+      // If on configurateur page, prioritize all configurateur pages
+      tier2 = allRoutes
+        .filter(route => route.key.startsWith('configurateur') && route.key !== currentRouteKey)
+        .sort((a, b) => {
+          // Sort configurateur pages by their number
+          const aNum = parseInt(a.key.replace('configurateur', '').replace('Home', '0')) || 0;
+          const bNum = parseInt(b.key.replace('configurateur', '').replace('Home', '0')) || 0;
+          return aNum - bNum;
+        });
+    } else {
+      // For other pages, prioritize essential pages
+      const essentialKeys = ['home', 'couteaux', 'about'];
+      tier2 = allRoutes.filter(route => 
+        essentialKeys.includes(route.key) && route.key !== currentRouteKey
+      );
+    }
+    
+    // Tier 3: All other routes
+    const tier3 = allRoutes.filter(route => 
+      !tier1.includes(route) && !tier2.includes(route)
+    ).sort((a, b) => a.priority - b.priority);
+    
+    return [tier1, tier2, tier3];
+  }, []);
+
+  // Main loading effect
   useEffect(() => {
     isMountedRef.current = true;
     
     const loadData = async () => {
       if (!isMountedRef.current) return;
       
-      // Get the current page route key
       const currentRouteKey = getRouteKeyFromPath(pathname);
       console.log(`Current path: ${pathname}, Route key: ${currentRouteKey}`);
       
-      // Ne pas réinitialiser l'état loading si nous avons déjà des données pour la route actuelle
-      if (!currentRouteKey || !globalCache[currentRouteKey]) {
+      // Only set loading to true if we don't have current page data
+      const hasCurrentPageData = currentRouteKey && globalCache[currentRouteKey];
+      if (!hasCurrentPageData) {
         setState(prevState => ({ 
           ...prevState, 
           loading: true, 
           error: null,
         }));
       }
-      
+
       try {
-        // Create a prioritized list of routes to fetch
-        let routesToFetch = Object.values(apiRoutes).sort((a, b) => a.priority - b.priority);
+        const [tier1, tier2, tier3] = getPrioritizedRoutes(currentRouteKey);
         
-        // If we have a current route, move it to the front
-        if (currentRouteKey) {
-          const currentRoute = apiRoutes[currentRouteKey];
-          if (currentRoute) {
-            console.log(`Prioritizing current route: ${currentRouteKey}`);
-            routesToFetch = [
-              currentRoute,
-              ...routesToFetch.filter(route => route.key !== currentRouteKey),
-            ];
-          }
-        }
-        
-        // Fetch the current route first (always refresh current route)
-        if (currentRouteKey && apiRoutes[currentRouteKey] && isMountedRef.current) {
-          console.log(`Fetching current route first: ${currentRouteKey}`);
-          await fetchData(apiRoutes[currentRouteKey], true); // Force refresh for current route
-        }
-        
-        // Then fetch the rest in order of priority, but only if they're not already loaded
-        const otherRoutes = routesToFetch.filter(route => 
-          route.key !== currentRouteKey && !globalCache[route.key]
-        );
-        
-        if (isMountedRef.current && otherRoutes.length > 0) {
-          console.log(`Fetching ${otherRoutes.length} other routes in priority order`);
+        // Tier 1: Load current page immediately (blocking)
+        if (tier1.length > 0) {
+          console.log('Loading Tier 1 (current page):', tier1.map(r => r.key));
+          await Promise.all(tier1.map(route => fetchData(route, true)));
           
-          // Sequential fetching to avoid overwhelming the server
-          for (const route of otherRoutes) {
-            if (!isMountedRef.current) break;
-            
-            try {
-              await fetchData(route);
-            } catch {
-              // Ignorer les erreurs des routes individuelles ici
-              console.warn(`Skipping error for route ${route.key} to continue loading other routes`);
-            }
+          // Mark loading as false as soon as current page is loaded
+          if (isMountedRef.current) {
+            setState(prevState => ({ ...prevState, loading: false }));
           }
         }
         
-        if (isMountedRef.current) {
-          setState(prevState => ({ ...prevState, loading: false }));
-          console.log('All data fetching complete');
+        // Tier 2: Load related/priority pages in parallel (non-blocking)
+        if (tier2.length > 0 && isMountedRef.current) {
+          console.log('Loading Tier 2 (priority pages):', tier2.map(r => r.key));
+          
+          // Load only routes that aren't already cached
+          const tier2ToLoad = tier2.filter(route => !globalCache[route.key]);
+          
+          if (tier2ToLoad.length > 0) {
+            // Start loading in parallel but don't wait
+            Promise.all(tier2ToLoad.map(route => 
+              fetchData(route).catch(error => {
+                console.warn(`Failed to load tier 2 route ${route.key}:`, error);
+                return null;
+              })
+            )).then(() => {
+              console.log('Tier 2 loading complete');
+            });
+          }
         }
+        
+        // Tier 3: Load remaining pages with delay (background)
+        if (tier3.length > 0 && isMountedRef.current) {
+          // Add small delay to let Tier 2 start first
+          setTimeout(() => {
+            if (!isMountedRef.current) return;
+            
+            console.log('Loading Tier 3 (background pages):', tier3.map(r => r.key));
+            
+            const tier3ToLoad = tier3.filter(route => !globalCache[route.key]);
+            
+            if (tier3ToLoad.length > 0) {
+              // Load with throttling (2 at a time)
+              const loadInBatches = async (routes: ApiRoute[], batchSize = 2) => {
+                for (let i = 0; i < routes.length; i += batchSize) {
+                  if (!isMountedRef.current) break;
+                  
+                  const batch = routes.slice(i, i + batchSize);
+                  await Promise.all(batch.map(route => 
+                    fetchData(route).catch(error => {
+                      console.warn(`Failed to load tier 3 route ${route.key}:`, error);
+                      return null;
+                    })
+                  ));
+                  
+                  // Small delay between batches
+                  if (i + batchSize < routes.length) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                  }
+                }
+              };
+              
+              loadInBatches(tier3ToLoad).then(() => {
+                console.log('Tier 3 loading complete');
+              });
+            }
+          }, 200);
+        }
+        
       } catch (error: unknown) {
         if (isMountedRef.current) {
           console.error('Error in loadData:', error);
@@ -235,7 +279,7 @@ export const useWordPressData = () => {
     return () => {
       isMountedRef.current = false;
     };
-  }, [pathname]);
+  }, [pathname, getPrioritizedRoutes, fetchData]);
 
   return state;
 };
