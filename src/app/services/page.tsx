@@ -120,7 +120,7 @@ export default function ServicesSection() {
         <div className="mt-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 w-full">
           <div className="flex flex-col gap-1">
             <p className="text-sm text-gray-400">
-              Services sélectionnés ({selected.length}/3)
+              Services sélectionnés ({selected.length}/{servicesData.length})
             </p>
           </div>
 
