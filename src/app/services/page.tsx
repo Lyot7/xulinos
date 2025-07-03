@@ -1,40 +1,71 @@
 "use client";
-import ServiceCard from "@/components/ServicesCard";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import ServiceCard from "@/components/ServicesCard";
 
+type ApiService = {
+  id: string;
+  imageUrl: string;
+  title1: string;
+  paragraph: string;
+  etiquettes: Record<string, string>;
+};
 
 export default function ServicesSection() {
+  const [servicesData, setServicesData] = useState<ApiService[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const router = useRouter();
 
-  const servicesData = [
-    {
-      id: 1,
-      image: "/images/knives/7560d7e117410fb63ca30d935819f9ea05d7eaf5.png",
-      title: "Affûtage & Rémoulage",
-      description: "J’affûte et remoule manuellement tous types de lames pour restaurer leur tranchant et leur géométrie d’origine, offrant aux pièces usées performance, durabilité et une seconde vie.",
-      tags: ["Coiffure", "Cuir", "Cuisine"],
-      showButton: true,
-      slug: "affutage-remoulage",
-    },
-    {
-      id: 2,
-      image: "/images/knives/7560d7e117410fb63ca30d935819f9ea05d7eaf5.png",
-      title: "Rénovation & Réparation",
-      description: "Nous proposons la restauration de lames et de manches : remplacement de manches, polissage, rivets, ajustements et petites réparations. Chaque outil est traité avec soin, dans le respect de sa forme et de ses matériaux.",
-      tags: ["Textile", "Bois"],
-      showButton: false,
-    },
-    {
-      id: 3,
-      image: "/images/knives/7560d7e117410fb63ca30d935819f9ea05d7eaf5.png",
-      title: "Personnalisation & Gravure",
-      description: "Offrez une touche unique à vos couteaux grâce à notre service de personnalisation. Gravure de noms, initiales, logos ou motifs spéciaux sur la lame ou le manche : une manière élégante de marquer vos outils ou d’offrir un cadeau original. Chaque personnalisation est réalisée avec précision pour un rendu raffiné et durable.",
-      tags: ["Personnalisation", "Gravure"],
-      showButton: false,
-    },
-  ];
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const res = await fetch("https://xulinos.xyz-agency.com/wp-json/wp/v2/pages/204?_embed");
+        const data = await res.json();
+        const acf = data.acf;
+        const services: ApiService[] = [];
+
+        // Créer une map image ID → URL
+        const mediaMap = new Map<number, string>();
+        data._embedded?.["wp:featuredmedia"]?.forEach((media: any) => {
+          mediaMap.set(media.id, media.source_url);
+        });
+
+        // Parcourt les clés de l'objet ACF pour extraire les services
+        for (const key in acf) {
+          if (key.startsWith("service")) {
+            const service = acf[key];
+            const imageId = service.image1;
+            let imageUrl = mediaMap.get(imageId) || "";
+
+            // Si image manquante, fetch manuellement
+            if (!imageUrl && imageId) {
+              try {
+                const imageRes = await fetch(`https://xulinos.xyz-agency.com/wp-json/wp/v2/media/${imageId}`);
+                const imageData = await imageRes.json();
+                imageUrl = imageData.source_url;
+              } catch (err) {
+                console.warn("Image manquante pour ID", imageId);
+              }
+            }
+
+            services.push({
+              id: key, // ✅ ID basé sur le nom du champ (ex: "service1", "service1_copier")
+              title1: service.title1,
+              paragraph: service.paragraph,
+              etiquettes: service.etiquettes,
+              imageUrl,
+            });
+          }
+        }
+
+        setServicesData(services);
+      } catch (err) {
+        console.error("Erreur de chargement des services :", err);
+      }
+    };
+
+    fetchServices();
+  }, []);
 
   const toggleService = (title: string) => {
     setSelected((prev) =>
@@ -61,7 +92,7 @@ export default function ServicesSection() {
           className="w-full h-full object-cover"
         />
       </div>
-  
+
       {/* Contenu à droite */}
       <div className="w-full md:w-2/3 bg-[#232323] flex flex-col py-12 px-4 sm:px-6 md:px-8 overflow-y-auto">
         <div>
@@ -69,31 +100,31 @@ export default function ServicesSection() {
           <p className="text-gray-400 mb-6 text-sm md:text-base">
             Choisissez vos services, renseignez vos besoins, recevez un devis personnalisé.
           </p>
-  
+
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 justify-items-center">
             {servicesData.map((s) => (
               <ServiceCard
-                key={s.title}
-                {...s}
-                selected={selected.includes(s.title)}
-                onToggle={() => toggleService(s.title)}
+                key={s.id}
+                image={s.imageUrl}
+                title={s.title1}
+                description={s.paragraph}
+                tags={Object.values(s.etiquettes || {})}
+                selected={selected.includes(s.title1)}
+                onToggle={() => toggleService(s.title1)}
               />
             ))}
           </div>
         </div>
-  
+
         {/* Bas : compteur + boutons */}
         <div className="mt-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 w-full">
           <div className="flex flex-col gap-1">
             <p className="text-sm text-gray-400">
               Services sélectionnés ({selected.length}/3)
             </p>
-            <button className="border border-white rounded px-4 py-2 text-sm hover:bg-white hover:text-black transition">
-              Contact rapide
-            </button>
           </div>
-  
-          <button
+
+         <button
             disabled={selected.length === 0}
             onClick={handleRequestQuote}
             className={`text-sm px-4 py-2 rounded transition w-full md:w-auto
@@ -109,6 +140,4 @@ export default function ServicesSection() {
       </div>
     </section>
   );
-  
 }
-

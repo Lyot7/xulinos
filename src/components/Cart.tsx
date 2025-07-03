@@ -190,6 +190,31 @@ const Cart: React.FC = () => {
                           </svg>
                         )}
                       </div>
+              {items.map((item) => (
+                <div key={item.id} className="bg-primary rounded-lg p-4">
+                  <div className="flex gap-4">
+                    {/* Image du produit */}
+                    <div className="w-16 h-16 rounded-md overflow-hidden flex-shrink-0">
+                      <Image
+                        src={item.image}
+                        alt={item.name}
+                        width={64}
+                        height={64}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    
+                    {/* Détails du produit */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-white font-medium truncate">
+                        {item.name}
+                      </h3>
+                      <p className="text-white/70 text-sm truncate" dangerouslySetInnerHTML={{ __html: item.description || "" }} >
+                        
+                      </p>
+                      <p className="text-white font-bold text-lg">
+                        {item.price}
+                      </p>
                       
                       {/* Détails du produit */}
                       <div className="flex-1 min-w-0">
@@ -256,6 +281,9 @@ const Cart: React.FC = () => {
                         Sous-total: {item.subtotal} €
                       </p>
                     </div>
+                    <p className="text-white font-bold">
+                      Sous-total: {Number(item.price) * Number(item.quantity)}€
+                    </p>
                   </div>
                 );
               })}

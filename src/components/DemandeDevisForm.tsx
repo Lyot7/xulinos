@@ -7,6 +7,7 @@ import { FaCheckCircle, FaExclamationTriangle } from 'react-icons/fa';
 
 interface Props {
   withCartSummary?: boolean;
+  selectedServices?: string;
 }
 
 interface FormData {
@@ -24,7 +25,7 @@ interface FormStatus {
   message: string;
 }
 
-export default function DemandeDevisForm({ withCartSummary = true }: Props) {
+export default function DemandeDevisForm({ withCartSummary = true, selectedServices }: Props) {
   const { getCartSummary, totalItems, totalPrice } = useCart();
 
   const [formData, setFormData] = useState<FormData>({
@@ -42,13 +43,18 @@ export default function DemandeDevisForm({ withCartSummary = true }: Props) {
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   useEffect(() => {
-    if (withCartSummary) {
+    if (selectedServices) {
+      setFormData(prev => ({
+        ...prev,
+        panier: selectedServices.replace(/,/g, ', '),
+      }));
+    } else if (withCartSummary) {
       setFormData(prev => ({
         ...prev,
         panier: getCartSummary()
       }));
     }
-  }, [withCartSummary, getCartSummary]);
+  }, [selectedServices, withCartSummary, getCartSummary]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -209,15 +215,17 @@ export default function DemandeDevisForm({ withCartSummary = true }: Props) {
             />
           </div>
 
-          {withCartSummary && (
+          {(withCartSummary || selectedServices) && (
             <div>
-              <label htmlFor="panier" className="block text-white font-medium mb-2">Détail du panier</label>
+              <label htmlFor="panier" className="block text-white font-medium mb-2">
+                {selectedServices ? "Services sélectionnés" : "Détail du panier"}
+              </label>
               <textarea
                 id="panier"
                 name="panier"
                 value={formData.panier}
                 onChange={handleInputChange}
-                rows={6}
+                rows={selectedServices ? 2 : 6}
                 readOnly
                 className="w-full px-4 py-3 rounded-lg bg-dark text-white border border-white/20 resize-none"
               />
@@ -234,7 +242,7 @@ export default function DemandeDevisForm({ withCartSummary = true }: Props) {
               className="mt-1"
             />
             <span>
-              J’accepte que mes données soient utilisées uniquement dans le cadre de ma demande de devis,
+              J'accepte que mes données soient utilisées uniquement dans le cadre de ma demande de devis,
               conformément à la <a href="/politique-de-confidentialite" className="underline text-white/80 hover:text-white">politique de confidentialité</a>.
             </span>
           </label>
