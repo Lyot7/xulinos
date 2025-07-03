@@ -87,11 +87,11 @@ const Cart: React.FC = () => {
                       <h3 className="text-white font-medium truncate">
                         {item.name}
                       </h3>
-                      <p className="text-white/70 text-sm truncate">
-                        {item.description}
+                      <p className="text-white/70 text-sm truncate" dangerouslySetInnerHTML={{ __html: item.description || "" }} >
+                        
                       </p>
                       <p className="text-white font-bold text-lg">
-                        {item.price}€
+                        {item.price}
                       </p>
                       
                       {/* Personnalisations pour les couteaux configurés */}
@@ -144,7 +144,7 @@ const Cart: React.FC = () => {
                     </div>
                     
                     <p className="text-white font-bold">
-                      Sous-total: {item.price * item.quantity}€
+                      Sous-total: {Number(item.price) * Number(item.quantity)}€
                     </p>
                   </div>
                 </div>
