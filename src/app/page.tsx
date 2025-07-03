@@ -297,8 +297,9 @@ export default function Home() {
   useEffect(() => {
     async function fetchImages() {
       try {
+        // Récupérer toutes les images associées à la page d'accueil
         const response = await fetch(
-          "https://xulinos.xyz-agency.com/index.php/wp-json/wp/v2/media?parent=6"
+          "https://xulinos.xyz-agency.com/wp-json/wp/v2/media?parent=6&per_page=100"
         );
         const data = await response.json();
         setImages(data);
@@ -320,14 +321,72 @@ export default function Home() {
     return images.find((img) => img.id == id) || null;
   };
 
-  // Images extraites par champ ACF
-  const imageAtelier = getImageById(pageData.acf.entrez_dans_latelier.image);
-  const imageSignature = getImageById(
-    pageData.acf.votre_couteau_votre_signature.image
-  );
-  const imageBanniere3 = getImageById(pageData.acf.banniere_icon_3.icon.value);
-  const imageBanniere2 = getImageById(pageData.acf.banniere_icon_2.icon.value);
-  const imageBanniere1 = getImageById(pageData.acf.banniere_icon_1.icon.value);
+  // Fonction pour récupérer une image ACF directement depuis l'API
+  const getACFImage = async (imageId: number | undefined) => {
+    if (!imageId) return null;
+    
+    try {
+      const response = await fetch(`https://xulinos.xyz-agency.com/wp-json/wp/v2/media/${imageId}`);
+      if (!response.ok) return null;
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error(`Error fetching ACF image ${imageId}:`, error);
+      return null;
+    }
+  };
+
+  // Images extraites par champ ACF - avec gestion d'erreur améliorée
+  const [acfImages, setAcfImages] = useState<{
+    atelier: any;
+    signature: any;
+    banniere1: any;
+    banniere2: any;
+    banniere3: any;
+  }>({
+    atelier: null,
+    signature: null,
+    banniere1: null,
+    banniere2: null,
+    banniere3: null
+  });
+
+  // Charger les images ACF
+  useEffect(() => {
+    const loadACFImages = async () => {
+      if (!pageData?.acf) return;
+
+      const imagePromises = [
+        getACFImage(pageData.acf.entrez_dans_latelier?.image),
+        getACFImage(pageData.acf.votre_couteau_votre_signature?.image),
+        getACFImage(pageData.acf.banniere_icon_1?.icon?.value),
+        getACFImage(pageData.acf.banniere_icon_2?.icon?.value),
+        getACFImage(pageData.acf.banniere_icon_3?.icon?.value)
+      ];
+
+      try {
+        const [atelier, signature, banniere1, banniere2, banniere3] = await Promise.all(imagePromises);
+        setAcfImages({
+          atelier,
+          signature,
+          banniere1,
+          banniere2,
+          banniere3
+        });
+      } catch (error) {
+        console.error('Error loading ACF images:', error);
+      }
+    };
+
+    loadACFImages();
+  }, [pageData?.acf]);
+
+  // Fallback images pour les icônes de services
+  const fallbackIcons = {
+    banniere1: "/icons/knife.svg",
+    banniere2: "/icons/palette.svg", 
+    banniere3: "/icons/pencil-rule.svg"
+  };
 
   // Show skeleton while loading critical data
   if (loading && !pageData) {
@@ -401,16 +460,23 @@ export default function Home() {
             {/* Service Feature 1 */}
             <div className="flex flex-col items-center text-center flex-1 basis-[280px] min-w-[280px]">
               <div className="w-24 h-24 mb-6">
-                {imageBanniere1?.source_url ? (
-                  <img
-                    src={imageBanniere1.source_url}
+                {acfImages.banniere1?.source_url ? (
+                  <Image
+                    src={acfImages.banniere1.source_url}
                     alt={pageData.acf.banniere_icon_1.titre}
+                    width={96}
+                    height={96}
                     className="object-contain w-full h-full"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gray-700 flex items-center justify-center text-gray-400 text-xs">
-                    <span>Icon</span>
-                  </div>
+                  <Image
+                    src={fallbackIcons.banniere1}
+                    alt={pageData.acf.banniere_icon_1.titre}
+                    width={96}
+                    height={96}
+                    className="object-contain w-full h-full"
+                    priority={true}
+                  />
                 )}
               </div>
               <h3 className="text-2xl font-bold text-white mb-3">
@@ -423,16 +489,22 @@ export default function Home() {
             {/* Service Feature 2 */}
             <div className="flex flex-col items-center text-center flex-1 basis-[280px] min-w-[280px]">
               <div className="w-24 h-24 mb-6">
-                {imageBanniere2?.source_url ? (
-                  <img
-                    src={imageBanniere2.source_url}
+                {acfImages.banniere2?.source_url ? (
+                  <Image
+                    src={acfImages.banniere2.source_url}
                     alt={pageData.acf.banniere_icon_2.titre}
+                    width={96}
+                    height={96}
                     className="object-contain w-full h-full"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gray-700 flex items-center justify-center text-gray-400 text-xs">
-                    <span>Icon</span>
-                  </div>
+                  <Image
+                    src={fallbackIcons.banniere2}
+                    alt={pageData.acf.banniere_icon_2.titre}
+                    width={96}
+                    height={96}
+                    className="object-contain w-full h-full"
+                  />
                 )}
               </div>
               <h3 className="text-2xl font-bold text-white mb-3">
@@ -446,16 +518,22 @@ export default function Home() {
             {/* Service Feature 3 */}
             <div className="flex flex-col items-center text-center flex-1 basis-[280px] min-w-[280px]">
               <div className="w-24 h-24 mb-6">
-                {imageBanniere3?.source_url ? (
-                  <img
-                    src={imageBanniere3.source_url}
+                {acfImages.banniere3?.source_url ? (
+                  <Image
+                    src={acfImages.banniere3.source_url}
                     alt={pageData.acf.banniere_icon_3.titre}
+                    width={96}
+                    height={96}
                     className="object-contain w-full h-full"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gray-700 flex items-center justify-center text-gray-400 text-xs">
-                    <span>Icon</span>
-                  </div>
+                  <Image
+                    src={fallbackIcons.banniere3}
+                    alt={pageData.acf.banniere_icon_3.titre}
+                    width={96}
+                    height={96}
+                    className="object-contain w-full h-full"
+                  />
                 )}
               </div>
               <h3 className="text-2xl font-bold text-white mb-3">
@@ -476,16 +554,22 @@ export default function Home() {
             {/* Image */}
             <div className="w-full md:w-1/2">
               <div className="rounded-lg overflow-hidden">
-                {imageAtelier?.source_url ? (
-                  <img
-                    src={imageAtelier.source_url}
+                {acfImages.atelier?.source_url ? (
+                  <Image
+                    src={acfImages.atelier.source_url}
                     alt={pageData.acf.entrez_dans_latelier.titre}
+                    width={600}
+                    height={400}
                     className="rounded-md object-cover w-full h-auto"
                   />
                 ) : (
-                  <div className="w-full h-64 bg-gray-800 flex items-center justify-center text-gray-400">
-                    <span>Image non disponible</span>
-                  </div>
+                  <Image
+                    src="/images/couteaux_table_cuisine_bouche.jpg"
+                    alt={pageData.acf.entrez_dans_latelier.titre}
+                    width={600}
+                    height={400}
+                    className="rounded-md object-cover w-full h-auto"
+                  />
                 )}
               </div>
             </div>
@@ -601,16 +685,22 @@ export default function Home() {
             {/* Image */}
             <div className="w-full md:w-1/2">
               <div className="rounded-lg overflow-hidden">
-                {imageSignature?.source_url ? (
-                  <img
-                    src={imageSignature.source_url}
+                {acfImages.signature?.source_url ? (
+                  <Image
+                    src={acfImages.signature.source_url}
                     alt={pageData.acf.votre_couteau_votre_signature.titre}
+                    width={600}
+                    height={400}
                     className="rounded-md object-cover w-full h-auto max-w-[400px] sm:max-w-[700px]"
                   />
                 ) : (
-                  <div className="w-full h-64 bg-gray-800 flex items-center justify-center text-gray-400">
-                    <span>Image non disponible</span>
-                  </div>
+                  <Image
+                    src="/images/knives/nature01.jpg"
+                    alt={pageData.acf.votre_couteau_votre_signature.titre}
+                    width={600}
+                    height={400}
+                    className="rounded-md object-cover w-full h-auto max-w-[400px] sm:max-w-[700px]"
+                  />
                 )}
               </div>
             </div>
