@@ -48,6 +48,9 @@ export interface ConfiguratorFormData {
   handleEngraving: string;
   otherDetails: string;
   email: string;
+  selectedModel?: string;
+  selectedWood?: string;
+  selectedEngraving?: string;
   sub1?: string;
   sub2?: string;
   sub3?: string;

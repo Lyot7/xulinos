@@ -19,6 +19,9 @@ interface ConfiguratorContentProps {
     selectedEngraving: string;
     formData: ConfiguratorFormData;
   }) => void;
+  selectedModelName?: string;
+  selectedWoodName?: string;
+  selectedEngravingName?: string;
 }
 
 export default function ConfiguratorContent({
@@ -26,7 +29,10 @@ export default function ConfiguratorContent({
   setCurrentStep,
   nextStep,
   handleFormSubmit,
-  onStateChange
+  onStateChange,
+  selectedModelName: parentSelectedModelName,
+  selectedWoodName: parentSelectedWoodName,
+  selectedEngravingName: parentSelectedEngravingName
 }: ConfiguratorContentProps) {
   const { addItem } = useCart();
   const { stepData, allStepsData, loading } = useConfiguratorData(currentStep);
@@ -34,6 +40,9 @@ export default function ConfiguratorContent({
   const [selectedModel, setSelectedModel] = useState<string>('');
   const [selectedWood, setSelectedWood] = useState<string>('');
   const [selectedEngraving, setSelectedEngraving] = useState<string>('');
+  const [selectedModelName, setSelectedModelName] = useState<string>('');
+  const [selectedWoodName, setSelectedWoodName] = useState<string>('');
+  const [selectedEngravingName, setSelectedEngravingName] = useState<string>('');
   const [modelSearchTerm, setModelSearchTerm] = useState<string>('');
   const [woodSearchTerm, setWoodSearchTerm] = useState<string>('');
   const [engravingSearchTerm, setEngravingSearchTerm] = useState<string>('');
@@ -46,15 +55,15 @@ export default function ConfiguratorContent({
 
   // Notifier les changements d'état au parent
   useEffect(() => {
-    if (onStateChange) {
+    if (onStateChange) {      
       onStateChange({
-        selectedModel,
-        selectedWood,
-        selectedEngraving,
+        selectedModel: selectedModelName || selectedModel,
+        selectedWood: selectedWoodName || selectedWood,
+        selectedEngraving: selectedEngravingName || selectedEngraving,
         formData
       });
     }
-  }, [selectedModel, selectedWood, selectedEngraving, formData, onStateChange]);
+  }, [selectedModel, selectedWood, selectedEngraving, selectedModelName, selectedWoodName, selectedEngravingName, formData, onStateChange]);
 
   const clearSearchTerms = () => {
     setModelSearchTerm('');
@@ -67,7 +76,7 @@ export default function ConfiguratorContent({
     clearSearchTerms();
   };
 
-  const handleFormSubmitInternal = () => {
+  const handleFormSubmitInternal = async () => {
     // Ajouter le couteau configuré au panier
     const selectedModelData = (allStepsData[1] && allStepsData[1].models) ? allStepsData[1].models.find(m => m.id === selectedModel) : null;
     const selectedWoodData = (allStepsData[2] && allStepsData[2].woods) ? allStepsData[2].woods.find(w => w.id === selectedWood) : null;
@@ -76,27 +85,40 @@ export default function ConfiguratorContent({
     const customizations = {
       'Modèle': selectedModelData?.name || 'Personnalisé',
       'Bois': selectedWoodData?.name || 'Non spécifié',
-      'Gravure': selectedEngravingData?.name || 'Aucune',
+      'Guillochage': selectedEngravingData?.name || 'Aucun',
       'Gravure lame': formData.bladeEngraving || 'Aucune',
       'Gravure manche': formData.handleEngraving || 'Aucune',
       'Autres détails': formData.otherDetails || 'Aucun',
+      'Email': formData.email || 'Non renseigné',
+      ...formData
     };
 
-    // Prix estimé basé sur la complexité
-    let estimatedPrice = 350; // Prix de base
-    if (formData.bladeEngraving) estimatedPrice += 50;
-    if (formData.handleEngraving) estimatedPrice += 30;
-    if (formData.otherDetails) estimatedPrice += 20;
-
-    addItem({
-      id: `config-${Date.now()}`, // ID unique basé sur le timestamp
-      name: `Couteau configuré - ${selectedModelData?.name || 'Personnalisé'}`,
-      price: estimatedPrice,
-      description: `Couteau artisanal personnalisé selon vos spécifications`,
-      image: selectedModelData?.image || '',
-      type: 'configurateur',
-      customizations,
+    let message = '';
+    Object.entries(customizations).forEach(([key, value]) => {
+      message += `${key} : ${value}\n`;
     });
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nom: formData.email || 'Client configurateur',
+          objet: 'Nouvelle configuration couteau personnalisée',
+          message,
+          type: 'configurateur'
+        })
+      });
+      const result = await response.json();
+      if (response.ok && result.success && result.mailtoLink) {
+        window.location.href = result.mailtoLink;
+      } else {
+        alert(result.error || 'Erreur lors de la préparation de l’email.');
+      }
+    } catch (error) {
+      console.error('Erreur lors de l’envoi du mail configurateur :', error);
+      alert('Erreur lors de l’envoi du mail.');
+    }
 
     handleFormSubmit();
   };
@@ -110,6 +132,7 @@ export default function ConfiguratorContent({
               stepData={stepData}
               selectedModel={selectedModel}
               setSelectedModel={setSelectedModel}
+              setSelectedModelName={setSelectedModelName}
               modelSearchTerm={modelSearchTerm}
               setModelSearchTerm={setModelSearchTerm}
             />
@@ -123,6 +146,7 @@ export default function ConfiguratorContent({
               stepData={stepData}
               selectedWood={selectedWood}
               setSelectedWood={setSelectedWood}
+              setSelectedWoodName={setSelectedWoodName}
               woodSearchTerm={woodSearchTerm}
               setWoodSearchTerm={setWoodSearchTerm}
             />
@@ -136,6 +160,7 @@ export default function ConfiguratorContent({
               stepData={stepData}
               selectedEngraving={selectedEngraving}
               setSelectedEngraving={setSelectedEngraving}
+              setSelectedEngravingName={setSelectedEngravingName}
               engravingSearchTerm={engravingSearchTerm}
               setEngravingSearchTerm={setEngravingSearchTerm}
             />

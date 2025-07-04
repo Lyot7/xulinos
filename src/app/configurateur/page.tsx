@@ -21,27 +21,15 @@ export default function ConfiguratorPage() {
   const { stepData, allStepsData, loading, error } = useConfiguratorData(currentStep);
 
   useEffect(() => {
-    console.log('=== CONFIGURATOR PAGE DEBUG ===');
-    console.log('Current step:', currentStep);
-    console.log('Loading:', loading);
-    console.log('Error:', error);
-    console.log('Step data:', stepData);
-    console.log('All steps data:', allStepsData);
-    
-    if (stepData && stepData.models) {
-      console.log('Models found:', stepData.models.length);
-      console.log('Models data:', stepData.models);
-    } else {
-      console.log('No models in stepData');
+    if (selectedModel || selectedWood || selectedEngraving) {
+      setFormData(prevFormData => ({
+        ...prevFormData,
+        selectedModel: selectedModel || prevFormData.selectedModel,
+        selectedWood: selectedWood || prevFormData.selectedWood,
+        selectedEngraving: selectedEngraving || prevFormData.selectedEngraving
+      }));
     }
-    
-    if (allStepsData[1] && allStepsData[1].models) {
-      console.log('Models in step 1:', allStepsData[1].models.length);
-      console.log('Step 1 models:', allStepsData[1].models);
-    } else {
-      console.log('No models in allStepsData[1]');
-    }
-  }, [currentStep, loading, error, stepData, allStepsData]);
+  }, [selectedModel, selectedWood, selectedEngraving]);
 
   const nextStep = () => {
     if (currentStep < 5) {
@@ -119,6 +107,9 @@ export default function ConfiguratorPage() {
               nextStep={nextStep}
               handleFormSubmit={handleFormSubmit}
               onStateChange={handleStateChange}
+              selectedModelName={selectedModel}
+              selectedWoodName={selectedWood}
+              selectedEngravingName={selectedEngraving}
             />
           </div>
           

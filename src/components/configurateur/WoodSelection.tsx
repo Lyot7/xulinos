@@ -5,6 +5,7 @@ interface WoodSelectionProps {
   stepData: ConfiguratorStepData;
   selectedWood: string;
   setSelectedWood: (wood: string) => void;
+  setSelectedWoodName: (name: string) => void;
   woodSearchTerm: string;
   setWoodSearchTerm: (term: string) => void;
 }
@@ -13,6 +14,7 @@ export default function WoodSelection({
   stepData,
   selectedWood,
   setSelectedWood,
+  setSelectedWoodName,
   woodSearchTerm,
   setWoodSearchTerm
 }: WoodSelectionProps) {
@@ -54,7 +56,10 @@ export default function WoodSelection({
               className={`cursor-pointer transition-all p-2 ${
                 selectedWood === wood.id ? 'ring-2 ring-white rounded-lg' : 'hover:opacity-80'
               }`}
-              onClick={() => setSelectedWood(wood.id)}
+              onClick={() => {
+                setSelectedWood(wood.id);
+                setSelectedWoodName(wood.name);
+              }}
             >
               <div
                 className="rounded-lg mb-2"

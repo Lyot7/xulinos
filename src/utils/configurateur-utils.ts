@@ -127,7 +127,7 @@ export const adaptACFDataForStep = (acfData: any, step: number): ConfiguratorSte
               id: key,
               name: patternData.NomGuillochage || patternData.titlepattern || key.charAt(0).toUpperCase() + key.slice(1),
               pattern: patternData.patterntext || '',
-              image: getImageUrl(patternData.imagepattern, '/images/tattoos/tattoo_snake.png')
+              image: getImageUrl(patternData.imagepattern, '')
             });
           }
         }

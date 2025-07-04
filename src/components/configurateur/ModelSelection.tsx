@@ -5,6 +5,7 @@ interface ModelSelectionProps {
   stepData: ConfiguratorStepData;
   selectedModel: string;
   setSelectedModel: (model: string) => void;
+  setSelectedModelName: (name: string) => void;
   modelSearchTerm: string;
   setModelSearchTerm: (term: string) => void;
 }
@@ -13,6 +14,7 @@ export default function ModelSelection({
   stepData,
   selectedModel,
   setSelectedModel,
+  setSelectedModelName,
   modelSearchTerm,
   setModelSearchTerm
 }: ModelSelectionProps) {
@@ -55,7 +57,10 @@ export default function ModelSelection({
               className={`rounded-lg p-2 lg:p-3 cursor-pointer transition-all ${
                 selectedModel === model.id ? 'ring-2 ring-white' : 'hover:opacity-80'
               }`}
-              onClick={() => setSelectedModel(model.id)}
+              onClick={() => {
+                setSelectedModel(model.id);
+                setSelectedModelName(model.name);
+              }}
             >
               <div 
                 className="rounded-lg mb-2 lg:mb-3"
