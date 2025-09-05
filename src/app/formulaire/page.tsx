@@ -1,9 +1,8 @@
 "use client";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
-import { FaPaperPlane } from "react-icons/fa";
+import { useState, Suspense } from "react";
 
-export default function FormulairePage() {
+function FormulaireContent() {
   const searchParams = useSearchParams();
   const services = searchParams.get("services")?.split(",") || [];
 
@@ -15,7 +14,7 @@ export default function FormulairePage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState("");
-  const [mailtoLink, setMailtoLink] = useState<string | null>(null);
+  // Removed unused mailtoLink variable
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -29,7 +28,6 @@ export default function FormulairePage() {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitMessage("");
-    setMailtoLink(null);
 
     try {
       // Préparer le message avec les services sélectionnés
@@ -68,7 +66,6 @@ export default function FormulairePage() {
             message: "",
           });
           setSubmitMessage("");
-          setMailtoLink(null);
         }, 2000);
       } else {
         setSubmitMessage(result.error || 'Une erreur est survenue. Veuillez réessayer.');
@@ -150,5 +147,13 @@ export default function FormulairePage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function FormulairePage() {
+  return (
+    <Suspense fallback={<div>Chargement...</div>}>
+      <FormulaireContent />
+    </Suspense>
   );
 }

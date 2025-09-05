@@ -5,9 +5,7 @@ import { adaptACFDataForStep, USE_TEST_DATA } from '@/utils/configurateur-utils'
 import { ConfiguratorStepData } from '@/types/configurateur';
 
 export const useConfiguratorData = (currentStep: number) => {
-  const { data: wordpressData, loading: wordpressLoading, error: wordpressError } = USE_TEST_DATA ? 
-    { data: {}, loading: false, error: null } : 
-    useWordPressData();
+  const { data: wordpressData, loading: wordpressLoading, error: wordpressError } = useWordPressData();
   
   const [allStepsData, setAllStepsData] = useState<Record<number, ConfiguratorStepData>>({});
   const [stepData, setStepData] = useState<ConfiguratorStepData>({});

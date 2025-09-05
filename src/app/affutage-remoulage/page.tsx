@@ -9,13 +9,13 @@ export default function SharpeningPage() {
   const { pageData, loading, error, hasError, isLoaded } = usePageData('affutageRemoulage');
   const [featuredImageUrl, setFeaturedImageUrl] = useState<string | null>(null);
   const fetchingImageRef = useRef<boolean>(false);
-  const imageCache: Record<number, string> = {};
+  const imageCacheRef = useRef<Record<number, string>>({});
 
   useEffect(() => {
       if (pageData?.featured_media && !featuredImageUrl && !fetchingImageRef.current) {
         // Vérifier si l'image est déjà dans le cache
-        if (imageCache[pageData.featured_media]) {
-          setFeaturedImageUrl(imageCache[pageData.featured_media]);
+        if (imageCacheRef.current[pageData.featured_media]) {
+          setFeaturedImageUrl(imageCacheRef.current[pageData.featured_media]);
           return;
         }
         
@@ -36,7 +36,7 @@ export default function SharpeningPage() {
             
             // Mettre en cache l'URL de l'image
             if (mediaData.source_url) {
-              imageCache[pageData.featured_media] = mediaData.source_url;
+              imageCacheRef.current[pageData.featured_media] = mediaData.source_url;
             }
             
             setFeaturedImageUrl(mediaData.source_url);
@@ -85,13 +85,19 @@ export default function SharpeningPage() {
           <div className="w-full md:w-1/2">
             <div className="rounded-lg overflow-hidden ">
               
-              <Image 
-                src={acf.img1}
-                alt="Service d'affûtage et rémoulage" 
-                width={800}
-                height={600}
-                className="w-full h-auto"
-              />
+              {acf.img1 ? (
+                <Image 
+                  src={acf.img1}
+                  alt="Service d'affûtage et rémoulage" 
+                  width={800}
+                  height={600}
+                  className="w-full h-auto"
+                />
+              ) : (
+                <div className="w-full h-64 bg-gray-700 rounded-lg flex items-center justify-center">
+                  <p className="text-white/60">Image non disponible</p>
+                </div>
+              )}
             </div>
           </div>
           
@@ -109,24 +115,36 @@ export default function SharpeningPage() {
           </p>
           </div>
           <div className="w-full md:w-1/2">
-          <Image 
-            src={acf.img2}
-            alt="Service d'affûtage et rémoulage" 
-            width={800}
-            height={600}
-            className="w-full h-auto"
-          />
+          {acf.img2 ? (
+            <Image 
+              src={acf.img2}
+              alt="Service d'affûtage et rémoulage" 
+              width={800}
+              height={600}
+              className="w-full h-auto"
+            />
+          ) : (
+            <div className="w-full h-64 bg-gray-700 rounded-lg flex items-center justify-center">
+              <p className="text-white/60">Image non disponible</p>
+            </div>
+          )}
           </div>
         </div>
         <div className="flex flex-col md:flex-row gap-8 mb-12">
           <div className="w-full md:w-1/2">
-            <Image 
-              src={acf.img3}
-              alt="Service d'affûtage et rémoulage" 
-              width={800}
-              height={600}
-              className="rounded-lg overflow-hidden w-full h-auto object-cover"
-            />
+            {acf.img3 ? (
+              <Image 
+                src={acf.img3}
+                alt="Service d'affûtage et rémoulage" 
+                width={800}
+                height={600}
+                className="rounded-lg overflow-hidden w-full h-auto object-cover"
+              />
+            ) : (
+              <div className="w-full h-64 bg-gray-700 rounded-lg flex items-center justify-center">
+                <p className="text-white/60">Image non disponible</p>
+              </div>
+            )}
           </div>
           <div className="w-full md:w-1/2">
             <p className="text-white/80 whitespace-pre-line">
@@ -141,26 +159,38 @@ export default function SharpeningPage() {
             </p>
           </div>
           <div className="w-full md:w-1/2">
-            <Image 
-              src={acf.img4}
-              alt="Service d'affûtage et rémoulage" 
-              width={800}
-              height={600}
-              className="rounded-lg overflow-hidden w-full h-auto object-cover"
-            />
+            {acf.img4 ? (
+              <Image 
+                src={acf.img4}
+                alt="Service d'affûtage et rémoulage" 
+                width={800}
+                height={600}
+                className="rounded-lg overflow-hidden w-full h-auto object-cover"
+              />
+            ) : (
+              <div className="w-full h-64 bg-gray-700 rounded-lg flex items-center justify-center">
+                <p className="text-white/60">Image non disponible</p>
+              </div>
+            )}
           </div>
          
         </div>
         <div className="flex flex-col md:flex-row gap-8 mb-12">
           
           <div className="w-full md:w-1/2">
-            <Image 
-              src={acf.img5}
-              alt="Service d'affûtage et rémoulage" 
-              width={800}
-              height={600}
-              className="rounded-lg overflow-hidden w-full h-auto object-cover"
-            />
+            {acf.img5 ? (
+              <Image 
+                src={acf.img5}
+                alt="Service d'affûtage et rémoulage" 
+                width={800}
+                height={600}
+                className="rounded-lg overflow-hidden w-full h-auto object-cover"
+              />
+            ) : (
+              <div className="w-full h-64 bg-gray-700 rounded-lg flex items-center justify-center">
+                <p className="text-white/60">Image non disponible</p>
+              </div>
+            )}
           </div>
           <div className="w-full md:w-1/2">
             <p className="text-white/80 whitespace-pre-line">

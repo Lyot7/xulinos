@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { getCouteauImagesServer, parseWordPressContentServer } from "@/utils/wordpressApiServer";
 
 interface Props {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default async function KnifeDetailPage({ params }: Props) {

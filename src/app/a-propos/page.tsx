@@ -77,12 +77,18 @@ export default function AboutSection() {
       <div className="max-w-7xl mx-auto flex flex-col gap-8 sm:gap-12">
         <div className="flex flex-col lg:flex-row gap-8 sm:gap-10 items-start">
           <div className="lg:order-1 lg:w-1/2 w-full mb-6 lg:mb-0 flex justify-center">
-            {featuredImageUrl && (
-              <img
+            {featuredImageUrl ? (
+              <Image
                 src={featuredImageUrl}
-                alt={parseWordPressContent(pageData?.title)}
+                alt={parseWordPressContent(pageData?.title) || "Image à propos"}
+                width={700}
+                height={400}
                 className="rounded-md object-cover w-full max-w-[400px] sm:max-w-[700px] h-auto"
               />
+            ) : (
+              <div className="w-full max-w-[400px] sm:max-w-[700px] h-64 bg-gray-700 rounded-md flex items-center justify-center">
+                <p className="text-white/60">Image non disponible</p>
+              </div>
             )}
           </div>
 

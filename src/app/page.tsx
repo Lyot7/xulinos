@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import PrimaryButton from "@/components/PrimaryButton";
 import SecondaryButton from "@/components/SecondaryButton";
@@ -37,18 +37,17 @@ export default function Home() {
   const [heroHeight, setHeroHeight] = useState<number | null>(null);
 
   // Fetch WordPress data
-  const { pageData, loading, error } = usePageData("home");
+  const { pageData, loading } = usePageData("home");
   const { couteaux, loading: couteauxLoading } = useCouteauxData();
-  const [images, setImages] = useState<any[]>([]);
   const [featuredImageUrl, setFeaturedImageUrl] = useState<string | null>(null);
   
   // Images extraites par champ ACF - avec gestion d'erreur améliorée
   const [acfImages, setAcfImages] = useState<{
-    atelier: any;
-    signature: any;
-    banniere1: any;
-    banniere2: any;
-    banniere3: any;
+    atelier: { source_url?: string } | null;
+    signature: { source_url?: string } | null;
+    banniere1: { source_url?: string } | null;
+    banniere2: { source_url?: string } | null;
+    banniere3: { source_url?: string } | null;
   }>({
     atelier: null,
     signature: null,
@@ -166,8 +165,7 @@ export default function Home() {
   };
 
   // Process all WordPress text at the top level (hooks must be called here)
-  const title =
-    useSafeWordPressText(pageData?.title?.rendered) || PLACEHOLDERS.heroTitle;
+  useSafeWordPressText(pageData?.title?.rendered); // Keep hook call for consistency
   const subtitle =
     useSafeWordPressText(acfData["sous-titre"]) || PLACEHOLDERS.heroSubtitle;
   const banniereBouton1Title =
@@ -250,33 +248,22 @@ export default function Home() {
     PLACEHOLDERS.sectionContactDescription;
 
   // Process dynamic couteaux text at top level (individual hook calls for each item)
-  const couteau0Title =
-    useSafeWordPressText((couteaux as WPCouteau[])[0]?.title?.rendered) ||
-    PLACEHOLDERS.couteauTitle;
-  const couteau0Description =
-    useSafeWordPressText(
-      (couteaux as WPCouteau[])[0]?.acf?.description_courte
-    ) ||
-    useSafeWordPressText((couteaux as WPCouteau[])[0]?.excerpt?.rendered) ||
-    PLACEHOLDERS.couteauDescription;
-  const couteau1Title =
-    useSafeWordPressText((couteaux as WPCouteau[])[1]?.title?.rendered) ||
-    PLACEHOLDERS.couteauTitle;
-  const couteau1Description =
-    useSafeWordPressText(
-      (couteaux as WPCouteau[])[1]?.acf?.description_courte
-    ) ||
-    useSafeWordPressText((couteaux as WPCouteau[])[1]?.excerpt?.rendered) ||
-    PLACEHOLDERS.couteauDescription;
-  const couteau2Title =
-    useSafeWordPressText((couteaux as WPCouteau[])[2]?.title?.rendered) ||
-    PLACEHOLDERS.couteauTitle;
-  const couteau2Description =
-    useSafeWordPressText(
-      (couteaux as WPCouteau[])[2]?.acf?.description_courte
-    ) ||
-    useSafeWordPressText((couteaux as WPCouteau[])[2]?.excerpt?.rendered) ||
-    PLACEHOLDERS.couteauDescription;
+  const couteau0TitleRaw = useSafeWordPressText((couteaux as WPCouteau[])[0]?.title?.rendered);
+  const couteau0DescriptionRaw1 = useSafeWordPressText((couteaux as WPCouteau[])[0]?.acf?.description_courte);
+  const couteau0DescriptionRaw2 = useSafeWordPressText((couteaux as WPCouteau[])[0]?.excerpt?.rendered);
+  const couteau1TitleRaw = useSafeWordPressText((couteaux as WPCouteau[])[1]?.title?.rendered);
+  const couteau1DescriptionRaw1 = useSafeWordPressText((couteaux as WPCouteau[])[1]?.acf?.description_courte);
+  const couteau1DescriptionRaw2 = useSafeWordPressText((couteaux as WPCouteau[])[1]?.excerpt?.rendered);
+  const couteau2TitleRaw = useSafeWordPressText((couteaux as WPCouteau[])[2]?.title?.rendered);
+  const couteau2DescriptionRaw1 = useSafeWordPressText((couteaux as WPCouteau[])[2]?.acf?.description_courte);
+  const couteau2DescriptionRaw2 = useSafeWordPressText((couteaux as WPCouteau[])[2]?.excerpt?.rendered);
+
+  const couteau0Title = couteau0TitleRaw || PLACEHOLDERS.couteauTitle;
+  const couteau0Description = couteau0DescriptionRaw1 || couteau0DescriptionRaw2 || PLACEHOLDERS.couteauDescription;
+  const couteau1Title = couteau1TitleRaw || PLACEHOLDERS.couteauTitle;
+  const couteau1Description = couteau1DescriptionRaw1 || couteau1DescriptionRaw2 || PLACEHOLDERS.couteauDescription;
+  const couteau2Title = couteau2TitleRaw || PLACEHOLDERS.couteauTitle;
+  const couteau2Description = couteau2DescriptionRaw1 || couteau2DescriptionRaw2 || PLACEHOLDERS.couteauDescription;
 
   const couteauxTitles = [couteau0Title, couteau1Title, couteau2Title];
   const couteauxDescriptions = [
@@ -344,12 +331,7 @@ export default function Home() {
   //   console.log("Couteaux loading state:", couteauxLoading);
   // }, [couteaux, couteauxLoading]);
 
-  //CAPTCHA
-  const [token, setToken] = useState<string | null>(null);
-  const handleVerify = (token: string) => {
-    // console.log("Turnstile token:", token);
-    setToken(token);
-  };
+  //CAPTCHA - removed unused variables
 
   // Fonction pour calculer la hauteur du hero en fonction de la fenêtre et du header
   const calculateHeroHeight = () => {
@@ -386,12 +368,10 @@ export default function Home() {
   };
 
   // Gestion du formulaire de contact avec approche simplifiée
-  const [mailtoLink, setMailtoLink] = useState<string | null>(null);
   const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitMessage("");
-    setMailtoLink(null);
 
     const formData = new FormData(e.currentTarget);
     const contactData = {
@@ -426,14 +406,13 @@ export default function Home() {
           ) as HTMLFormElement;
           if (form) form.reset();
           setSubmitMessage("");
-          setMailtoLink(null);
         }, 2000);
       } else {
         setSubmitMessage(
           result.error || "Une erreur est survenue. Veuillez réessayer."
         );
       }
-    } catch (error) {
+    } catch {
       // console.error("Erreur lors de l'envoi:", error);
       setSubmitMessage(
         "Une erreur de connexion est survenue. Veuillez vérifier votre connexion internet et réessayer."
@@ -461,23 +440,7 @@ export default function Home() {
     fetchFeaturedImage();
   }, [pageData]);
 
-  // Fetch des images pour la page d'accueil
-  useEffect(() => {
-    async function fetchImages() {
-      try {
-        // Récupérer toutes les images associées à la page d'accueil
-        const response = await fetch(
-          "https://xulinos.xyz-agency.com/wp-json/wp/v2/media?parent=6&per_page=100"
-        );
-        const data = await response.json();
-        setImages(data);
-        console.log("Images fetched:", data);
-      } catch (err) {
-        console.error("Erreur lors du fetch images :", err);
-      }
-    }
-    fetchImages();
-  }, []);
+  // Removed unused images fetch
 
   // Fallback images pour les icônes de services
   const fallbackIcons = {
@@ -511,10 +474,12 @@ export default function Home() {
         {/* Background Image with responsive container */}
         <div className="absolute inset-0 z-0">
           {featuredImageUrl ? (
-            <img
+            <Image
               src={featuredImageUrl}
               alt={pageData.title.rendered}
-              className="object-cover w-full h-full absolute inset-0"
+              fill
+              className="object-cover"
+              priority
             />
           ) : (
             <div className="w-full h-full bg-gray-900"></div>
@@ -529,7 +494,7 @@ export default function Home() {
               className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-4"
             ></h1>
             <p className="text-xl md:text-2xl text-white mb-8 max-w-2xl">
-              {pageData.acf.sous_titre}
+              {subtitle}
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <PrimaryButton
@@ -565,7 +530,7 @@ export default function Home() {
                 {acfImages.banniere1?.source_url ? (
                   <Image
                     src={acfImages.banniere1.source_url}
-                    alt={pageData.acf.banniere_icon_1.titre}
+                    alt={banniereIcon1Alt}
                     width={96}
                     height={96}
                     className="object-contain w-full h-full"
@@ -573,19 +538,19 @@ export default function Home() {
                 ) : (
                   <Image
                     src={fallbackIcons.banniere1}
-                    alt={pageData.acf.banniere_icon_1.titre}
+                    alt={banniereIcon1Alt}
                     width={96}
                     height={96}
                     className="object-contain w-full h-full"
-                    priority={true}
+                    priority
                   />
                 )}
               </div>
               <h3 className="text-2xl font-bold text-white mb-3">
-                {pageData.acf.banniere_icon_1.titre}
+                {banniereTitre1}
               </h3>
               <p className="text-white/90">
-                {pageData.acf.banniere_icon_1.sous_titre}
+                {banniereDescription1}
               </p>
             </div>
             {/* Service Feature 2 */}
@@ -594,7 +559,7 @@ export default function Home() {
                 {acfImages.banniere2?.source_url ? (
                   <Image
                     src={acfImages.banniere2.source_url}
-                    alt={pageData.acf.banniere_icon_2.titre}
+                    alt={banniereIcon2Alt}
                     width={96}
                     height={96}
                     className="object-contain w-full h-full"
@@ -602,7 +567,7 @@ export default function Home() {
                 ) : (
                   <Image
                     src={fallbackIcons.banniere2}
-                    alt={pageData.acf.banniere_icon_2.titre}
+                    alt={banniereIcon2Alt}
                     width={96}
                     height={96}
                     className="object-contain w-full h-full"
@@ -610,10 +575,10 @@ export default function Home() {
                 )}
               </div>
               <h3 className="text-2xl font-bold text-white mb-3">
-                {pageData.acf.banniere_icon_2.titre}
+                {banniereTitre2}
               </h3>
               <p className="text-white/90">
-                {pageData.acf.banniere_icon_2.sous_titre}
+                {banniereDescription2}
               </p>
             </div>
 
@@ -623,7 +588,7 @@ export default function Home() {
                 {acfImages.banniere3?.source_url ? (
                   <Image
                     src={acfImages.banniere3.source_url}
-                    alt={pageData.acf.banniere_icon_3.titre}
+                    alt={banniereIcon3Alt}
                     width={96}
                     height={96}
                     className="object-contain w-full h-full"
@@ -631,7 +596,7 @@ export default function Home() {
                 ) : (
                   <Image
                     src={fallbackIcons.banniere3}
-                    alt={pageData.acf.banniere_icon_3.titre}
+                    alt={banniereIcon3Alt}
                     width={96}
                     height={96}
                     className="object-contain w-full h-full"
@@ -639,10 +604,10 @@ export default function Home() {
                 )}
               </div>
               <h3 className="text-2xl font-bold text-white mb-3">
-                {pageData.acf.banniere_icon_3.titre}
+                {banniereTitre3}
               </h3>
               <p className="text-white/90">
-                {pageData.acf.banniere_icon_3.sous_titre}
+                {banniereDescription3}
               </p>
             </div>
           </div>
@@ -659,7 +624,7 @@ export default function Home() {
                 {acfImages.atelier?.source_url ? (
                   <Image
                     src={acfImages.atelier.source_url}
-                    alt={pageData.acf.entrez_dans_latelier.titre}
+                    alt={sectionAtelierImageAlt}
                     width={600}
                     height={400}
                     className="rounded-md object-cover w-full h-auto"
@@ -667,7 +632,7 @@ export default function Home() {
                 ) : (
                   <Image
                     src="/images/couteaux_table_cuisine_bouche.jpg"
-                    alt={pageData.acf.entrez_dans_latelier.titre}
+                    alt={sectionAtelierImageAlt}
                     width={600}
                     height={400}
                     className="rounded-md object-cover w-full h-auto"
@@ -679,10 +644,10 @@ export default function Home() {
             {/* Content */}
             <div className="w-full md:w-1/2">
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                {pageData.acf.entrez_dans_latelier.titre}
+                {sectionAtelierTitre}
               </h2>
               <p className="text-white/90 mb-6">
-                {pageData.acf.entrez_dans_latelier.contenu}
+                {sectionAtelierDescription}
               </p>
               <button
                 onClick={() =>
@@ -798,7 +763,7 @@ export default function Home() {
                 {acfImages.signature?.source_url ? (
                   <Image
                     src={acfImages.signature.source_url}
-                    alt={pageData.acf.votre_couteau_votre_signature.titre}
+                    alt={sectionPersonnalisationImageAlt}
                     width={600}
                     height={400}
                     className="rounded-md object-cover w-full h-auto max-w-[400px] sm:max-w-[700px]"
@@ -806,7 +771,7 @@ export default function Home() {
                 ) : (
                   <Image
                     src="/images/knives/nature01.jpg"
-                    alt={pageData.acf.votre_couteau_votre_signature.titre}
+                    alt={sectionPersonnalisationImageAlt}
                     width={600}
                     height={400}
                     className="rounded-md object-cover w-full h-auto max-w-[400px] sm:max-w-[700px]"
@@ -818,10 +783,10 @@ export default function Home() {
             {/* Content */}
             <div className="w-full md:w-1/2">
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                {pageData.acf.votre_couteau_votre_signature.titre}
+                {sectionPersonnalisationTitre}
               </h2>
               <p className="text-white/90 mb-6">
-                {pageData.acf.votre_couteau_votre_signature.parapgraphe}
+                {sectionPersonnalisationDescription}
               </p>
               <button
                 onClick={() =>
@@ -850,7 +815,12 @@ export default function Home() {
           <div className="flex flex-wrap justify-center gap-6 mb-8">
             {/* Display dynamic testimonials or fallback to static ones */}
             {processedTemoignages && processedTemoignages.length > 0 ? (
-              processedTemoignages.map((temoignage: any, index: number) => (
+              processedTemoignages.map((temoignage: {
+                nom: string;
+                commentaire: string;
+                processedNom: string;
+                processedCommentaire: string;
+              }, index: number) => (
                 <div
                   key={index}
                   className="bg-white p-6 rounded-lg shadow-md w-[260px] h-[120px] flex flex-col justify-center"

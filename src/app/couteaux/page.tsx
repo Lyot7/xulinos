@@ -11,7 +11,16 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 export default function CreationsPage() {
   const [search, setSearch] = useState("");
   const [onlyAvailable, setOnlyAvailable] = useState(false);
-  const [knives, setKnives] = useState<any[]>([]);
+  const [knives, setKnives] = useState<Array<{
+    id: number;
+    title: { rendered: string };
+    excerpt: { rendered: string };
+    acf: {
+      image_principale: { url: string; alt: string } | null;
+      [key: string]: unknown;
+    };
+    gallery: string[];
+  }>>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -20,7 +29,12 @@ export default function CreationsPage() {
       .then((res) => res.json())
       .then(async (data) => {
         const processedKnives = await Promise.all(
-          data.map(async (knife: any) => {
+          data.map(async (knife: {
+            id: number;
+            title: { rendered: string };
+            excerpt: { rendered: string };
+            acf: { [key: string]: unknown };
+          }) => {
             const { mainImage, gallery } = await getCouteauImages(knife);
             return {
               ...knife,
